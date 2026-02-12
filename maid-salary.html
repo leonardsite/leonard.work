@@ -219,6 +219,11 @@
               <input id="employer" type="text" placeholder="例如 Leonard" />
             </div>
 
+            <div class="field" style="grid-column: 1 / -1;">
+              <label for="wpNo">WP号码（可选）</label>
+              <input id="wpNo" type="text" placeholder="例如 G1234567X" />
+            </div>
+
             <div class="field">
               <label for="base">基础月薪（SGD）</label>
               <input id="base" type="number" min="0" step="1" inputmode="decimal" value="700" />
@@ -300,6 +305,10 @@
                 <div style="font-weight:600;" id="out-employer">-</div>
               </div>
               <div>
+                <div class="muted">WP号码</div>
+                <div style="font-weight:600;" id="out-wpno">-</div>
+              </div>
+              <div>
                 <div class="muted">基础月薪</div>
                 <div style="font-weight:600;" id="out-base">-</div>
               </div>
@@ -355,6 +364,7 @@
 
       const elMaid = document.getElementById("maid");
       const elEmployer = document.getElementById("employer");
+      const elWpNo = document.getElementById("wpNo");
       const elBase = document.getElementById("base");
       const elOtDays = document.getElementById("otDays");
       const elStart = document.getElementById("start");
@@ -372,6 +382,7 @@
       const elSheetHint = document.getElementById("sheet-hint");
       const elOutMaid = document.getElementById("out-maid");
       const elOutEmployer = document.getElementById("out-employer");
+      const elOutWpNo = document.getElementById("out-wpno");
       const elOutBase = document.getElementById("out-base");
       const elOutOtDays = document.getElementById("out-otdays");
       const elOutOtRate = document.getElementById("out-otrate");
@@ -433,6 +444,7 @@
         try {
           const obj = {
             maid: elMaid.value || "",
+            wpNo: elWpNo.value || "",
             employer: elEmployer.value || "",
             base: elBase.value,
             otDays: elOtDays.value,
@@ -454,6 +466,7 @@
           const obj = JSON.parse(raw);
           if (!obj || typeof obj !== "object") return;
           if (typeof obj.maid === "string") elMaid.value = obj.maid;
+          if (typeof obj.wpNo === "string") elWpNo.value = obj.wpNo;
           if (typeof obj.employer === "string") elEmployer.value = obj.employer;
           if (typeof obj.base === "string") elBase.value = obj.base;
           if (typeof obj.otDays === "string") elOtDays.value = obj.otDays;
@@ -497,9 +510,11 @@
         const { base, otDays, start, months, rate } = validateInputs();
         const pay0 = firstPayDateOnOrAfter(start);
         const maid = (elMaid.value || "-").trim() || "-";
+        const wpNo = (elWpNo.value || "-").trim() || "-";
         const employer = (elEmployer.value || "-").trim() || "-";
 
         elOutMaid.textContent = maid;
+        elOutWpNo.textContent = wpNo;
         elOutEmployer.textContent = employer;
         elOutBase.textContent = `${fmtMoney(base)} SGD`;
         elOutOtDays.textContent = `${otDays}`;
@@ -569,6 +584,7 @@
 
       function reset(){
         elMaid.value = "";
+        elWpNo.value = "";
         elEmployer.value = "";
         elBase.value = "700";
         elOtDays.value = "0";
@@ -593,7 +609,7 @@
       loadState();
       updateOtRateUi();
 
-      [elMaid, elEmployer, elBase, elOtDays, elStart, elMonths, elOtMode, elOtRate].forEach(el => {
+      [elMaid, elWpNo, elEmployer, elBase, elOtDays, elStart, elMonths, elOtMode, elOtRate].forEach(el => {
         el.addEventListener("input", () => {
           try {
             updateOtRateUi();
