@@ -1,0 +1,640 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="light" />
+  <meta name="description" content="新加坡女佣工资计算器：输入基础薪资、每月加班天数、开始日期，生成 2 年每月 1 日到手工资表（A4 打印）。" />
+  <title>女佣工资表（A4） | Leonard.work</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,450..700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+
+  <style>
+    :root{
+      --bg: #f6f4ef;
+      --surface: rgba(255, 255, 255, 0.78);
+      --ink: #12131a;
+      --muted: rgba(18, 19, 26, 0.66);
+      --line: rgba(18, 19, 26, 0.12);
+      --shadow: 0 14px 40px rgba(9, 10, 14, 0.12);
+      --shadow2: 0 10px 28px rgba(9, 10, 14, 0.12);
+      --radius: 18px;
+      --radius2: 14px;
+
+      --accent: #16a34a;
+      --accent2: #0ea5e9;
+      --accent3: #e11d48;
+
+      --font: "IBM Plex Sans", "Segoe UI", "Microsoft YaHei", system-ui, -apple-system, sans-serif;
+      --fontDisplay: "Fraunces", "Times New Roman", serif;
+    }
+
+    *{ box-sizing: border-box; }
+    body{
+      margin: 0;
+      color: var(--ink);
+      font-family: var(--font);
+      background:
+        radial-gradient(1000px 520px at 14% 10%, rgba(22, 163, 74, 0.12), transparent 60%),
+        radial-gradient(860px 520px at 82% 18%, rgba(14, 165, 233, 0.10), transparent 60%),
+        repeating-linear-gradient(45deg, rgba(18, 19, 26, 0.045) 0px, rgba(18, 19, 26, 0.045) 2px, transparent 2px, transparent 10px),
+        var(--bg);
+      padding: 22px 16px 48px;
+    }
+
+    a{ color: inherit; text-decoration: none; }
+    a:hover{ text-decoration: underline; }
+
+    .wrap{ max-width: 1120px; margin: 0 auto; display: grid; gap: 14px; }
+
+    header{
+      border-radius: calc(var(--radius) + 6px);
+      border: 1px solid var(--line);
+      background: linear-gradient(135deg, rgba(255,255,255,0.84), rgba(255,255,255,0.58));
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      padding: 16px 18px 14px;
+      position: relative;
+    }
+    header::before{
+      content: "";
+      position: absolute;
+      inset: -70px -70px auto auto;
+      width: 340px;
+      height: 340px;
+      background: radial-gradient(circle at 30% 30%, rgba(22, 163, 74, 0.24), transparent 62%);
+      transform: rotate(10deg);
+      pointer-events: none;
+    }
+
+    .toprow{ display:flex; align-items: baseline; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+    h1{ margin: 0; font-family: var(--fontDisplay); font-size: 26px; letter-spacing: 0.2px; }
+    .hint{ color: var(--muted); font-size: 12.5px; }
+    .lead{ margin: 6px 0 0; color: var(--muted); line-height: 1.5; font-size: 14px; }
+
+    .layout{ display: grid; gap: 14px; grid-template-columns: 1fr 1.25fr; align-items: start; }
+    @media (max-width: 980px){
+      .layout{ grid-template-columns: 1fr; }
+    }
+
+    .panel{
+      border-radius: var(--radius);
+      border: 1px solid rgba(18, 19, 26, 0.14);
+      background: var(--surface);
+      box-shadow: var(--shadow2);
+      overflow: hidden;
+    }
+    .panel .hd{
+      padding: 14px 14px 12px;
+      border-bottom: 1px solid rgba(18, 19, 26, 0.08);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .panel .hd h2{
+      margin: 0;
+      font-size: 13px;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      color: rgba(18, 19, 26, 0.66);
+    }
+    .panel .bd{ padding: 14px; }
+
+    .grid{ display: grid; gap: 10px; grid-template-columns: 1fr 1fr; }
+    @media (max-width: 560px){
+      .grid{ grid-template-columns: 1fr; }
+    }
+
+    .field label{ display:block; margin-bottom: 6px; font-size: 12px; color: var(--muted); }
+    input[type="text"], input[type="number"], input[type="date"], select{
+      width: 100%;
+      border-radius: 12px;
+      border: 1px solid rgba(18, 19, 26, 0.16);
+      background: rgba(255,255,255,0.84);
+      padding: 10px 12px;
+      font-size: 14px;
+      color: var(--ink);
+      outline: none;
+    }
+    input:focus, select:focus{
+      border-color: rgba(22, 163, 74, 0.55);
+      box-shadow: 0 0 0 4px rgba(22, 163, 74, 0.10);
+    }
+
+    .row{ display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+
+    .btn{
+      border: 1px solid rgba(18, 19, 26, 0.16);
+      background: rgba(255,255,255,0.82);
+      border-radius: 12px;
+      padding: 10px 12px;
+      font-size: 14px;
+      cursor: pointer;
+      user-select: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: transform 120ms ease, border-color 120ms ease, box-shadow 120ms ease;
+    }
+    .btn:hover{
+      transform: translateY(-1px);
+      border-color: rgba(18, 19, 26, 0.26);
+      box-shadow: 0 0 0 4px rgba(18, 19, 26, 0.06);
+    }
+    .btn.primary{
+      border-color: rgba(22, 163, 74, 0.55);
+      background: rgba(22, 163, 74, 0.12);
+    }
+
+    .muted{ color: var(--muted); font-size: 13px; line-height: 1.45; }
+
+    .box{
+      border: 1px dashed rgba(18, 19, 26, 0.20);
+      background: rgba(255,255,255,0.78);
+      border-radius: 14px;
+      padding: 10px 12px;
+    }
+
+    table{ width: 100%; border-collapse: collapse; }
+    th, td{ border: 1px solid rgba(18, 19, 26, 0.18); padding: 7px 8px; font-size: 13px; }
+    th{ background: rgba(18, 19, 26, 0.04); text-align: left; }
+    td.num{ text-align: right; font-variant-numeric: tabular-nums; }
+    td.center{ text-align: center; }
+
+    .print-note{ display:none; }
+
+    @media print{
+      @page{ size: A4 portrait; margin: 12mm; }
+      body{ background: #fff; padding: 0; }
+      header, .panel.controls, .navhint{ display: none !important; }
+      .wrap{ max-width: none; gap: 0; }
+      .layout{ grid-template-columns: 1fr; gap: 0; }
+      .panel{
+        box-shadow: none;
+        border: none;
+        background: #fff;
+      }
+      .panel .hd{ padding: 0 0 8px; border: none; }
+      .panel .bd{ padding: 0; }
+      .print-note{ display:block; color: #000; }
+      th, td{ font-size: 11px; padding: 5px 6px; }
+      tr{ break-inside: avoid; }
+      a{ text-decoration: none; }
+    }
+
+    @media (prefers-reduced-motion: reduce){
+      *{ transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="toprow">
+        <h1>女佣工资表（A4 打印）</h1>
+        <div class="hint navhint"><a href="index.html">返回导航</a> · 默认计算：到手 = 基础月薪 + 每月加班天数 * 加班日单价</div>
+      </div>
+      <p class="lead">输入基础薪资、每月加班天数、开始日期。系统会从“开始日期之后的第一个每月 1 日”开始，生成 24 个月工资表并支持 A4 打印。</p>
+    </header>
+
+    <div class="layout">
+      <section class="panel controls" aria-label="输入">
+        <div class="hd">
+          <h2>Inputs</h2>
+          <div class="hint" id="calc-hint">-</div>
+        </div>
+        <div class="bd">
+          <div class="grid">
+            <div class="field">
+              <label for="maid">女佣姓名（可选）</label>
+              <input id="maid" type="text" placeholder="例如 Maria" />
+            </div>
+            <div class="field">
+              <label for="employer">雇主姓名（可选）</label>
+              <input id="employer" type="text" placeholder="例如 Leonard" />
+            </div>
+
+            <div class="field">
+              <label for="base">基础月薪（SGD）</label>
+              <input id="base" type="number" min="0" step="1" inputmode="decimal" value="700" />
+            </div>
+            <div class="field">
+              <label for="otDays">每月加班天数</label>
+              <input id="otDays" type="number" min="0" max="31" step="1" inputmode="numeric" value="0" />
+            </div>
+
+            <div class="field">
+              <label for="start">开始日期（合同/起算日期）</label>
+              <input id="start" type="date" />
+              <div class="muted" style="margin-top:6px;">首个发薪日会自动取：开始日期之后的第一个 <b>每月 1 日</b>。</div>
+            </div>
+            <div class="field">
+              <label for="months">生成月数</label>
+              <select id="months">
+                <option value="24" selected>24（2 年）</option>
+                <option value="12">12（1 年）</option>
+                <option value="36">36（3 年）</option>
+              </select>
+              <div class="muted" style="margin-top:6px;">你的需求是 2 年，这里默认 24。</div>
+            </div>
+
+            <div class="field" style="grid-column: 1 / -1;">
+              <label>加班日单价（SGD）</label>
+              <div class="box">
+                <div class="row" style="justify-content: space-between;">
+                  <div class="muted">常见做法之一：按 <code>月薪 / 26</code> 估算“1 天工资”。你也可以改成固定单价。</div>
+                </div>
+                <div class="grid" style="margin-top:10px;">
+                  <div class="field">
+                    <label for="otMode">计算方式</label>
+                    <select id="otMode">
+                      <option value="auto">自动：月薪 / 26</option>
+                      <option value="fixed">固定单价</option>
+                    </select>
+                  </div>
+                  <div class="field">
+                    <label for="otRate">固定单价（仅在“固定单价”时使用）</label>
+                    <input id="otRate" type="number" min="0" step="0.01" inputmode="decimal" value="0" />
+                  </div>
+                </div>
+                <div class="muted" style="margin-top:8px;">当前加班日单价：<b id="otRateShow">-</b> SGD</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row" style="margin-top:12px;">
+            <button class="btn primary" type="button" id="regen">生成/刷新</button>
+            <button class="btn" type="button" id="print">打印 A4</button>
+            <button class="btn" type="button" id="reset">重置</button>
+            <span class="muted" id="status">-</span>
+          </div>
+
+          <p class="muted" style="margin:12px 0 0;">说明：这里的“到手”不包含 levy、loan、advance、扣款等。若你要加“每月扣款”列，我可以再加一版。</p>
+        </div>
+      </section>
+
+      <section class="panel" aria-label="A4 预览">
+        <div class="hd">
+          <h2>A4 Sheet</h2>
+          <div class="hint" id="sheet-hint">-</div>
+        </div>
+        <div class="bd">
+          <div class="print-note" style="margin-bottom:10px;">
+            <div style="font-weight:700; font-size: 15px;">女佣工资表（每月 1 日发薪）</div>
+            <div style="font-size: 12px; margin-top:4px;">本表由 Leonard.work 生成（本地计算）。</div>
+          </div>
+
+          <div class="box" style="margin-bottom:10px;">
+            <div class="grid">
+              <div>
+                <div class="muted">女佣</div>
+                <div style="font-weight:600;" id="out-maid">-</div>
+              </div>
+              <div>
+                <div class="muted">雇主</div>
+                <div style="font-weight:600;" id="out-employer">-</div>
+              </div>
+              <div>
+                <div class="muted">基础月薪</div>
+                <div style="font-weight:600;" id="out-base">-</div>
+              </div>
+              <div>
+                <div class="muted">每月加班天数</div>
+                <div style="font-weight:600;" id="out-otdays">-</div>
+              </div>
+              <div>
+                <div class="muted">加班日单价</div>
+                <div style="font-weight:600;" id="out-otrate">-</div>
+              </div>
+              <div>
+                <div class="muted">区间</div>
+                <div style="font-weight:600;" id="out-range">-</div>
+              </div>
+            </div>
+          </div>
+
+          <div style="overflow:auto;">
+            <table aria-label="工资表" id="table">
+              <thead>
+                <tr>
+                  <th style="width:52px;">序号</th>
+                  <th style="width:118px;">发薪日</th>
+                  <th>基础（SGD）</th>
+                  <th style="width:92px;">加班（天）</th>
+                  <th>加班（SGD）</th>
+                  <th>到手（SGD）</th>
+                  <th style="width:120px;">签收</th>
+                </tr>
+              </thead>
+              <tbody id="tbody"></tbody>
+              <tfoot>
+                <tr>
+                  <th colspan="4">合计（24 个月）</th>
+                  <th class="num" id="sum-ot">-</th>
+                  <th class="num" id="sum-total">-</th>
+                  <th></th>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      "use strict";
+
+      const STORAGE_KEY = "leonard_maid_salary_v1";
+
+      const elMaid = document.getElementById("maid");
+      const elEmployer = document.getElementById("employer");
+      const elBase = document.getElementById("base");
+      const elOtDays = document.getElementById("otDays");
+      const elStart = document.getElementById("start");
+      const elMonths = document.getElementById("months");
+      const elOtMode = document.getElementById("otMode");
+      const elOtRate = document.getElementById("otRate");
+      const elOtRateShow = document.getElementById("otRateShow");
+
+      const elRegen = document.getElementById("regen");
+      const elPrint = document.getElementById("print");
+      const elReset = document.getElementById("reset");
+      const elStatus = document.getElementById("status");
+      const elCalcHint = document.getElementById("calc-hint");
+
+      const elSheetHint = document.getElementById("sheet-hint");
+      const elOutMaid = document.getElementById("out-maid");
+      const elOutEmployer = document.getElementById("out-employer");
+      const elOutBase = document.getElementById("out-base");
+      const elOutOtDays = document.getElementById("out-otdays");
+      const elOutOtRate = document.getElementById("out-otrate");
+      const elOutRange = document.getElementById("out-range");
+
+      const elTbody = document.getElementById("tbody");
+      const elSumOt = document.getElementById("sum-ot");
+      const elSumTotal = document.getElementById("sum-total");
+
+      function pad2(n){ return String(n).padStart(2, "0"); }
+
+      function fmtMoney(x){
+        const n = Number(x);
+        if (!Number.isFinite(n)) return "-";
+        return n.toFixed(2);
+      }
+
+      function parseDateInput(v){
+        // v: YYYY-MM-DD
+        if (!v || typeof v !== "string") return null;
+        const m = v.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+        if (!m) return null;
+        const y = Number(m[1]);
+        const mo = Number(m[2]) - 1;
+        const d = Number(m[3]);
+        const dt = new Date(y, mo, d);
+        if (Number.isNaN(dt.getTime())) return null;
+        return dt;
+      }
+
+      function toYmd(dt){
+        return `${dt.getFullYear()}-${pad2(dt.getMonth() + 1)}-${pad2(dt.getDate())}`;
+      }
+
+      function addMonthsFirstOfMonth(dt, delta){
+        return new Date(dt.getFullYear(), dt.getMonth() + delta, 1);
+      }
+
+      function firstPayDateOnOrAfter(startDt){
+        // first 1st-of-month on/after startDt
+        const first = new Date(startDt.getFullYear(), startDt.getMonth(), 1);
+        if (startDt.getTime() <= first.getTime()) return first;
+        return addMonthsFirstOfMonth(first, 1);
+      }
+
+      function currentOtRate(base, mode, fixed){
+        if (mode === "fixed") {
+          const f = Number(fixed);
+          return Number.isFinite(f) ? f : 0;
+        }
+        const b = Number(base);
+        if (!Number.isFinite(b) || b < 0) return 0;
+        return b / 26;
+      }
+
+      function setStatus(text){ elStatus.textContent = text; }
+
+      function saveState(){
+        try {
+          const obj = {
+            maid: elMaid.value || "",
+            employer: elEmployer.value || "",
+            base: elBase.value,
+            otDays: elOtDays.value,
+            start: elStart.value,
+            months: elMonths.value,
+            otMode: elOtMode.value,
+            otRate: elOtRate.value,
+          };
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(obj));
+        } catch {
+          // ignore
+        }
+      }
+
+      function loadState(){
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (!raw) return;
+          const obj = JSON.parse(raw);
+          if (!obj || typeof obj !== "object") return;
+          if (typeof obj.maid === "string") elMaid.value = obj.maid;
+          if (typeof obj.employer === "string") elEmployer.value = obj.employer;
+          if (typeof obj.base === "string") elBase.value = obj.base;
+          if (typeof obj.otDays === "string") elOtDays.value = obj.otDays;
+          if (typeof obj.start === "string") elStart.value = obj.start;
+          if (typeof obj.months === "string") elMonths.value = obj.months;
+          if (typeof obj.otMode === "string") elOtMode.value = obj.otMode;
+          if (typeof obj.otRate === "string") elOtRate.value = obj.otRate;
+        } catch {
+          // ignore
+        }
+      }
+
+      function updateOtRateUi(){
+        const base = Number(elBase.value);
+        const mode = elOtMode.value;
+        const rate = currentOtRate(base, mode, elOtRate.value);
+        elOtRate.disabled = (mode !== "fixed");
+        elOtRateShow.textContent = fmtMoney(rate);
+        elCalcHint.textContent = `到手 = 基础月薪 + 加班天数 * ${fmtMoney(rate)}`;
+      }
+
+      function validateInputs(){
+        const base = Number(elBase.value);
+        const otDays = Number(elOtDays.value);
+        const start = parseDateInput(elStart.value);
+        const months = Number(elMonths.value);
+
+        if (!Number.isFinite(base) || base < 0) throw new Error("基础月薪不合法");
+        if (!Number.isFinite(otDays) || otDays < 0 || otDays > 31) throw new Error("每月加班天数范围 0-31");
+        if (!start) throw new Error("请选择开始日期");
+        if (!Number.isFinite(months) || months < 1 || months > 120) throw new Error("生成月数不合法");
+
+        const rate = currentOtRate(base, elOtMode.value, elOtRate.value);
+        if (!Number.isFinite(rate) || rate < 0) throw new Error("加班日单价不合法");
+
+        return { base, otDays, start, months, rate };
+      }
+
+      function render(){
+        updateOtRateUi();
+        const { base, otDays, start, months, rate } = validateInputs();
+        const pay0 = firstPayDateOnOrAfter(start);
+        const maid = (elMaid.value || "-").trim() || "-";
+        const employer = (elEmployer.value || "-").trim() || "-";
+
+        elOutMaid.textContent = maid;
+        elOutEmployer.textContent = employer;
+        elOutBase.textContent = `${fmtMoney(base)} SGD`;
+        elOutOtDays.textContent = `${otDays}`;
+        elOutOtRate.textContent = `${fmtMoney(rate)} SGD`;
+
+        const payLast = addMonthsFirstOfMonth(pay0, months - 1);
+        elOutRange.textContent = `${toYmd(pay0)} ~ ${toYmd(payLast)}`;
+        elSheetHint.textContent = `首个发薪日：${toYmd(pay0)}（每月 1 日）`;
+
+        elTbody.innerHTML = "";
+        let sumOt = 0;
+        let sumTotal = 0;
+
+        for (let i = 0; i < months; i++) {
+          const pay = addMonthsFirstOfMonth(pay0, i);
+          const otPay = otDays * rate;
+          const total = base + otPay;
+
+          sumOt += otPay;
+          sumTotal += total;
+
+          const tr = document.createElement("tr");
+
+          const td1 = document.createElement("td");
+          td1.className = "center";
+          td1.textContent = String(i + 1);
+
+          const td2 = document.createElement("td");
+          td2.textContent = toYmd(pay);
+
+          const td3 = document.createElement("td");
+          td3.className = "num";
+          td3.textContent = fmtMoney(base);
+
+          const td4 = document.createElement("td");
+          td4.className = "center";
+          td4.textContent = String(otDays);
+
+          const td5 = document.createElement("td");
+          td5.className = "num";
+          td5.textContent = fmtMoney(otPay);
+
+          const td6 = document.createElement("td");
+          td6.className = "num";
+          td6.textContent = fmtMoney(total);
+
+          const td7 = document.createElement("td");
+          td7.textContent = "";
+
+          tr.appendChild(td1);
+          tr.appendChild(td2);
+          tr.appendChild(td3);
+          tr.appendChild(td4);
+          tr.appendChild(td5);
+          tr.appendChild(td6);
+          tr.appendChild(td7);
+
+          elTbody.appendChild(tr);
+        }
+
+        elSumOt.textContent = fmtMoney(sumOt);
+        elSumTotal.textContent = fmtMoney(sumTotal);
+
+        setStatus("已生成。" );
+        saveState();
+      }
+
+      function reset(){
+        elMaid.value = "";
+        elEmployer.value = "";
+        elBase.value = "700";
+        elOtDays.value = "0";
+        elOtMode.value = "auto";
+        elOtRate.value = "0";
+        elMonths.value = "24";
+
+        const now = new Date();
+        const ymd = `${now.getFullYear()}-${pad2(now.getMonth() + 1)}-${pad2(now.getDate())}`;
+        elStart.value = ymd;
+
+        updateOtRateUi();
+        setStatus("已重置。" );
+        try { localStorage.removeItem(STORAGE_KEY); } catch {}
+        render();
+      }
+
+      // init
+      const now = new Date();
+      elStart.value = `${now.getFullYear()}-${pad2(now.getMonth() + 1)}-${pad2(now.getDate())}`;
+
+      loadState();
+      updateOtRateUi();
+
+      [elMaid, elEmployer, elBase, elOtDays, elStart, elMonths, elOtMode, elOtRate].forEach(el => {
+        el.addEventListener("input", () => {
+          try {
+            updateOtRateUi();
+            saveState();
+            setStatus("已更新输入，点“生成/刷新”。" );
+          } catch {
+            // ignore
+          }
+        });
+        el.addEventListener("change", () => {
+          try {
+            updateOtRateUi();
+            saveState();
+            setStatus("已更新输入，点“生成/刷新”。" );
+          } catch {
+            // ignore
+          }
+        });
+      });
+
+      elRegen.addEventListener("click", () => {
+        try {
+          render();
+        } catch (e) {
+          setStatus(`错误：${e && e.message ? e.message : String(e)}`);
+        }
+      });
+
+      elPrint.addEventListener("click", () => {
+        try {
+          render();
+        } catch {
+          // ignore
+        }
+        window.print();
+      });
+
+      elReset.addEventListener("click", reset);
+
+      try { render(); } catch (e) { setStatus(`错误：${e && e.message ? e.message : String(e)}`); }
+    })();
+  </script>
+</body>
+</html>

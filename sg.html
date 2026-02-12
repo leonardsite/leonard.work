@@ -1,0 +1,1177 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="light" />
+  <meta name="description" content="新加坡常用工具导航：政府服务、出行、支付、生活、住房、健康、工作、学习、出入境、地图天气。" />
+  <title>新加坡常用工具目录 | Leonard.work</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400..700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+
+  <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20128%20128%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23e11d48%22/%3E%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%23fb7185%22/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width%3D%22128%22%20height%3D%22128%22%20rx%3D%2226%22%20fill%3D%22url(%23g)%22/%3E%3Cpath%20d%3D%22M42%2084%20c10%208%2034%208%2044%200%22%20fill%3D%22none%22%20stroke%3D%22white%22%20stroke-width%3D%2210%22%20stroke-linecap%3D%22round%22/%3E%3Cpath%20d%3D%22M44%2052%20h40%22%20fill%3D%22none%22%20stroke%3D%22white%22%20stroke-width%3D%2210%22%20stroke-linecap%3D%22round%22/%3E%3C/svg%3E" />
+
+  <style>
+    :root{
+      --bg: #f6f4ef;
+      --surface: rgba(255, 255, 255, 0.76);
+      --surfaceSolid: #ffffff;
+      --ink: #12131a;
+      --muted: rgba(18, 19, 26, 0.66);
+      --line: rgba(18, 19, 26, 0.12);
+      --shadow: 0 14px 40px rgba(9, 10, 14, 0.12);
+      --shadow2: 0 10px 28px rgba(9, 10, 14, 0.12);
+      --accent: #e11d48; /* SG-flag-ish red */
+      --accent2: #0ea5e9;
+      --good: #16a34a;
+      --warn: #b45309;
+      --bad: #b91c1c;
+
+      --radius: 18px;
+      --radius2: 14px;
+
+      --font: "IBM Plex Sans", "Segoe UI", "Microsoft YaHei", system-ui, -apple-system, sans-serif;
+      --fontDisplay: "Fraunces", "Times New Roman", serif;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body{
+      margin: 0;
+      color: var(--ink);
+      font-family: var(--font);
+      background:
+        radial-gradient(1000px 520px at 14% 10%, rgba(225, 29, 72, 0.14), transparent 60%),
+        radial-gradient(860px 520px at 82% 18%, rgba(14, 165, 233, 0.14), transparent 60%),
+        radial-gradient(900px 520px at 42% 96%, rgba(225, 29, 72, 0.08), transparent 60%),
+        repeating-linear-gradient(45deg, rgba(18, 19, 26, 0.045) 0px, rgba(18, 19, 26, 0.045) 2px, transparent 2px, transparent 10px),
+        var(--bg);
+      padding: 22px 16px 48px;
+    }
+
+    a{ color: inherit; text-decoration: none; }
+    a:hover{ text-decoration: underline; }
+
+    .wrap{
+      max-width: 1150px;
+      margin: 0 auto;
+      display: grid;
+      gap: 14px;
+    }
+
+    .top{
+      position: relative;
+      border-radius: calc(var(--radius) + 6px);
+      border: 1px solid var(--line);
+      background: linear-gradient(135deg, rgba(255,255,255,0.78), rgba(255,255,255,0.58));
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      padding: 18px 18px 14px;
+    }
+    .top::before{
+      content: "";
+      position: absolute;
+      inset: -60px -60px auto auto;
+      width: 320px;
+      height: 320px;
+      background: radial-gradient(circle at 30% 30%, rgba(225, 29, 72, 0.35), transparent 62%);
+      transform: rotate(18deg);
+      pointer-events: none;
+    }
+
+    .brand{
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 6px;
+    }
+    .brand h1{
+      font-family: var(--fontDisplay);
+      margin: 0;
+      font-size: 28px;
+      letter-spacing: 0.2px;
+    }
+    .brand .hint{
+      color: var(--muted);
+      font-size: 12.5px;
+    }
+
+    .lead{
+      margin: 6px 0 12px;
+      color: var(--muted);
+      line-height: 1.45;
+      font-size: 14px;
+    }
+
+    .layout{
+      display: grid;
+      grid-template-columns: 1.55fr 0.95fr;
+      gap: 14px;
+      align-items: start;
+    }
+    @media (max-width: 980px){
+      .layout{ grid-template-columns: 1fr; }
+    }
+
+    .panel{
+      border-radius: var(--radius);
+      border: 1px solid var(--line);
+      background: var(--surface);
+      box-shadow: var(--shadow2);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      overflow: hidden;
+    }
+
+    .panel .hd{
+      padding: 14px 14px 12px;
+      border-bottom: 1px solid rgba(18, 19, 26, 0.08);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .panel .hd h2{
+      margin: 0;
+      font-size: 14px;
+      letter-spacing: 0.4px;
+      text-transform: uppercase;
+      color: rgba(18, 19, 26, 0.66);
+    }
+    .panel .bd{ padding: 14px; }
+
+    .controls{
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    @media (max-width: 640px){
+      .controls{ grid-template-columns: 1fr; }
+    }
+
+    .field label{
+      display: block;
+      margin-bottom: 6px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    input[type="search"], input[type="text"], input[type="number"], select, textarea{
+      width: 100%;
+      border-radius: 12px;
+      border: 1px solid rgba(18, 19, 26, 0.16);
+      background: rgba(255,255,255,0.82);
+      padding: 10px 12px;
+      font-size: 14px;
+      color: var(--ink);
+      outline: none;
+      transition: border-color 120ms ease, transform 120ms ease, box-shadow 120ms ease;
+    }
+    input[type="search"]:focus, input[type="text"]:focus, input[type="number"]:focus, select:focus, textarea:focus{
+      border-color: rgba(225, 29, 72, 0.55);
+      box-shadow: 0 0 0 4px rgba(225, 29, 72, 0.12);
+    }
+
+    .chips{ display: flex; flex-wrap: wrap; gap: 8px; }
+    .chip{
+      border: 1px solid rgba(18, 19, 26, 0.16);
+      border-radius: 999px;
+      padding: 7px 10px;
+      font-size: 13px;
+      background: rgba(255,255,255,0.78);
+      cursor: pointer;
+      user-select: none;
+      transition: transform 120ms ease, background 120ms ease, border-color 120ms ease;
+    }
+    .chip:hover{ transform: translateY(-1px); border-color: rgba(18, 19, 26, 0.26); }
+    .chip[aria-pressed="true"]{
+      border-color: rgba(225, 29, 72, 0.65);
+      background: rgba(225, 29, 72, 0.10);
+    }
+
+    .grid{
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+    @media (max-width: 700px){
+      .grid{ grid-template-columns: 1fr; }
+    }
+
+    .card{
+      border: 1px solid rgba(18, 19, 26, 0.14);
+      border-radius: var(--radius2);
+      background: rgba(255,255,255,0.86);
+      padding: 12px 12px 10px;
+      display: grid;
+      gap: 8px;
+      position: relative;
+      overflow: hidden;
+      transform: translateY(0);
+      transition: transform 140ms ease, box-shadow 140ms ease, border-color 140ms ease;
+    }
+    .card:hover{
+      transform: translateY(-2px);
+      border-color: rgba(18, 19, 26, 0.24);
+      box-shadow: 0 12px 26px rgba(9,10,14,0.10);
+    }
+    .card .row{
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .card h3{
+      margin: 0;
+      font-size: 15px;
+      line-height: 1.18;
+    }
+    .card .desc{
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.35;
+    }
+    .badges{ display: flex; flex-wrap: wrap; gap: 6px; }
+    .badge{
+      font-size: 12px;
+      border-radius: 999px;
+      padding: 4px 8px;
+      border: 1px solid rgba(18, 19, 26, 0.14);
+      color: rgba(18, 19, 26, 0.74);
+      background: rgba(255,255,255,0.70);
+    }
+    .badge.red{ border-color: rgba(225, 29, 72, 0.30); background: rgba(225, 29, 72, 0.09); }
+    .badge.blue{ border-color: rgba(14, 165, 233, 0.30); background: rgba(14, 165, 233, 0.09); }
+
+    .actions{
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-top: 2px;
+    }
+    .link{
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 600;
+      font-size: 13px;
+      padding: 8px 10px;
+      border-radius: 12px;
+      border: 1px solid rgba(18, 19, 26, 0.16);
+      background: rgba(255,255,255,0.82);
+      transition: transform 120ms ease, border-color 120ms ease, box-shadow 120ms ease;
+    }
+    .link:hover{
+      text-decoration: none;
+      transform: translateY(-1px);
+      border-color: rgba(225, 29, 72, 0.35);
+      box-shadow: 0 0 0 4px rgba(225, 29, 72, 0.10);
+    }
+
+    .fav{
+      border: 1px solid rgba(18, 19, 26, 0.16);
+      background: rgba(255,255,255,0.82);
+      border-radius: 12px;
+      padding: 8px 10px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: rgba(18, 19, 26, 0.82);
+      user-select: none;
+      transition: transform 120ms ease, border-color 120ms ease, box-shadow 120ms ease;
+    }
+    .fav:hover{
+      transform: translateY(-1px);
+      border-color: rgba(18, 19, 26, 0.26);
+      box-shadow: 0 0 0 4px rgba(18, 19, 26, 0.06);
+    }
+    .fav[aria-pressed="true"]{
+      border-color: rgba(225, 29, 72, 0.55);
+      box-shadow: 0 0 0 4px rgba(225, 29, 72, 0.10);
+    }
+
+    .mini{
+      display: grid;
+      gap: 10px;
+    }
+    .mini h3{
+      margin: 0 0 8px;
+      font-size: 15px;
+    }
+    .mini .muted{ color: var(--muted); font-size: 13px; line-height: 1.45; }
+
+    .btnrow{
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+    }
+    .btn{
+      border: 1px solid rgba(18, 19, 26, 0.16);
+      background: rgba(255,255,255,0.82);
+      color: rgba(18, 19, 26, 0.84);
+      border-radius: 999px;
+      padding: 8px 10px;
+      font-size: 13px;
+      cursor: pointer;
+      user-select: none;
+      transition: transform 120ms ease, border-color 120ms ease, box-shadow 120ms ease;
+    }
+    .btn:hover{
+      transform: translateY(-1px);
+      border-color: rgba(18, 19, 26, 0.26);
+      box-shadow: 0 0 0 4px rgba(18, 19, 26, 0.06);
+    }
+    .btn.primary{
+      border-color: rgba(225, 29, 72, 0.45);
+      background: rgba(225, 29, 72, 0.10);
+    }
+
+    .kpi{
+      display: grid;
+      gap: 8px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .kpi .box{
+      border: 1px solid rgba(18, 19, 26, 0.12);
+      border-radius: 14px;
+      background: rgba(255,255,255,0.86);
+      padding: 10px 12px;
+    }
+    .kpi .k{ color: var(--muted); font-size: 12px; margin-bottom: 6px; }
+    .kpi .v{ font-size: 14px; font-weight: 600; }
+
+    .toast{
+      position: fixed;
+      left: 16px;
+      right: 16px;
+      bottom: 16px;
+      display: grid;
+      gap: 8px;
+      place-items: center;
+      pointer-events: none;
+      z-index: 999;
+    }
+    .toast .msg{
+      width: min(720px, 100%);
+      border: 1px solid rgba(18, 19, 26, 0.18);
+      background: rgba(255,255,255,0.92);
+      border-radius: 14px;
+      padding: 10px 12px;
+      box-shadow: 0 14px 34px rgba(9,10,14,0.12);
+      transform: translateY(18px);
+      opacity: 0;
+      transition: transform 160ms ease, opacity 160ms ease;
+      color: rgba(18, 19, 26, 0.84);
+      font-size: 13px;
+    }
+    .toast .msg.on{
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    @media (prefers-reduced-motion: reduce){
+      *{ transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="top">
+      <div class="brand">
+        <h1>新加坡常用工具目录</h1>
+        <div class="hint">Cloudflare 直出 · 纯静态 · <a href="index.html">返回导航</a></div>
+      </div>
+      <p class="lead">
+        把日常会用到的 SG 服务放到一个页：搜索、按分类过滤、常用收藏（只存在你自己的浏览器）。
+        <br/>
+        旧版：隐藏入口（不在导航）
+      </p>
+    </header>
+
+    <div class="layout">
+      <main class="panel" aria-labelledby="tools-title">
+        <div class="hd">
+          <h2 id="tools-title">Tools</h2>
+          <div class="hint" id="result-hint">加载中…</div>
+        </div>
+        <div class="bd">
+          <div class="controls">
+            <div class="field">
+              <label for="q">关键词 / Search</label>
+              <input id="q" type="search" placeholder="例：Singpass / 税务 / 地铁 / 体检 / 租房 / EP…" autocomplete="off" />
+            </div>
+            <div class="field">
+              <label for="sort">排序 / Sort</label>
+              <select id="sort">
+                <option value="fav_then_name">收藏优先 + 名称</option>
+                <option value="name">名称 A-Z</option>
+                <option value="category">分类</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="field" style="margin-bottom:12px;">
+            <label>分类 / Categories</label>
+            <div class="chips" id="chips"></div>
+          </div>
+
+          <div class="grid" id="grid" aria-live="polite"></div>
+          <noscript>
+            <p style="color:rgba(18,19,26,0.72);">此页需要启用 JavaScript 才能搜索/收藏。你可以直接打开：<a href="https://www.gov.sg/">Gov.sg</a>、<a href="https://www.singpass.gov.sg/">Singpass</a>、<a href="https://www.ica.gov.sg/">ICA</a>、<a href="https://www.iras.gov.sg/">IRAS</a>。</p>
+          </noscript>
+        </div>
+      </main>
+
+      <aside class="panel" aria-labelledby="mini-title">
+        <div class="hd">
+          <h2 id="mini-title">Quick</h2>
+          <div class="hint">本地小工具</div>
+        </div>
+        <div class="bd">
+          <div class="mini">
+            <section>
+              <h3>收藏夹</h3>
+              <div class="kpi">
+                <div class="box">
+                  <div class="k">已收藏</div>
+                  <div class="v" id="kpi-fav">0</div>
+                </div>
+                <div class="box">
+                  <div class="k">当前结果</div>
+                  <div class="v" id="kpi-result">0</div>
+                </div>
+              </div>
+              <div class="btnrow">
+                <button class="btn primary" type="button" id="btn-only-fav">只看收藏</button>
+                <button class="btn" type="button" id="btn-show-all">清除过滤</button>
+                <button class="btn" type="button" id="btn-export-fav">导出收藏</button>
+                <button class="btn" type="button" id="btn-import-fav">导入收藏</button>
+              </div>
+              <input id="fav-file" type="file" accept="application/json" style="display:none;" />
+              <p class="muted" style="margin:10px 0 0;">导入/导出只针对收藏列表，不会改动工具库。</p>
+            </section>
+
+            <section>
+              <h3>GST 计算器</h3>
+              <p class="muted">不联网：仅做含税/未税换算。默认 GST 9%。</p>
+              <div class="controls" style="grid-template-columns: 1fr 1fr; margin-bottom:10px;">
+                <div class="field">
+                  <label for="gst-amount">金额</label>
+                  <input id="gst-amount" type="number" inputmode="decimal" placeholder="例如 100" min="0" step="0.01" />
+                </div>
+                <div class="field">
+                  <label for="gst-rate">GST %</label>
+                  <input id="gst-rate" type="number" inputmode="decimal" min="0" step="0.01" value="9" />
+                </div>
+              </div>
+              <div class="controls" style="grid-template-columns: 1fr 1fr; margin-bottom:10px;">
+                <div class="field">
+                  <label for="gst-mode">输入类型</label>
+                  <select id="gst-mode">
+                    <option value="exclusive">未税 (add GST)</option>
+                    <option value="inclusive">含税 (extract GST)</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label for="gst-round">小数</label>
+                  <select id="gst-round">
+                    <option value="2">2 位</option>
+                    <option value="0">0 位</option>
+                  </select>
+                </div>
+              </div>
+              <div class="kpi">
+                <div class="box">
+                  <div class="k">GST</div>
+                  <div class="v" id="gst-tax">-</div>
+                </div>
+                <div class="box">
+                  <div class="k">总计</div>
+                  <div class="v" id="gst-total">-</div>
+                </div>
+              </div>
+            </section>
+
+            <section>
+              <h3>关于链接</h3>
+              <p class="muted">大部分是官方/常用入口。若你希望按“生活在 SG / 留学在 SG / 公司在 SG”三套清单拆分，我可以再细化一版。</p>
+            </section>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <div class="toast" aria-live="polite" aria-atomic="true">
+    <div class="msg" id="toast"></div>
+  </div>
+
+  <script>
+    (function () {
+      "use strict";
+
+      /** @typedef {{id:string,name:string,url:string,desc:string,categories:string[],tags?:string[],badge?:string}} Tool */
+
+      /** @type {Tool[]} */
+      const TOOLS = [
+        {
+          id: "singpass",
+          name: "Singpass",
+          url: "https://www.singpass.gov.sg/",
+          desc: "新加坡身份登录入口（登录政府/医疗/公用服务等）。",
+          categories: ["政府", "身份"],
+          tags: ["login", "id"],
+          badge: "Official"
+        },
+        {
+          id: "myinfo",
+          name: "MyInfo",
+          url: "https://www.myinfo.gov.sg/",
+          desc: "个人资料授权填写（开银行/办业务常用）。",
+          categories: ["政府", "身份"],
+          tags: ["form", "kyc"],
+          badge: "Official"
+        },
+        {
+          id: "govsg",
+          name: "Gov.sg",
+          url: "https://www.gov.sg/",
+          desc: "政府信息与服务入口。",
+          categories: ["政府"],
+          badge: "Official"
+        },
+        {
+          id: "livesg",
+          name: "LifeSG",
+          url: "https://www.lifesg.gov.sg/",
+          desc: "生活服务入口（补贴/孩子/家庭相关常用）。",
+          categories: ["政府", "生活"],
+          badge: "Official"
+        },
+
+        {
+          id: "ica",
+          name: "ICA (Immigration & Checkpoints Authority)",
+          url: "https://www.ica.gov.sg/",
+          desc: "出入境、签证、入境卡等（官网）。",
+          categories: ["出入境", "政府"],
+          tags: ["visa", "arrival"],
+          badge: "Official"
+        },
+        {
+          id: "mom",
+          name: "MOM (Ministry of Manpower)",
+          url: "https://www.mom.gov.sg/",
+          desc: "工作准证/劳工相关服务（EP/WP/SP 等）。",
+          categories: ["工作", "政府"],
+          tags: ["ep", "work pass"],
+          badge: "Official"
+        },
+        {
+          id: "iras",
+          name: "IRAS (Tax)",
+          url: "https://www.iras.gov.sg/",
+          desc: "税务（个人税/公司税/GST 等）。",
+          categories: ["税务", "政府"],
+          tags: ["gst", "tax"],
+          badge: "Official"
+        },
+        {
+          id: "cpf",
+          name: "CPF Board",
+          url: "https://www.cpf.gov.sg/",
+          desc: "公积金（CPF）查询与政策入口。",
+          categories: ["工作", "政府"],
+          tags: ["cpf"],
+          badge: "Official"
+        },
+        {
+          id: "acra",
+          name: "ACRA (BizFile+)",
+          url: "https://www.acra.gov.sg/",
+          desc: "公司注册与企业信息（官网）。",
+          categories: ["公司", "政府"],
+          tags: ["bizfile", "company"],
+          badge: "Official"
+        },
+        {
+          id: "hdb",
+          name: "HDB",
+          url: "https://www.hdb.gov.sg/",
+          desc: "组屋/住房相关服务入口。",
+          categories: ["住房", "政府"],
+          tags: ["housing"],
+          badge: "Official"
+        },
+        {
+          id: "lta",
+          name: "LTA",
+          url: "https://www.lta.gov.sg/",
+          desc: "陆路交通管理（车辆/公交/地铁相关政策）。",
+          categories: ["出行", "政府"],
+          badge: "Official"
+        },
+        {
+          id: "oneservice",
+          name: "OneService",
+          url: "https://www.oneservice.gov.sg/",
+          desc: "社区问题反馈（市政/环境/噪音等）。",
+          categories: ["生活", "政府"],
+          badge: "Official"
+        },
+        {
+          id: "nea_weather",
+          name: "Weather (NEA)",
+          url: "https://www.weather.gov.sg/",
+          desc: "天气与雷达图（NEA）。",
+          categories: ["天气", "生活"],
+          tags: ["rain"],
+          badge: "Official"
+        },
+        {
+          id: "onemap",
+          name: "OneMap",
+          url: "https://www.onemap.gov.sg/",
+          desc: "官方地图服务（地址/规划/图层）。",
+          categories: ["地图", "政府"],
+          badge: "Official"
+        },
+
+        {
+          id: "mytransport",
+          name: "MyTransport.SG",
+          url: "https://www.mytransport.sg/",
+          desc: "公交地铁信息入口（官方）。",
+          categories: ["出行"],
+          tags: ["bus", "mrt"],
+          badge: "Official"
+        },
+        {
+          id: "simplygo",
+          name: "SimplyGo",
+          url: "https://www.simplygo.com.sg/",
+          desc: "公交/地铁支付与行程记录（EZ-Link/NETS 相关）。",
+          categories: ["出行", "支付"],
+          tags: ["ez-link", "transit"]
+        },
+        {
+          id: "grab",
+          name: "Grab",
+          url: "https://www.grab.com/sg/",
+          desc: "打车/外卖/杂货等。",
+          categories: ["出行", "生活", "支付"],
+          tags: ["ride", "food"]
+        },
+        {
+          id: "cdg_zig",
+          name: "CDG Zig",
+          url: "https://www.cdgzig.com/",
+          desc: "本地出租车/出行（ComfortDelGro）。",
+          categories: ["出行"],
+          tags: ["taxi"]
+        },
+        {
+          id: "google_maps",
+          name: "Google Maps",
+          url: "https://www.google.com/maps",
+          desc: "路线规划与地点搜索。",
+          categories: ["地图", "出行"],
+          tags: ["route", "mrt"]
+        },
+
+        {
+          id: "dbs",
+          name: "DBS",
+          url: "https://www.dbs.com.sg/",
+          desc: "本地银行（网银/账户/卡）。",
+          categories: ["支付", "银行"],
+          tags: ["bank"]
+        },
+        {
+          id: "ocbc",
+          name: "OCBC",
+          url: "https://www.ocbc.com/",
+          desc: "本地银行（网银/账户/卡）。",
+          categories: ["支付", "银行"],
+          tags: ["bank"]
+        },
+        {
+          id: "uob",
+          name: "UOB",
+          url: "https://www.uob.com.sg/",
+          desc: "本地银行（网银/账户/卡）。",
+          categories: ["支付", "银行"],
+          tags: ["bank"]
+        },
+        {
+          id: "wise",
+          name: "Wise",
+          url: "https://wise.com/",
+          desc: "跨境转账与多币种账户。",
+          categories: ["支付"],
+          tags: ["fx", "transfer"]
+        },
+        {
+          id: "revolut",
+          name: "Revolut",
+          url: "https://www.revolut.com/en-SG/",
+          desc: "多币种与卡（以实际可用地区为准）。",
+          categories: ["支付"],
+          tags: ["fx", "card"]
+        },
+
+        {
+          id: "shopee",
+          name: "Shopee SG",
+          url: "https://shopee.sg/",
+          desc: "电商平台。",
+          categories: ["购物", "生活"],
+          tags: ["shopping"]
+        },
+        {
+          id: "lazada",
+          name: "Lazada SG",
+          url: "https://www.lazada.sg/",
+          desc: "电商平台。",
+          categories: ["购物", "生活"],
+          tags: ["shopping"]
+        },
+        {
+          id: "carousell",
+          name: "Carousell",
+          url: "https://www.carousell.sg/",
+          desc: "二手交易与本地买卖。",
+          categories: ["购物", "生活"],
+          tags: ["second-hand"]
+        },
+        {
+          id: "amazon_sg",
+          name: "Amazon SG",
+          url: "https://www.amazon.sg/",
+          desc: "电商平台。",
+          categories: ["购物", "生活"],
+          tags: ["shopping"]
+        },
+
+        {
+          id: "foodpanda",
+          name: "foodpanda",
+          url: "https://www.foodpanda.sg/",
+          desc: "外卖与杂货配送。",
+          categories: ["外卖", "生活"],
+          tags: ["food"]
+        },
+        {
+          id: "deliveroo",
+          name: "Deliveroo",
+          url: "https://deliveroo.com.sg/",
+          desc: "外卖配送。",
+          categories: ["外卖", "生活"],
+          tags: ["food"]
+        },
+        {
+          id: "chope",
+          name: "Chope",
+          url: "https://www.chope.co/",
+          desc: "餐厅订位。",
+          categories: ["生活"],
+          tags: ["booking"]
+        },
+
+        {
+          id: "sp_services",
+          name: "SP Services",
+          url: "https://www.spservices.sg/",
+          desc: "水电等账单服务入口。",
+          categories: ["住房", "生活"],
+          tags: ["utilities"]
+        },
+        {
+          id: "propertyguru",
+          name: "PropertyGuru",
+          url: "https://www.propertyguru.com.sg/",
+          desc: "租房/买房信息平台。",
+          categories: ["住房"],
+          tags: ["rent", "property"]
+        },
+
+        {
+          id: "healthhub",
+          name: "HealthHub",
+          url: "https://www.healthhub.sg/",
+          desc: "医疗与健康服务入口（看诊/疫苗/记录等）。",
+          categories: ["健康", "政府"],
+          tags: ["medical"],
+          badge: "Official"
+        },
+
+        {
+          id: "mycareersfuture",
+          name: "MyCareersFuture",
+          url: "https://www.mycareersfuture.gov.sg/",
+          desc: "官方求职平台。",
+          categories: ["工作"],
+          tags: ["jobs"],
+          badge: "Official"
+        },
+        {
+          id: "linkedin",
+          name: "LinkedIn",
+          url: "https://www.linkedin.com/",
+          desc: "求职与人脉。",
+          categories: ["工作"],
+          tags: ["jobs"]
+        },
+
+        {
+          id: "skillsfuture",
+          name: "SkillsFuture",
+          url: "https://www.myskillsfuture.gov.sg/",
+          desc: "技能提升与课程入口。",
+          categories: ["学习"],
+          tags: ["course"],
+          badge: "Official"
+        },
+        {
+          id: "moe",
+          name: "MOE",
+          url: "https://www.moe.gov.sg/",
+          desc: "教育部网站与政策入口。",
+          categories: ["学习", "政府"],
+          badge: "Official"
+        }
+      ];
+
+      const elQ = document.getElementById("q");
+      const elSort = document.getElementById("sort");
+      const elGrid = document.getElementById("grid");
+      const elChips = document.getElementById("chips");
+      const elHint = document.getElementById("result-hint");
+      const elKpiFav = document.getElementById("kpi-fav");
+      const elKpiResult = document.getElementById("kpi-result");
+      const elOnlyFav = document.getElementById("btn-only-fav");
+      const elShowAll = document.getElementById("btn-show-all");
+      const elExportFav = document.getElementById("btn-export-fav");
+      const elImportFav = document.getElementById("btn-import-fav");
+      const elFavFile = document.getElementById("fav-file");
+      const elToast = document.getElementById("toast");
+
+      const STORAGE_KEY = "leonard_sg_tools_favs_v1";
+
+      /** @returns {Set<string>} */
+      function loadFavs() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (!raw) return new Set();
+          const arr = JSON.parse(raw);
+          if (!Array.isArray(arr)) return new Set();
+          return new Set(arr.filter(x => typeof x === "string"));
+        } catch {
+          return new Set();
+        }
+      }
+
+      /** @param {Set<string>} favs */
+      function saveFavs(favs) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(Array.from(favs)));
+      }
+
+      /** @param {string} msg */
+      function toast(msg) {
+        elToast.textContent = msg;
+        elToast.classList.add("on");
+        window.clearTimeout(toast._t);
+        toast._t = window.setTimeout(() => elToast.classList.remove("on"), 1500);
+      }
+
+      /** @returns {string[]} */
+      function uniqueCategories() {
+        const all = new Set();
+        for (const t of TOOLS) for (const c of t.categories) all.add(c);
+        return Array.from(all).sort((a, b) => a.localeCompare(b, "zh"));
+      }
+
+      /** @type {Set<string>} */
+      const selectedCategories = new Set();
+      let onlyFav = false;
+      let favs = loadFavs();
+
+      function updateKpis(resultCount) {
+        elKpiFav.textContent = String(favs.size);
+        elKpiResult.textContent = String(resultCount);
+      }
+
+      /** @param {Tool} t */
+      function toolMatches(t, q) {
+        if (!q) return true;
+        const hay = [
+          t.name,
+          t.desc,
+          ...(t.categories || []),
+          ...((t.tags || []).map(String))
+        ].join(" ").toLowerCase();
+        return hay.includes(q.toLowerCase());
+      }
+
+      function selectedCategoryMatches(t) {
+        if (selectedCategories.size === 0) return true;
+        for (const c of t.categories) {
+          if (selectedCategories.has(c)) return true;
+        }
+        return false;
+      }
+
+      /** @param {Tool[]} list */
+      function sortTools(list) {
+        const mode = elSort.value;
+        if (mode === "name") {
+          return list.slice().sort((a, b) => a.name.localeCompare(b.name, "zh"));
+        }
+        if (mode === "category") {
+          return list.slice().sort((a, b) => {
+            const ac = (a.categories[0] || "").toString();
+            const bc = (b.categories[0] || "").toString();
+            const c = ac.localeCompare(bc, "zh");
+            if (c !== 0) return c;
+            return a.name.localeCompare(b.name, "zh");
+          });
+        }
+        // default: fav then name
+        return list.slice().sort((a, b) => {
+          const af = favs.has(a.id) ? 0 : 1;
+          const bf = favs.has(b.id) ? 0 : 1;
+          if (af !== bf) return af - bf;
+          return a.name.localeCompare(b.name, "zh");
+        });
+      }
+
+      /** @param {Tool} t */
+      function renderToolCard(t) {
+        const isFav = favs.has(t.id);
+        const badge = (t.badge || "").trim();
+        const badgeClass = badge === "Official" ? "badge red" : "badge blue";
+
+        const card = document.createElement("article");
+        card.className = "card";
+        card.setAttribute("data-id", t.id);
+
+        const top = document.createElement("div");
+        top.className = "row";
+
+        const title = document.createElement("h3");
+        title.textContent = t.name;
+
+        const favBtn = document.createElement("button");
+        favBtn.type = "button";
+        favBtn.className = "fav";
+        favBtn.setAttribute("aria-pressed", String(isFav));
+        favBtn.title = isFav ? "取消收藏" : "收藏";
+        favBtn.textContent = isFav ? "已收藏" : "收藏";
+        favBtn.addEventListener("click", () => {
+          if (favs.has(t.id)) favs.delete(t.id);
+          else favs.add(t.id);
+          saveFavs(favs);
+          toast(favs.has(t.id) ? "已收藏" : "已取消收藏");
+          paint();
+        });
+
+        top.appendChild(title);
+        top.appendChild(favBtn);
+
+        const desc = document.createElement("p");
+        desc.className = "desc";
+        desc.textContent = t.desc;
+
+        const badges = document.createElement("div");
+        badges.className = "badges";
+        for (const c of t.categories) {
+          const b = document.createElement("span");
+          b.className = "badge";
+          b.textContent = c;
+          badges.appendChild(b);
+        }
+        if (badge) {
+          const b = document.createElement("span");
+          b.className = badgeClass;
+          b.textContent = badge;
+          badges.appendChild(b);
+        }
+
+        const actions = document.createElement("div");
+        actions.className = "actions";
+        const link = document.createElement("a");
+        link.className = "link";
+        link.href = t.url;
+        link.target = "_blank";
+        link.rel = "noopener noreferrer";
+        link.innerHTML = "打开 <span style=\"opacity:.7\">(新标签)</span>";
+
+        const url = document.createElement("span");
+        url.className = "desc";
+        url.style.margin = "0";
+        url.style.fontSize = "12px";
+        url.style.opacity = "0.78";
+        url.textContent = new URL(t.url).hostname;
+
+        actions.appendChild(link);
+        actions.appendChild(url);
+
+        card.appendChild(top);
+        card.appendChild(desc);
+        card.appendChild(badges);
+        card.appendChild(actions);
+        return card;
+      }
+
+      function renderChips() {
+        elChips.innerHTML = "";
+        const cats = uniqueCategories();
+
+        /** @param {string} text */
+        function addChip(text) {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "chip";
+          btn.textContent = text;
+          btn.setAttribute("aria-pressed", selectedCategories.has(text) ? "true" : "false");
+          btn.addEventListener("click", () => {
+            if (selectedCategories.has(text)) selectedCategories.delete(text);
+            else selectedCategories.add(text);
+            paint();
+          });
+          elChips.appendChild(btn);
+        }
+
+        for (const c of cats) addChip(c);
+      }
+
+      function paint() {
+        const q = (elQ.value || "").trim();
+        let list = TOOLS.filter(t => toolMatches(t, q) && selectedCategoryMatches(t));
+        if (onlyFav) list = list.filter(t => favs.has(t.id));
+        list = sortTools(list);
+
+        elGrid.innerHTML = "";
+        for (const t of list) elGrid.appendChild(renderToolCard(t));
+
+        const catHint = selectedCategories.size ? ("分类：" + Array.from(selectedCategories).join(" / ")) : "全部分类";
+        const favHint = onlyFav ? " · 只看收藏" : "";
+        elHint.textContent = `${list.length} / ${TOOLS.length} · ${catHint}${favHint}`;
+
+        // KPIs
+        updateKpis(list.length);
+
+        // repaint chips (so aria-pressed updates)
+        Array.from(elChips.querySelectorAll(".chip")).forEach(btn => {
+          const t = btn.textContent || "";
+          btn.setAttribute("aria-pressed", selectedCategories.has(t) ? "true" : "false");
+        });
+
+        elOnlyFav.classList.toggle("primary", onlyFav);
+        elOnlyFav.textContent = onlyFav ? "退出只看收藏" : "只看收藏";
+      }
+
+      function calcGst() {
+        const amount = Number(document.getElementById("gst-amount").value);
+        const ratePct = Number(document.getElementById("gst-rate").value);
+        const mode = document.getElementById("gst-mode").value;
+        const round = Number(document.getElementById("gst-round").value);
+
+        const elTax = document.getElementById("gst-tax");
+        const elTotal = document.getElementById("gst-total");
+
+        if (!Number.isFinite(amount) || !Number.isFinite(ratePct) || amount < 0 || ratePct < 0) {
+          elTax.textContent = "-";
+          elTotal.textContent = "-";
+          return;
+        }
+        const rate = ratePct / 100;
+        let tax = 0;
+        let total = 0;
+        if (mode === "exclusive") {
+          tax = amount * rate;
+          total = amount + tax;
+        } else {
+          total = amount;
+          tax = amount - (amount / (1 + rate));
+        }
+        const fmt = (n) => n.toFixed(round);
+        elTax.textContent = fmt(tax);
+        elTotal.textContent = fmt(total);
+      }
+
+      // init
+      renderChips();
+      paint();
+      updateKpis(TOOLS.length);
+      calcGst();
+
+      elQ.addEventListener("input", paint);
+      elSort.addEventListener("change", paint);
+
+      elOnlyFav.addEventListener("click", () => {
+        onlyFav = !onlyFav;
+        paint();
+      });
+      elShowAll.addEventListener("click", () => {
+        onlyFav = false;
+        selectedCategories.clear();
+        elQ.value = "";
+        paint();
+        toast("已清除过滤");
+      });
+
+      elExportFav.addEventListener("click", () => {
+        const data = JSON.stringify({ version: 1, exportedAt: new Date().toISOString(), favs: Array.from(favs) }, null, 2);
+        const blob = new Blob([data], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "leonard_sg_tools_favs.json";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+        toast("已导出收藏");
+      });
+
+      elImportFav.addEventListener("click", () => elFavFile.click());
+      elFavFile.addEventListener("change", async () => {
+        const file = elFavFile.files && elFavFile.files[0];
+        elFavFile.value = "";
+        if (!file) return;
+        try {
+          const text = await file.text();
+          const obj = JSON.parse(text);
+          const next = new Set();
+          const arr = Array.isArray(obj) ? obj : (obj && Array.isArray(obj.favs) ? obj.favs : []);
+          for (const x of arr) if (typeof x === "string") next.add(x);
+          favs = next;
+          saveFavs(favs);
+          toast("已导入收藏");
+          paint();
+        } catch {
+          toast("导入失败：不是有效 JSON");
+        }
+      });
+
+      // GST
+      ["gst-amount","gst-rate","gst-mode","gst-round"].forEach(id => {
+        const el = document.getElementById(id);
+        el.addEventListener("input", calcGst);
+        el.addEventListener("change", calcGst);
+      });
+    })();
+  </script>
+</body>
+</html>

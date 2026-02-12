@@ -6,8 +6,17 @@
 
 # Core matchboard pages
 !index.html
+!sg.html
+!pdf.html
+!maid-salary.html
+!terminal.html
+!robots.txt
 !School_Matchboard.html
 !matchboard.config.js
+
+# Private (not linked from main page)
+!vault/
+!vault/maple.html
 
 # Legal templates linked from matchboard
 !01_Legal_and_Contracts/

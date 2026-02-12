@@ -2,11 +2,242 @@
 <html lang="zh-CN">
 <head>
   <meta charset="utf-8" />
-  <meta http-equiv="refresh" content="0; url=School_Matchboard.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Maple Education Matchboard</title>
+  <meta name="color-scheme" content="light" />
+  <meta name="description" content="Leonard.work 工具导航入口：新加坡常用工具、PDF 修改器、女佣工资表（A4 打印）、终端初始化命令。" />
+  <title>导航 | Leonard.work</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400..700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+
+  <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20128%20128%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%230ea5e9%22/%3E%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%2322c55e%22/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width%3D%22128%22%20height%3D%22128%22%20rx%3D%2226%22%20fill%3D%22url(%23g)%22/%3E%3Cpath%20d%3D%22M40%2064%20h48%22%20fill%3D%22none%22%20stroke%3D%22white%22%20stroke-width%3D%2210%22%20stroke-linecap%3D%22round%22/%3E%3Cpath%20d%3D%22M64%2040%20v48%22%20fill%3D%22none%22%20stroke%3D%22white%22%20stroke-width%3D%2210%22%20stroke-linecap%3D%22round%22/%3E%3C/svg%3E" />
+
+  <style>
+    :root{
+      --bg: #f6f4ef;
+      --surface: rgba(255, 255, 255, 0.78);
+      --ink: #12131a;
+      --muted: rgba(18, 19, 26, 0.66);
+      --line: rgba(18, 19, 26, 0.12);
+      --shadow: 0 14px 40px rgba(9, 10, 14, 0.12);
+      --shadow2: 0 10px 28px rgba(9, 10, 14, 0.12);
+      --radius: 18px;
+      --radius2: 14px;
+
+      --accent: #0ea5e9;
+      --accent2: #22c55e;
+      --accent3: #e11d48;
+
+      --font: "IBM Plex Sans", "Segoe UI", "Microsoft YaHei", system-ui, -apple-system, sans-serif;
+      --fontDisplay: "Fraunces", "Times New Roman", serif;
+    }
+
+    *{ box-sizing: border-box; }
+    body{
+      margin: 0;
+      color: var(--ink);
+      font-family: var(--font);
+      background:
+        radial-gradient(1000px 520px at 14% 10%, rgba(14, 165, 233, 0.14), transparent 60%),
+        radial-gradient(860px 520px at 82% 18%, rgba(34, 197, 94, 0.14), transparent 60%),
+        radial-gradient(900px 520px at 42% 96%, rgba(225, 29, 72, 0.08), transparent 60%),
+        repeating-linear-gradient(45deg, rgba(18, 19, 26, 0.045) 0px, rgba(18, 19, 26, 0.045) 2px, transparent 2px, transparent 10px),
+        var(--bg);
+      padding: 22px 16px 48px;
+    }
+
+    a{ color: inherit; text-decoration: none; }
+    a:hover{ text-decoration: underline; }
+
+    .wrap{
+      max-width: 1100px;
+      margin: 0 auto;
+      display: grid;
+      gap: 14px;
+    }
+
+    header{
+      border-radius: calc(var(--radius) + 6px);
+      border: 1px solid var(--line);
+      background: linear-gradient(135deg, rgba(255,255,255,0.82), rgba(255,255,255,0.58));
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      padding: 18px 18px 14px;
+      position: relative;
+    }
+    header::before{
+      content: "";
+      position: absolute;
+      inset: -80px -80px auto auto;
+      width: 360px;
+      height: 360px;
+      background: radial-gradient(circle at 30% 30%, rgba(14, 165, 233, 0.32), transparent 62%);
+      transform: rotate(10deg);
+      pointer-events: none;
+    }
+    header::after{
+      content: "";
+      position: absolute;
+      inset: auto auto -120px -120px;
+      width: 380px;
+      height: 380px;
+      background: radial-gradient(circle at 35% 35%, rgba(34, 197, 94, 0.20), transparent 62%);
+      pointer-events: none;
+    }
+
+    .brand{
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 6px;
+    }
+    h1{
+      margin: 0;
+      font-family: var(--fontDisplay);
+      font-size: 30px;
+      letter-spacing: 0.2px;
+    }
+    .hint{ color: var(--muted); font-size: 12.5px; }
+    .lead{ margin: 6px 0 0; color: var(--muted); line-height: 1.5; font-size: 14px; }
+
+    .grid{
+      display: grid;
+      gap: 12px;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    @media (max-width: 900px){
+      .grid{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 620px){
+      .grid{ grid-template-columns: 1fr; }
+    }
+
+    .card{
+      border-radius: var(--radius);
+      border: 1px solid rgba(18, 19, 26, 0.14);
+      background: var(--surface);
+      box-shadow: var(--shadow2);
+      padding: 14px 14px 12px;
+      display: grid;
+      gap: 10px;
+      position: relative;
+      overflow: hidden;
+      transform: translateY(0);
+      transition: transform 140ms ease, box-shadow 140ms ease, border-color 140ms ease;
+      min-height: 150px;
+    }
+    .card:hover{
+      transform: translateY(-2px);
+      border-color: rgba(18, 19, 26, 0.22);
+      box-shadow: 0 18px 46px rgba(9, 10, 14, 0.14);
+      text-decoration: none;
+    }
+    .card .k{
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: rgba(18, 19, 26, 0.60);
+    }
+    .card h2{
+      margin: 0;
+      font-size: 18px;
+      line-height: 1.2;
+    }
+    .card p{
+      margin: 0;
+      color: rgba(18, 19, 26, 0.66);
+      font-size: 13.5px;
+      line-height: 1.45;
+    }
+
+    .pillrow{ display: flex; flex-wrap: wrap; gap: 6px; }
+    .pill{
+      border: 1px solid rgba(18, 19, 26, 0.14);
+      background: rgba(255,255,255,0.78);
+      border-radius: 999px;
+      padding: 4px 8px;
+      font-size: 12px;
+      color: rgba(18, 19, 26, 0.70);
+    }
+    .pill.blue{ border-color: rgba(14, 165, 233, 0.26); background: rgba(14, 165, 233, 0.08); }
+    .pill.green{ border-color: rgba(34, 197, 94, 0.26); background: rgba(34, 197, 94, 0.08); }
+    .pill.red{ border-color: rgba(225, 29, 72, 0.26); background: rgba(225, 29, 72, 0.08); }
+
+    .foot{
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 12.5px;
+      line-height: 1.5;
+      padding: 0 4px;
+    }
+
+    @media (prefers-reduced-motion: reduce){
+      *{ transition: none !important; }
+    }
+  </style>
 </head>
 <body>
-  <p>If you are not redirected, <a href="School_Matchboard.html">open the matchboard</a>.</p>
+  <div class="wrap">
+    <header>
+      <div class="brand">
+        <h1>导航</h1>
+        <div class="hint">Cloudflare 直出 · 纯静态 · 数据默认只存在浏览器本地</div>
+      </div>
+      <p class="lead">入口页只放常用工具链接。需要更私密的页面请用“隐藏路径 + 口令页”。</p>
+    </header>
+
+    <section class="grid" aria-label="导航入口">
+      <a class="card" href="sg.html">
+        <div class="k">Singapore</div>
+        <h2>新加坡常用工具目录</h2>
+        <p>政府/出入境/出行/支付/生活/住房/健康/学习，一页搜索 + 收藏。</p>
+        <div class="pillrow">
+          <span class="pill red">收藏</span>
+          <span class="pill blue">分类筛选</span>
+          <span class="pill green">GST 小工具</span>
+        </div>
+      </a>
+
+      <a class="card" href="pdf.html">
+        <div class="k">PDF</div>
+        <h2>PDF 修改器（本地处理）</h2>
+        <p>合并、抽取页面、旋转、加水印。文件不上传服务器。</p>
+        <div class="pillrow">
+          <span class="pill blue">Merge</span>
+          <span class="pill green">Extract</span>
+          <span class="pill red">Watermark</span>
+        </div>
+      </a>
+
+      <a class="card" href="maid-salary.html">
+        <div class="k">Payroll</div>
+        <h2>新加坡女佣工资计算器（A4 打印）</h2>
+        <p>输入基础薪资、每月加班天数、开始日期，生成 2 年每月 1 日到手薪资表。</p>
+        <div class="pillrow">
+          <span class="pill green">A4</span>
+          <span class="pill blue">24 months</span>
+          <span class="pill red">Print</span>
+        </div>
+      </a>
+
+      <a class="card" href="terminal.html">
+        <div class="k">Terminal</div>
+        <h2>新电脑初始化命令（可复制）</h2>
+        <p>Windows(WSL)/macOS/Linux：git、zsh、node/pnpm、python、java、常用工具链。</p>
+        <div class="pillrow">
+          <span class="pill blue">Copy</span>
+          <span class="pill green">WSL</span>
+          <span class="pill red">Zsh</span>
+        </div>
+      </a>
+    </section>
+
+    <div class="foot">
+      提示：内部页面（Maple 合同/Invoice 生成器、旧版 Matchboard）不在主页面入口；请用你自己记住的隐藏路径访问。
+    </div>
+  </div>
 </body>
 </html>

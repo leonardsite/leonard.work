@@ -1,0 +1,492 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="light" />
+  <meta name="description" content="新电脑初始化命令：Windows(WSL)/Ubuntu/macOS，一键安装 git、zsh、node/pnpm、python、java，以及 codex/claude/gemini 等 CLI。" />
+  <title>终端初始化命令 | Leonard.work</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,450..700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+
+  <style>
+    :root{
+      --bg: #f6f4ef;
+      --surface: rgba(255, 255, 255, 0.80);
+      --ink: #12131a;
+      --muted: rgba(18, 19, 26, 0.66);
+      --line: rgba(18, 19, 26, 0.12);
+      --shadow: 0 14px 40px rgba(9, 10, 14, 0.12);
+      --shadow2: 0 10px 28px rgba(9, 10, 14, 0.12);
+      --radius: 18px;
+      --radius2: 14px;
+
+      --accent: #0ea5e9;
+      --accent2: #e11d48;
+
+      --font: "IBM Plex Sans", "Segoe UI", "Microsoft YaHei", system-ui, -apple-system, sans-serif;
+      --fontDisplay: "Fraunces", "Times New Roman", serif;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    *{ box-sizing: border-box; }
+    body{
+      margin: 0;
+      color: var(--ink);
+      font-family: var(--font);
+      background:
+        radial-gradient(1000px 520px at 14% 10%, rgba(14, 165, 233, 0.14), transparent 60%),
+        radial-gradient(860px 520px at 82% 18%, rgba(225, 29, 72, 0.10), transparent 60%),
+        repeating-linear-gradient(45deg, rgba(18, 19, 26, 0.045) 0px, rgba(18, 19, 26, 0.045) 2px, transparent 2px, transparent 10px),
+        var(--bg);
+      padding: 22px 16px 48px;
+    }
+
+    a{ color: inherit; text-decoration: none; }
+    a:hover{ text-decoration: underline; }
+
+    .wrap{ max-width: 1120px; margin: 0 auto; display: grid; gap: 14px; }
+
+    header{
+      border-radius: calc(var(--radius) + 6px);
+      border: 1px solid var(--line);
+      background: linear-gradient(135deg, rgba(255,255,255,0.84), rgba(255,255,255,0.58));
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      padding: 16px 18px 14px;
+      position: relative;
+    }
+    header::before{
+      content: "";
+      position: absolute;
+      inset: -70px -70px auto auto;
+      width: 340px;
+      height: 340px;
+      background: radial-gradient(circle at 30% 30%, rgba(14, 165, 233, 0.26), transparent 62%);
+      transform: rotate(10deg);
+      pointer-events: none;
+    }
+
+    .toprow{ display:flex; align-items: baseline; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+    h1{ margin: 0; font-family: var(--fontDisplay); font-size: 26px; letter-spacing: 0.2px; }
+    .hint{ color: var(--muted); font-size: 12.5px; }
+    .lead{ margin: 6px 0 0; color: var(--muted); line-height: 1.5; font-size: 14px; }
+
+    .panel{
+      border-radius: var(--radius);
+      border: 1px solid rgba(18, 19, 26, 0.14);
+      background: var(--surface);
+      box-shadow: var(--shadow2);
+      overflow: hidden;
+    }
+    .panel .hd{
+      padding: 14px 14px 12px;
+      border-bottom: 1px solid rgba(18, 19, 26, 0.08);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .panel .hd h2{
+      margin: 0;
+      font-size: 13px;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      color: rgba(18, 19, 26, 0.66);
+    }
+    .panel .bd{ padding: 14px; }
+
+    .note{
+      border: 1px solid rgba(14, 165, 233, 0.28);
+      background: rgba(14, 165, 233, 0.08);
+      border-radius: 14px;
+      padding: 10px 12px;
+      color: rgba(18, 19, 26, 0.78);
+      font-size: 13px;
+      line-height: 1.45;
+      margin-bottom: 10px;
+    }
+
+    .blocks{ display: grid; gap: 10px; }
+
+    .block{
+      border: 1px solid rgba(18, 19, 26, 0.14);
+      background: rgba(255,255,255,0.86);
+      border-radius: var(--radius2);
+      overflow: hidden;
+    }
+    .block .bh{
+      padding: 10px 12px;
+      border-bottom: 1px solid rgba(18, 19, 26, 0.08);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .block .bh .t{ font-weight: 700; font-size: 13.5px; }
+    .block .bh .s{ color: var(--muted); font-size: 12.5px; }
+
+    pre{
+      margin: 0;
+      padding: 12px;
+      overflow: auto;
+      font-family: var(--mono);
+      font-size: 12.5px;
+      line-height: 1.5;
+      background: #0b1224;
+      color: #e5e7eb;
+    }
+
+    .btn{
+      border: 1px solid rgba(18, 19, 26, 0.16);
+      background: rgba(255,255,255,0.86);
+      border-radius: 999px;
+      padding: 7px 10px;
+      font-size: 12.5px;
+      cursor: pointer;
+      user-select: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: transform 120ms ease, border-color 120ms ease, box-shadow 120ms ease;
+    }
+    .btn:hover{
+      transform: translateY(-1px);
+      border-color: rgba(18, 19, 26, 0.26);
+      box-shadow: 0 0 0 4px rgba(18, 19, 26, 0.06);
+    }
+    .btn.primary{
+      border-color: rgba(14, 165, 233, 0.45);
+      background: rgba(14, 165, 233, 0.10);
+    }
+
+    .muted{ color: var(--muted); font-size: 13px; line-height: 1.45; }
+
+    .toc{ display:flex; gap: 8px; flex-wrap: wrap; }
+    .chip{
+      border: 1px solid rgba(18, 19, 26, 0.14);
+      background: rgba(255,255,255,0.78);
+      border-radius: 999px;
+      padding: 7px 10px;
+      font-size: 13px;
+    }
+
+    @media (prefers-reduced-motion: reduce){
+      *{ transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="toprow">
+        <h1>终端初始化命令</h1>
+        <div class="hint"><a href="index.html">返回导航</a> · 一次性脚本，复制即可</div>
+      </div>
+      <p class="lead">目标：新电脑快速装好开发环境（git、zsh、node/pnpm、python、java、常用工具），并安装 codex/claude/gemini CLI。建议先读每段脚本的注释再执行。</p>
+      <div class="toc" style="margin-top:10px;">
+        <a class="chip" href="#windows">Windows (WSL)</a>
+        <a class="chip" href="#ubuntu">Ubuntu/Debian</a>
+        <a class="chip" href="#mac">macOS</a>
+      </div>
+    </header>
+
+    <section class="panel" id="windows">
+      <div class="hd">
+        <h2>Windows (WSL)</h2>
+        <div class="hint">PowerShell / Windows Terminal</div>
+      </div>
+      <div class="bd">
+        <div class="note">
+          1) 先在 Windows 装 WSL + Ubuntu。<br/>
+          2) 打开 Ubuntu 后，再执行下面的“Ubuntu/Debian”脚本。
+        </div>
+
+        <div class="blocks">
+          <div class="block">
+            <div class="bh">
+              <div>
+                <div class="t">安装 WSL + Ubuntu</div>
+                <div class="s">管理员 PowerShell（Windows 11 通常可直接用）</div>
+              </div>
+              <button class="btn primary" type="button" data-copy="#ps-wsl">复制</button>
+            </div>
+            <pre id="ps-wsl"><code>wsl --install -d Ubuntu
+wsl --update
+wsl --set-default-version 2
+
+# 安装完成后，打开“Ubuntu”应用并创建 Linux 用户
+# 然后在 Ubuntu 里执行本页的“Ubuntu/Debian”脚本</code></pre>
+          </div>
+        </div>
+
+        <p class="muted" style="margin:10px 0 0;">字体建议（在 Windows Terminal 设置里改）：JetBrainsMono Nerd Font 或 MesloLGS Nerd Font。</p>
+      </div>
+    </section>
+
+    <section class="panel" id="ubuntu">
+      <div class="hd">
+        <h2>Ubuntu/Debian</h2>
+        <div class="hint">Ubuntu / WSL Ubuntu / Debian</div>
+      </div>
+      <div class="bd">
+        <div class="note">
+          这个脚本会安装：git、zsh、常用 CLI 工具、Node.js（nvm）、pnpm（corepack）、Python（系统 python3 + pipx）、Java（sdkman）。
+          <br/>
+          注意：npm 全局包不要用 sudo。
+        </div>
+
+        <div class="blocks">
+          <div class="block">
+            <div class="bh">
+              <div>
+                <div class="t">一键安装（Linux）</div>
+                <div class="s">复制到终端执行</div>
+              </div>
+              <button class="btn primary" type="button" data-copy="#sh-ubuntu">复制</button>
+            </div>
+            <pre id="sh-ubuntu"><code>set -euo pipefail
+
+# 0) base packages
+sudo apt-get update
+sudo apt-get install -y \
+  git curl wget ca-certificates gnupg \
+  build-essential unzip zip \
+  jq ripgrep fzf \
+  zsh \
+  python3 python3-pip pipx \
+  openjdk-21-jdk-headless || true
+
+# 1) nvm (Node.js) - install latest LTS
+if [ ! -d "$HOME/.nvm" ]; then
+  curl -fsSL https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
+fi
+export NVM_DIR="$HOME/.nvm"
+# shellcheck disable=SC1091
+[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+
+nvm install --lts
+nvm use --lts
+
+# 2) pnpm via corepack
+corepack enable
+corepack prepare pnpm@latest --activate
+
+# 3) sdkman (Java manager) - optional but useful
+if [ ! -d "$HOME/.sdkman" ]; then
+  curl -s "https://get.sdkman.io" | bash
+fi
+# shellcheck disable=SC1091
+[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ] && . "$HOME/.sdkman/bin/sdkman-init.sh"
+
+# 4) pipx path
+python3 -m pipx ensurepath || true
+
+# 5) CLIs (no sudo)
+# OpenAI Codex CLI
+npm i -g @openai/codex
+
+# Anthropic Claude Code
+npm i -g @anthropic-ai/claude-code
+
+# Google Gemini CLI
+npm i -g @google/gemini-cli
+
+# 6) quick check
+node -v
+npm -v
+pnpm -v
+codex --version || true
+claude --version || true
+gemini --version || true
+
+echo "Done. Restart your terminal (or re-source your shell rc)"</code></pre>
+          </div>
+
+          <div class="block">
+            <div class="bh">
+              <div>
+                <div class="t">zsh 美化（可选）</div>
+                <div class="s">oh-my-zsh + starship</div>
+              </div>
+              <button class="btn" type="button" data-copy="#sh-zsh">复制</button>
+            </div>
+            <pre id="sh-zsh"><code>set -euo pipefail
+
+# Install oh-my-zsh (non-interactive)
+if [ ! -d "$HOME/.oh-my-zsh" ]; then
+  RUNZSH=no CHSH=no KEEP_ZSHRC=yes \
+    sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+fi
+
+# Install starship prompt
+curl -fsSL https://starship.rs/install.sh | sh -s -- -y
+
+# Enable starship in zshrc
+if ! rg -q "starship init zsh" "$HOME/.zshrc" 2>/dev/null; then
+  printf '\n# Prompt\neval "$(starship init zsh)"\n' >> "$HOME/.zshrc"
+fi
+
+echo "Optional: set your terminal font to a Nerd Font (JetBrainsMono Nerd Font / MesloLGS Nerd Font)."</code></pre>
+          </div>
+
+          <div class="block">
+            <div class="bh">
+              <div>
+                <div class="t">登录/初始化（执行一次）</div>
+                <div class="s">各 CLI 的首次登录</div>
+              </div>
+              <button class="btn" type="button" data-copy="#sh-login">复制</button>
+            </div>
+            <pre id="sh-login"><code># OpenAI Codex
+codex --login
+
+# Claude Code (会提示你登录/配置)
+claude
+
+# Gemini CLI
+# 运行后根据提示配置（通常需要 Google 登录/或 API key）
+gemini</code></pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel" id="mac">
+      <div class="hd">
+        <h2>macOS</h2>
+        <div class="hint">Homebrew</div>
+      </div>
+      <div class="bd">
+        <div class="note">
+          macOS 建议用 Homebrew 装基础工具；Node 用 nvm；然后装 codex/claude/gemini CLI。
+        </div>
+
+        <div class="blocks">
+          <div class="block">
+            <div class="bh">
+              <div>
+                <div class="t">安装 Homebrew + 工具</div>
+                <div class="s">复制到 Terminal 执行</div>
+              </div>
+              <button class="btn primary" type="button" data-copy="#sh-mac">复制</button>
+            </div>
+            <pre id="sh-mac"><code>set -euo pipefail
+
+# Xcode CLI tools
+xcode-select --install || true
+
+# Homebrew
+if ! command -v brew >/dev/null 2>&1; then
+  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+fi
+
+brew update
+brew install git jq ripgrep fzf zsh starship
+
+# Node via nvm
+if [ ! -d "$HOME/.nvm" ]; then
+  curl -fsSL https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
+fi
+export NVM_DIR="$HOME/.nvm"
+# shellcheck disable=SC1091
+[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+
+nvm install --lts
+nvm use --lts
+
+corepack enable
+corepack prepare pnpm@latest --activate
+
+# CLIs (no sudo)
+npm i -g @openai/codex
+npm i -g @anthropic-ai/claude-code
+npm i -g @google/gemini-cli
+
+node -v
+pnpm -v
+codex --version || true
+claude --version || true
+gemini --version || true</code></pre>
+          </div>
+
+          <div class="block">
+            <div class="bh">
+              <div>
+                <div class="t">安装 Nerd Font（可选）</div>
+                <div class="s">更好看的 prompt/图标</div>
+              </div>
+              <button class="btn" type="button" data-copy="#sh-font">复制</button>
+            </div>
+            <pre id="sh-font"><code># JetBrains Mono Nerd Font
+brew tap homebrew/cask-fonts
+brew install --cask font-jetbrains-mono-nerd-font
+
+# 然后在 iTerm2 / Terminal 的 Profile 里切换字体</code></pre>
+          </div>
+        </div>
+
+        <p class="muted" style="margin:10px 0 0;">提示：如果你用 zsh，记得把默认 shell 切到 zsh（macOS 通常默认就是 zsh）。</p>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="hd">
+        <h2>Notes</h2>
+        <div class="hint">版本会变</div>
+      </div>
+      <div class="bd">
+        <p class="muted">这页把安装命令固化在静态站里，方便复制粘贴；但各 CLI/依赖版本会变化。如果某条命令报错，优先以对应官方文档为准。</p>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    (function () {
+      "use strict";
+
+      /** @param {string} sel */
+      function copyFrom(sel) {
+        const el = document.querySelector(sel);
+        if (!el) return;
+        const text = el.innerText || el.textContent || "";
+
+        function fallbackCopy() {
+          const ta = document.createElement("textarea");
+          ta.value = text;
+          ta.style.position = "fixed";
+          ta.style.top = "-9999px";
+          ta.style.left = "-9999px";
+          document.body.appendChild(ta);
+          ta.focus();
+          ta.select();
+          try { document.execCommand("copy"); } catch {}
+          ta.remove();
+        }
+
+        if (navigator.clipboard && window.isSecureContext) {
+          navigator.clipboard.writeText(text).catch(fallbackCopy);
+        } else {
+          fallbackCopy();
+        }
+      }
+
+      document.addEventListener("click", (e) => {
+        const btn = e.target && e.target.closest ? e.target.closest("button[data-copy]") : null;
+        if (!btn) return;
+        const sel = btn.getAttribute("data-copy");
+        if (!sel) return;
+        copyFrom(sel);
+        const old = btn.textContent;
+        btn.textContent = "已复制";
+        window.setTimeout(() => { btn.textContent = old; }, 900);
+      });
+    })();
+  </script>
+</body>
+</html>

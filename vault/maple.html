@@ -1,0 +1,1162 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="light" />
+  <meta name="robots" content="noindex,nofollow,noarchive" />
+  <meta name="description" content="Maple Education 合同/Invoice 生成器（内部使用）。" />
+  <title>Maple Generator (Internal)</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,450..700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+
+  <style>
+    :root{
+      --bg: #f6f4ef;
+      --surface: rgba(255, 255, 255, 0.80);
+      --surface2: rgba(255, 255, 255, 0.92);
+      --ink: #12131a;
+      --muted: rgba(18, 19, 26, 0.66);
+      --line: rgba(18, 19, 26, 0.12);
+      --shadow: 0 14px 40px rgba(9, 10, 14, 0.12);
+      --shadow2: 0 10px 28px rgba(9, 10, 14, 0.12);
+      --radius: 18px;
+      --radius2: 14px;
+
+      --accent: #2c5aa0;
+      --accent2: #e11d48;
+
+      --font: "IBM Plex Sans", "Segoe UI", "Microsoft YaHei", system-ui, -apple-system, sans-serif;
+      --fontDisplay: "Fraunces", "Times New Roman", serif;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    *{ box-sizing: border-box; }
+    body{
+      margin: 0;
+      color: var(--ink);
+      font-family: var(--font);
+      background:
+        radial-gradient(1000px 520px at 14% 10%, rgba(44, 90, 160, 0.14), transparent 60%),
+        radial-gradient(860px 520px at 82% 18%, rgba(225, 29, 72, 0.10), transparent 60%),
+        repeating-linear-gradient(45deg, rgba(18, 19, 26, 0.045) 0px, rgba(18, 19, 26, 0.045) 2px, transparent 2px, transparent 10px),
+        var(--bg);
+      padding: 22px 16px 48px;
+    }
+
+    a{ color: inherit; text-decoration: none; }
+    a:hover{ text-decoration: underline; }
+
+    .wrap{ max-width: 1180px; margin: 0 auto; display: grid; gap: 14px; }
+
+    header{
+      border-radius: calc(var(--radius) + 6px);
+      border: 1px solid var(--line);
+      background: linear-gradient(135deg, rgba(255,255,255,0.84), rgba(255,255,255,0.58));
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      padding: 16px 18px 14px;
+      position: relative;
+    }
+    header::before{
+      content: "";
+      position: absolute;
+      inset: -70px -70px auto auto;
+      width: 340px;
+      height: 340px;
+      background: radial-gradient(circle at 30% 30%, rgba(44, 90, 160, 0.26), transparent 62%);
+      transform: rotate(10deg);
+      pointer-events: none;
+    }
+
+    .toprow{ display:flex; align-items: baseline; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+    h1{ margin: 0; font-family: var(--fontDisplay); font-size: 26px; letter-spacing: 0.2px; }
+    .hint{ color: var(--muted); font-size: 12.5px; }
+    .lead{ margin: 6px 0 0; color: var(--muted); line-height: 1.5; font-size: 14px; }
+
+    .panel{
+      border-radius: var(--radius);
+      border: 1px solid rgba(18, 19, 26, 0.14);
+      background: var(--surface);
+      box-shadow: var(--shadow2);
+      overflow: hidden;
+    }
+    .panel .hd{
+      padding: 14px 14px 12px;
+      border-bottom: 1px solid rgba(18, 19, 26, 0.08);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .panel .hd h2{
+      margin: 0;
+      font-size: 13px;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      color: rgba(18, 19, 26, 0.66);
+    }
+    .panel .bd{ padding: 14px; }
+
+    .layout{ display:grid; gap: 14px; grid-template-columns: 1fr 1.15fr; align-items: start; }
+    @media (max-width: 1020px){
+      .layout{ grid-template-columns: 1fr; }
+    }
+
+    .tabs{ display:flex; flex-wrap: wrap; gap: 8px; }
+    .tab{
+      border: 1px solid rgba(18, 19, 26, 0.16);
+      background: rgba(255,255,255,0.82);
+      border-radius: 999px;
+      padding: 8px 10px;
+      font-size: 13px;
+      cursor: pointer;
+      user-select: none;
+      transition: transform 120ms ease, border-color 120ms ease, box-shadow 120ms ease;
+    }
+    .tab:hover{ transform: translateY(-1px); border-color: rgba(18, 19, 26, 0.26); box-shadow: 0 0 0 4px rgba(18, 19, 26, 0.06); }
+    .tab[aria-pressed="true"]{ border-color: rgba(44, 90, 160, 0.55); background: rgba(44, 90, 160, 0.10); }
+
+    .field label{ display:block; margin-bottom: 6px; font-size: 12px; color: var(--muted); }
+    input[type="text"], input[type="number"], input[type="date"], textarea, select{
+      width: 100%;
+      border-radius: 12px;
+      border: 1px solid rgba(18, 19, 26, 0.16);
+      background: rgba(255,255,255,0.88);
+      padding: 10px 12px;
+      font-size: 14px;
+      color: var(--ink);
+      outline: none;
+    }
+    input:focus, textarea:focus, select:focus{
+      border-color: rgba(44, 90, 160, 0.55);
+      box-shadow: 0 0 0 4px rgba(44, 90, 160, 0.10);
+    }
+    textarea{ resize: vertical; min-height: 88px; }
+
+    .grid{ display:grid; gap: 10px; grid-template-columns: 1fr 1fr; }
+    @media (max-width: 560px){
+      .grid{ grid-template-columns: 1fr; }
+    }
+
+    .row{ display:flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+
+    .btn{
+      border: 1px solid rgba(18, 19, 26, 0.16);
+      background: rgba(255,255,255,0.86);
+      border-radius: 12px;
+      padding: 10px 12px;
+      font-size: 14px;
+      cursor: pointer;
+      user-select: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: transform 120ms ease, border-color 120ms ease, box-shadow 120ms ease;
+    }
+    .btn:hover{ transform: translateY(-1px); border-color: rgba(18, 19, 26, 0.26); box-shadow: 0 0 0 4px rgba(18, 19, 26, 0.06); }
+    .btn.primary{ border-color: rgba(44, 90, 160, 0.55); background: rgba(44, 90, 160, 0.12); }
+
+    .muted{ color: var(--muted); font-size: 13px; line-height: 1.45; }
+
+    .items{ display:grid; gap: 8px; }
+    .item{
+      border: 1px dashed rgba(18, 19, 26, 0.20);
+      background: rgba(255,255,255,0.80);
+      border-radius: 14px;
+      padding: 10px 12px;
+      display:grid;
+      gap: 10px;
+    }
+
+    /* Printable doc */
+    .paper{
+      background: var(--surface2);
+      border: 1px solid rgba(18, 19, 26, 0.12);
+      border-radius: var(--radius);
+      padding: 14px;
+    }
+
+    .doc{
+      width: 210mm;
+      min-height: 297mm;
+      margin: 0 auto;
+      background: #fff;
+      color: #111;
+      border: 1px solid rgba(18, 19, 26, 0.12);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .doc .dpad{ padding: 12mm 12mm 12mm; }
+
+    .doc-header{
+      display:flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      border-bottom: 2px solid #2c5aa0;
+      padding-bottom: 10px;
+      margin-bottom: 10px;
+    }
+    .logo{ width: 54px; height: 54px; object-fit: contain; }
+    .co h3{ margin: 0; font-size: 14pt; color: #2c5aa0; }
+    .co .en{ margin: 2px 0 0; font-size: 10pt; color: #111; font-weight: 600; }
+    .co .meta{ margin-top: 6px; font-size: 8.8pt; color: #444; line-height: 1.4; }
+
+    .doc-title{ text-align:right; }
+    .doc-title .t{ font-size: 18pt; font-weight: 800; color: #2c5aa0; letter-spacing: 1px; }
+    .doc-title .s{ margin-top: 2px; font-size: 9pt; color: #444; }
+
+    table{ width:100%; border-collapse: collapse; }
+    th, td{ border: 1px solid #d0d0d0; padding: 7px 8px; font-size: 9.2pt; }
+    th{ background: #2c5aa0; color: #fff; text-align: left; }
+
+    .kvs{ display:grid; gap: 10px; grid-template-columns: 1fr 1fr; margin-bottom: 10px; }
+    .kv{ border: 1px solid #e0e0e0; border-radius: 10px; padding: 8px 10px; }
+    .kv .k{ font-size: 8.5pt; color:#666; margin-bottom: 4px; }
+    .kv .v{ font-size: 9.5pt; color:#111; line-height: 1.35; white-space: pre-wrap; word-break: break-word; }
+
+    .right{ text-align: right; }
+
+    .totals{ margin-top: 10px; display:grid; gap: 8px; grid-template-columns: 1fr 0.75fr; }
+    .totals .box{ border: 1px solid #e0e0e0; border-radius: 10px; padding: 8px 10px; }
+    .totals .box .row{ justify-content: space-between; }
+    .totals .box .row span{ font-size: 9.2pt; }
+
+    .small{ font-size: 8.6pt; color: #444; line-height: 1.4; }
+    .sig{ margin-top: 18mm; display:flex; justify-content: space-between; gap: 14px; }
+    .sig .blk{ width: 48%; }
+    .sig .line{ height: 22mm; border-bottom: 1px solid #333; margin-bottom: 4px; }
+    .sig .cap{ font-size: 9pt; color: #111; }
+
+    .gate{
+      display: grid;
+      gap: 12px;
+      place-items: center;
+      padding: 40px 0 10px;
+      text-align: center;
+    }
+    .gate .card{
+      width: min(560px, 100%);
+      border-radius: 18px;
+      border: 1px solid rgba(18, 19, 26, 0.14);
+      background: rgba(255,255,255,0.86);
+      box-shadow: var(--shadow2);
+      padding: 14px;
+    }
+
+    @media print{
+      @page{ size: A4 portrait; margin: 0; }
+      body{ background: #fff; padding: 0; }
+      header, .panel.controls, .navhint, .paper, .panel.printwrap .hd { display: none !important; }
+      .wrap{ max-width: none; gap: 0; }
+      .layout{ grid-template-columns: 1fr; gap: 0; }
+      .panel.printwrap{ box-shadow:none; border:none; background:#fff; }
+      .panel.printwrap .bd{ padding: 0; }
+      .doc{ border:none; border-radius:0; }
+    }
+
+    @media (prefers-reduced-motion: reduce){
+      *{ transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="toprow">
+        <h1>Maple Generator</h1>
+        <div class="hint navhint">Internal · <span style="font-family:var(--mono);">/vault/maple.html</span></div>
+      </div>
+      <p class="lead">合同/Invoice 生成器（纯静态）。不会真正“防抓取”，但不在主导航入口且加了 noindex。建议结合 Cloudflare Access/Zero Trust 才算真正安全。</p>
+    </header>
+
+    <div class="panel" id="gate" style="display:none;">
+      <div class="bd">
+        <div class="gate">
+          <div class="card">
+            <div style="font-weight:800; font-size: 16px;">Internal Access</div>
+            <p class="muted" style="margin:6px 0 10px;">输入口令后在本机浏览器记住（localStorage）。</p>
+            <div class="grid">
+              <div class="field">
+                <label for="pass">口令</label>
+                <input id="pass" type="text" placeholder="Passphrase" autocomplete="off" />
+              </div>
+              <div class="field">
+                <label>&nbsp;</label>
+                <button class="btn primary" type="button" id="unlock">解锁</button>
+              </div>
+            </div>
+            <p class="muted" style="margin:10px 0 0;">如果你不想要口令门，可以把本页源码里 <code>REQUIRE_PASS</code> 设为 <code>false</code>。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="layout" id="app" style="display:none;">
+      <section class="panel controls" aria-label="输入">
+        <div class="hd">
+          <h2>Inputs</h2>
+          <div class="tabs">
+            <button class="tab" type="button" data-mode="invoice" aria-pressed="true">Invoice</button>
+            <button class="tab" type="button" data-mode="contract" aria-pressed="false">Contract (Summary)</button>
+          </div>
+        </div>
+        <div class="bd">
+          <div class="muted" id="mode-hint">Invoice 模式：生成 A4 可打印的发票。</div>
+
+          <div class="panel" style="box-shadow:none; margin-top:10px;">
+            <div class="hd"><h2>Company</h2><div class="hint">默认来自模板，可改</div></div>
+            <div class="bd">
+              <div class="grid">
+                <div class="field">
+                  <label for="coName">公司名</label>
+                  <input id="coName" type="text" value="Maple Education Pte. Ltd." />
+                </div>
+                <div class="field">
+                  <label for="coUen">UEN</label>
+                  <input id="coUen" type="text" value="202349302E" />
+                </div>
+                <div class="field" style="grid-column:1/-1;">
+                  <label for="coAddr">地址</label>
+                  <textarea id="coAddr">111 North Bridge Road, #25-01, Peninsula Plaza, Singapore 179098</textarea>
+                </div>
+                <div class="field">
+                  <label for="coPhone">电话</label>
+                  <input id="coPhone" type="text" value="+65 86863695" />
+                </div>
+                <div class="field">
+                  <label for="coEmail">邮箱</label>
+                  <input id="coEmail" type="text" value="Maple@maplesgedu.com" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div id="invoice-fields" style="display:block;">
+            <div class="panel" style="box-shadow:none; margin-top:10px;">
+              <div class="hd"><h2>Invoice</h2><div class="hint">A4 Print</div></div>
+              <div class="bd">
+                <div class="grid">
+                  <div class="field">
+                    <label for="invNo">Invoice No</label>
+                    <input id="invNo" type="text" placeholder="INV-2026-0001" />
+                  </div>
+                  <div class="field">
+                    <label for="invDate">Issue Date</label>
+                    <input id="invDate" type="date" />
+                  </div>
+                  <div class="field">
+                    <label for="dueDate">Due Date</label>
+                    <input id="dueDate" type="date" />
+                  </div>
+                  <div class="field">
+                    <label for="currency">Currency</label>
+                    <select id="currency">
+                      <option value="SGD" selected>SGD</option>
+                      <option value="USD">USD</option>
+                      <option value="CNY">CNY</option>
+                    </select>
+                  </div>
+
+                  <div class="field" style="grid-column:1/-1;">
+                    <label for="billTo">Bill To</label>
+                    <textarea id="billTo" placeholder="Client Name\nAddress\nEmail/Phone"></textarea>
+                  </div>
+                </div>
+
+                <div class="panel" style="box-shadow:none; margin-top:10px;">
+                  <div class="hd"><h2>Items</h2><div class="hint" id="item-hint">0 item(s)</div></div>
+                  <div class="bd">
+                    <div class="items" id="items"></div>
+                    <div class="row" style="margin-top:10px;">
+                      <button class="btn" type="button" id="addItem">+ Add Item</button>
+                      <button class="btn" type="button" id="clearItems">Clear</button>
+                    </div>
+                    <p class="muted" style="margin:10px 0 0;">金额会自动计算：qty * unit price。</p>
+                  </div>
+                </div>
+
+                <div class="grid" style="margin-top:10px;">
+                  <div class="field">
+                    <label for="discount">Discount</label>
+                    <input id="discount" type="number" min="0" step="0.01" value="0" />
+                  </div>
+                  <div class="field">
+                    <label for="gst">GST %</label>
+                    <input id="gst" type="number" min="0" step="0.01" value="0" />
+                  </div>
+                  <div class="field" style="grid-column:1/-1;">
+                    <label for="payInfo">Payment Info (Optional)</label>
+                    <textarea id="payInfo" placeholder="Bank Transfer: DBS/OCBC\nAccount Name: Maple Education Pte. Ltd.\nAccount No: ...\nPayNow: ..."></textarea>
+                  </div>
+                  <div class="field" style="grid-column:1/-1;">
+                    <label for="notes">Notes (Optional)</label>
+                    <textarea id="notes" placeholder="Thank you."></textarea>
+                  </div>
+                </div>
+
+                <div class="row" style="margin-top:12px;">
+                  <button class="btn primary" type="button" id="print">打印 A4</button>
+                  <button class="btn" type="button" id="export">导出 JSON</button>
+                  <button class="btn" type="button" id="import">导入 JSON</button>
+                  <input id="importFile" type="file" accept="application/json" style="display:none;" />
+                  <span class="muted" id="status">-</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div id="contract-fields" style="display:none;">
+            <div class="panel" style="box-shadow:none; margin-top:10px;">
+              <div class="hd"><h2>Contract Summary</h2><div class="hint">封面/摘要页</div></div>
+              <div class="bd">
+                <div class="grid">
+                  <div class="field">
+                    <label for="ctTitle">标题</label>
+                    <input id="ctTitle" type="text" value="Study Abroad Service Agreement Summary" />
+                  </div>
+                  <div class="field">
+                    <label for="ctDate">签署日期</label>
+                    <input id="ctDate" type="date" />
+                  </div>
+                  <div class="field" style="grid-column:1/-1;">
+                    <label for="ctPartyB">客户信息（甲方/申请人）</label>
+                    <textarea id="ctPartyB" placeholder="Name\nPassport/ID\nAddress\nPhone/Email"></textarea>
+                  </div>
+                  <div class="field" style="grid-column:1/-1;">
+                    <label for="ctService">服务内容</label>
+                    <textarea id="ctService" placeholder="Service scope / package" ></textarea>
+                  </div>
+                  <div class="field">
+                    <label for="ctFee">服务费（SGD）</label>
+                    <input id="ctFee" type="number" min="0" step="0.01" value="0" />
+                  </div>
+                  <div class="field">
+                    <label for="ctStart">服务开始日期</label>
+                    <input id="ctStart" type="date" />
+                  </div>
+                  <div class="field" style="grid-column:1/-1;">
+                    <label for="ctLink">模板链接（可选）</label>
+                    <input id="ctLink" type="text" value="../01_Legal_and_Contracts/Templates/Maple_Study_Abroad_Service_Contract_Complete.html" />
+                    <div class="muted" style="margin-top:6px;">你可以把完整合同模板链接放这里，打印摘要页后再打印模板，装订一起。</div>
+                  </div>
+                </div>
+
+                <div class="row" style="margin-top:12px;">
+                  <button class="btn primary" type="button" id="printContract">打印摘要页 A4</button>
+                  <a class="btn" id="openTemplate" href="../01_Legal_and_Contracts/Templates/Maple_Study_Abroad_Service_Contract_Complete.html" target="_blank" rel="noopener noreferrer">打开合同模板</a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel" style="box-shadow:none; margin-top:10px;">
+            <div class="hd"><h2>Access</h2><div class="hint">localStorage</div></div>
+            <div class="bd">
+              <div class="row">
+                <button class="btn" type="button" id="lock">锁定</button>
+                <button class="btn" type="button" id="clearLocal">清空本页本地数据</button>
+              </div>
+              <p class="muted" style="margin:10px 0 0;">注意：这是纯前端“弱保护”。真正的访问控制请用 Cloudflare Access/Zero Trust。</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel printwrap" aria-label="预览">
+        <div class="hd">
+          <h2>Preview</h2>
+          <div class="hint">A4</div>
+        </div>
+        <div class="bd">
+          <div class="paper">
+            <div class="muted">打印提示：浏览器打印里把缩放设为 100%，边距默认，背景图可以关闭（本页默认没有重背景）。</div>
+          </div>
+
+          <div class="doc" id="doc">
+            <div class="dpad">
+              <div class="doc-header">
+                <div style="display:flex; gap: 10px; align-items:flex-start;">
+                  <img class="logo" src="../04_Brand_Assets/01_Logo/Logo_MapleEducation_Main.png" alt="Maple" />
+                  <div class="co">
+                    <h3 id="pCoName">Maple Education Pte. Ltd.</h3>
+                    <div class="en" id="pCoUen">UEN: 202349302E</div>
+                    <div class="meta" id="pCoMeta">111 North Bridge Road, #25-01, Peninsula Plaza, Singapore 179098<br>+65 86863695 · Maple@maplesgedu.com</div>
+                  </div>
+                </div>
+                <div class="doc-title">
+                  <div class="t" id="pDocTitle">INVOICE</div>
+                  <div class="s" id="pDocSub">-</div>
+                </div>
+              </div>
+
+              <div class="kvs">
+                <div class="kv">
+                  <div class="k">Bill To</div>
+                  <div class="v" id="pBillTo">-</div>
+                </div>
+                <div class="kv">
+                  <div class="k">Details</div>
+                  <div class="v" id="pDetails">-</div>
+                </div>
+              </div>
+
+              <div id="pTableWrap"></div>
+
+              <div class="totals">
+                <div class="box">
+                  <div class="small"><b>Payment</b></div>
+                  <div class="small" id="pPay">-</div>
+                  <div class="small" style="margin-top:8px;"><b>Notes</b></div>
+                  <div class="small" id="pNotes">-</div>
+                </div>
+                <div class="box" id="pTotals"></div>
+              </div>
+
+              <div class="sig" id="pSig" style="display:none;">
+                <div class="blk">
+                  <div class="line"></div>
+                  <div class="cap">Company (Maple Education)</div>
+                </div>
+                <div class="blk">
+                  <div class="line"></div>
+                  <div class="cap">Client</div>
+                </div>
+              </div>
+
+              <div class="small" style="margin-top: 12px; color:#666;">Generated locally. Not a tax advice / legal advice.</div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      "use strict";
+
+      // Weak gate (static site): if true, require a local passphrase to view.
+      const REQUIRE_PASS = true;
+
+      const STORAGE_PASS = "leonard_maple_vault_pass_v1";
+      const STORAGE_DATA = "leonard_maple_generator_v1";
+
+      const elGate = document.getElementById("gate");
+      const elApp = document.getElementById("app");
+      const elPass = document.getElementById("pass");
+      const elUnlock = document.getElementById("unlock");
+
+      const elTabs = document.querySelectorAll(".tab");
+      const elModeHint = document.getElementById("mode-hint");
+      const elInvoiceFields = document.getElementById("invoice-fields");
+      const elContractFields = document.getElementById("contract-fields");
+
+      const elCoName = document.getElementById("coName");
+      const elCoUen = document.getElementById("coUen");
+      const elCoAddr = document.getElementById("coAddr");
+      const elCoPhone = document.getElementById("coPhone");
+      const elCoEmail = document.getElementById("coEmail");
+
+      const elInvNo = document.getElementById("invNo");
+      const elInvDate = document.getElementById("invDate");
+      const elDueDate = document.getElementById("dueDate");
+      const elCurrency = document.getElementById("currency");
+      const elBillTo = document.getElementById("billTo");
+
+      const elItems = document.getElementById("items");
+      const elItemHint = document.getElementById("item-hint");
+      const elAddItem = document.getElementById("addItem");
+      const elClearItems = document.getElementById("clearItems");
+
+      const elDiscount = document.getElementById("discount");
+      const elGst = document.getElementById("gst");
+      const elPayInfo = document.getElementById("payInfo");
+      const elNotes = document.getElementById("notes");
+
+      const elPrint = document.getElementById("print");
+      const elExport = document.getElementById("export");
+      const elImport = document.getElementById("import");
+      const elImportFile = document.getElementById("importFile");
+      const elStatus = document.getElementById("status");
+
+      const elCtTitle = document.getElementById("ctTitle");
+      const elCtDate = document.getElementById("ctDate");
+      const elCtPartyB = document.getElementById("ctPartyB");
+      const elCtService = document.getElementById("ctService");
+      const elCtFee = document.getElementById("ctFee");
+      const elCtStart = document.getElementById("ctStart");
+      const elCtLink = document.getElementById("ctLink");
+      const elPrintContract = document.getElementById("printContract");
+      const elOpenTemplate = document.getElementById("openTemplate");
+
+      const elLock = document.getElementById("lock");
+      const elClearLocal = document.getElementById("clearLocal");
+
+      // Preview elements
+      const elPCoName = document.getElementById("pCoName");
+      const elPCoUen = document.getElementById("pCoUen");
+      const elPCoMeta = document.getElementById("pCoMeta");
+      const elPDocTitle = document.getElementById("pDocTitle");
+      const elPDocSub = document.getElementById("pDocSub");
+      const elPBillTo = document.getElementById("pBillTo");
+      const elPDetails = document.getElementById("pDetails");
+      const elPTableWrap = document.getElementById("pTableWrap");
+      const elPTotals = document.getElementById("pTotals");
+      const elPPay = document.getElementById("pPay");
+      const elPNotes = document.getElementById("pNotes");
+      const elPSig = document.getElementById("pSig");
+
+      let mode = "invoice";
+
+      function nowYmd(){
+        const d = new Date();
+        const pad2 = (n) => String(n).padStart(2, "0");
+        return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;
+      }
+
+      function fmtMoney(n){
+        const x = Number(n);
+        if (!Number.isFinite(x)) return "0.00";
+        return x.toFixed(2);
+      }
+
+      function setStatus(t){ elStatus.textContent = t; }
+
+      function unlockOk(pass){
+        // Weak: store plain pass in localStorage so we can check equality.
+        // If you want stronger: store hash via WebCrypto.
+        if (!pass) return false;
+        try { localStorage.setItem(STORAGE_PASS, pass); } catch {}
+        return true;
+      }
+
+      function isUnlocked(){
+        if (!REQUIRE_PASS) return true;
+        try {
+          const p = localStorage.getItem(STORAGE_PASS);
+          return !!(p && p.trim().length >= 1);
+        } catch {
+          return false;
+        }
+      }
+
+      function showGate(){
+        elGate.style.display = "block";
+        elApp.style.display = "none";
+      }
+
+      function showApp(){
+        elGate.style.display = "none";
+        elApp.style.display = "grid";
+      }
+
+      function setMode(next){
+        mode = next;
+        for (const b of elTabs) {
+          b.setAttribute("aria-pressed", b.getAttribute("data-mode") === mode ? "true" : "false");
+        }
+        if (mode === "invoice") {
+          elModeHint.textContent = "Invoice 模式：生成 A4 可打印的发票。";
+          elInvoiceFields.style.display = "block";
+          elContractFields.style.display = "none";
+          elPDocTitle.textContent = "INVOICE";
+          elPSig.style.display = "none";
+        } else {
+          elModeHint.textContent = "Contract 模式：生成一页摘要/封面（建议和完整合同模板一起打印装订）。";
+          elInvoiceFields.style.display = "none";
+          elContractFields.style.display = "block";
+          elPDocTitle.textContent = "CONTRACT";
+          elPSig.style.display = "flex";
+        }
+        renderPreview();
+        save();
+      }
+
+      function makeItemRow(i){
+        const wrap = document.createElement("div");
+        wrap.className = "item";
+        wrap.setAttribute("data-idx", String(i));
+
+        const grid = document.createElement("div");
+        grid.className = "grid";
+
+        const f1 = document.createElement("div");
+        f1.className = "field";
+        const l1 = document.createElement("label");
+        l1.textContent = "Description";
+        const in1 = document.createElement("input");
+        in1.type = "text";
+        in1.value = "";
+        in1.placeholder = "Service / Product";
+        f1.appendChild(l1);
+        f1.appendChild(in1);
+
+        const f2 = document.createElement("div");
+        f2.className = "field";
+        const l2 = document.createElement("label");
+        l2.textContent = "Qty";
+        const in2 = document.createElement("input");
+        in2.type = "number";
+        in2.min = "0";
+        in2.step = "1";
+        in2.value = "1";
+        f2.appendChild(l2);
+        f2.appendChild(in2);
+
+        const f3 = document.createElement("div");
+        f3.className = "field";
+        const l3 = document.createElement("label");
+        l3.textContent = "Unit Price";
+        const in3 = document.createElement("input");
+        in3.type = "number";
+        in3.min = "0";
+        in3.step = "0.01";
+        in3.value = "0";
+        f3.appendChild(l3);
+        f3.appendChild(in3);
+
+        const f4 = document.createElement("div");
+        f4.className = "field";
+        const l4 = document.createElement("label");
+        l4.textContent = "Amount";
+        const out = document.createElement("input");
+        out.type = "text";
+        out.readOnly = true;
+        out.value = "0.00";
+        f4.appendChild(l4);
+        f4.appendChild(out);
+
+        const row = document.createElement("div");
+        row.className = "row";
+
+        const del = document.createElement("button");
+        del.type = "button";
+        del.className = "btn";
+        del.textContent = "Remove";
+
+        function calc(){
+          const qty = Number(in2.value);
+          const price = Number(in3.value);
+          const amt = (Number.isFinite(qty) ? qty : 0) * (Number.isFinite(price) ? price : 0);
+          out.value = fmtMoney(amt);
+        }
+
+        [in1, in2, in3].forEach(el => {
+          el.addEventListener("input", () => { calc(); renderPreview(); save(); });
+          el.addEventListener("change", () => { calc(); renderPreview(); save(); });
+        });
+
+        del.addEventListener("click", () => {
+          wrap.remove();
+          renderPreview();
+          save();
+          renderItemHint();
+        });
+
+        row.appendChild(del);
+
+        grid.appendChild(f1);
+        grid.appendChild(f2);
+        grid.appendChild(f3);
+        grid.appendChild(f4);
+
+        wrap.appendChild(grid);
+        wrap.appendChild(row);
+
+        calc();
+        return wrap;
+      }
+
+      function getItems(){
+        const list = [];
+        for (const el of Array.from(elItems.querySelectorAll(".item"))) {
+          const ins = el.querySelectorAll("input");
+          const desc = ins[0].value || "";
+          const qty = Number(ins[1].value);
+          const unit = Number(ins[2].value);
+          const amount = (Number.isFinite(qty) ? qty : 0) * (Number.isFinite(unit) ? unit : 0);
+          list.push({ desc, qty: Number.isFinite(qty) ? qty : 0, unit: Number.isFinite(unit) ? unit : 0, amount });
+        }
+        return list;
+      }
+
+      function renderItemHint(){
+        const n = elItems.querySelectorAll(".item").length;
+        elItemHint.textContent = `${n} item(s)`;
+      }
+
+      function renderPreview(){
+        // company
+        elPCoName.textContent = (elCoName.value || "").trim() || "-";
+        elPCoUen.textContent = `UEN: ${(elCoUen.value || "").trim() || "-"}`;
+        const coMeta = [
+          (elCoAddr.value || "").trim(),
+          (elCoPhone.value || "").trim() && (elCoEmail.value || "").trim() ? `${(elCoPhone.value||"").trim()} · ${(elCoEmail.value||"").trim()}` : ((elCoPhone.value||"").trim() || (elCoEmail.value||"").trim())
+        ].filter(Boolean).join("\n").replace(/\n/g, "<br>");
+        elPCoMeta.innerHTML = coMeta || "-";
+
+        if (mode === "invoice") {
+          const invNo = (elInvNo.value || "").trim() || "-";
+          const invDate = elInvDate.value || "-";
+          const due = elDueDate.value || "-";
+          const cur = elCurrency.value || "SGD";
+
+          elPDocSub.textContent = `${invNo} · ${cur}`;
+          elPBillTo.textContent = (elBillTo.value || "").trim() || "-";
+          elPDetails.textContent = `Issue: ${invDate}\nDue: ${due}`;
+
+          const items = getItems();
+          const sub = items.reduce((a, x) => a + (Number.isFinite(x.amount) ? x.amount : 0), 0);
+          const discount = Number(elDiscount.value);
+          const gstPct = Number(elGst.value);
+          const d = Number.isFinite(discount) ? discount : 0;
+          const g = Number.isFinite(gstPct) ? gstPct : 0;
+
+          const afterDiscount = Math.max(0, sub - d);
+          const gstAmt = afterDiscount * (g / 100);
+          const total = afterDiscount + gstAmt;
+
+          const table = document.createElement("table");
+          const thead = document.createElement("thead");
+          thead.innerHTML = "<tr><th style=\"width:42px;\">#</th><th>Description</th><th style=\"width:70px;\">Qty</th><th style=\"width:96px;\" class=\"right\">Unit</th><th style=\"width:110px;\" class=\"right\">Amount</th></tr>";
+          table.appendChild(thead);
+
+          const tbody = document.createElement("tbody");
+          items.forEach((x, idx) => {
+            const tr = document.createElement("tr");
+            const td1 = document.createElement("td"); td1.textContent = String(idx + 1);
+            const td2 = document.createElement("td"); td2.textContent = x.desc || "-";
+            const td3 = document.createElement("td"); td3.className = "right"; td3.textContent = String(x.qty);
+            const td4 = document.createElement("td"); td4.className = "right"; td4.textContent = fmtMoney(x.unit);
+            const td5 = document.createElement("td"); td5.className = "right"; td5.textContent = fmtMoney(x.amount);
+            tr.appendChild(td1); tr.appendChild(td2); tr.appendChild(td3); tr.appendChild(td4); tr.appendChild(td5);
+            tbody.appendChild(tr);
+          });
+          table.appendChild(tbody);
+
+          elPTableWrap.innerHTML = "";
+          elPTableWrap.appendChild(table);
+
+          elPPay.textContent = (elPayInfo.value || "").trim() || "-";
+          elPNotes.textContent = (elNotes.value || "").trim() || "-";
+
+          const totals = document.createElement("div");
+          totals.className = "small";
+
+          function r(label, value){
+            const div = document.createElement("div");
+            div.className = "row";
+            const a = document.createElement("span");
+            a.textContent = label;
+            const b = document.createElement("span");
+            b.style.fontWeight = "700";
+            b.textContent = value;
+            div.appendChild(a);
+            div.appendChild(b);
+            return div;
+          }
+
+          const curMark = cur;
+          const box = document.createElement("div");
+          box.appendChild(r("Subtotal", `${curMark} ${fmtMoney(sub)}`));
+          box.appendChild(r("Discount", `${curMark} ${fmtMoney(d)}`));
+          box.appendChild(r(`GST (${fmtMoney(g)}%)`, `${curMark} ${fmtMoney(gstAmt)}`));
+          const hr = document.createElement("div");
+          hr.style.height = "1px";
+          hr.style.background = "#e0e0e0";
+          hr.style.margin = "6px 0";
+          box.appendChild(hr);
+          box.appendChild(r("Total", `${curMark} ${fmtMoney(total)}`));
+
+          elPTotals.innerHTML = "";
+          elPTotals.appendChild(box);
+
+          elPSig.style.display = "none";
+        } else {
+          // contract summary
+          const title = (elCtTitle.value || "").trim() || "CONTRACT";
+          const date = elCtDate.value || "-";
+          elPDocSub.textContent = date;
+          elPBillTo.textContent = (elCtPartyB.value || "").trim() || "-";
+
+          const fee = Number(elCtFee.value);
+          const start = elCtStart.value || "-";
+          elPDetails.textContent = `Start: ${start}\nFee: SGD ${fmtMoney(fee)}`;
+
+          elPTableWrap.innerHTML = "";
+          const box = document.createElement("div");
+          box.className = "small";
+          box.innerHTML = `<div style=\"font-weight:800; font-size: 12pt; color:#2c5aa0; margin-bottom: 6px;\">${escapeHtml(title)}</div>`;
+          const p = document.createElement("div");
+          p.className = "small";
+          p.style.whiteSpace = "pre-wrap";
+          p.textContent = (elCtService.value || "").trim() || "-";
+          box.appendChild(p);
+          elPTableWrap.appendChild(box);
+
+          elPPay.textContent = "-";
+          elPNotes.textContent = "-";
+
+          elPTotals.innerHTML = "";
+          const totals = document.createElement("div");
+          totals.className = "small";
+          totals.innerHTML = `<div><b>Contract Date</b>: ${escapeHtml(date)}</div><div style=\"margin-top:6px;\"><b>Template</b>: ${escapeHtml((elCtLink.value||"").trim() || "-")}</div>`;
+          elPTotals.appendChild(totals);
+
+          elPDocTitle.textContent = "CONTRACT";
+          elPSig.style.display = "flex";
+        }
+      }
+
+      function escapeHtml(s){
+        return String(s)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/\"/g, "&quot;")
+          .replace(/'/g, "&#39;");
+      }
+
+      function toData(){
+        return {
+          v: 1,
+          mode,
+          company: {
+            name: elCoName.value || "",
+            uen: elCoUen.value || "",
+            addr: elCoAddr.value || "",
+            phone: elCoPhone.value || "",
+            email: elCoEmail.value || "",
+          },
+          invoice: {
+            no: elInvNo.value || "",
+            date: elInvDate.value || "",
+            due: elDueDate.value || "",
+            currency: elCurrency.value || "SGD",
+            billTo: elBillTo.value || "",
+            items: getItems(),
+            discount: Number(elDiscount.value) || 0,
+            gst: Number(elGst.value) || 0,
+            payInfo: elPayInfo.value || "",
+            notes: elNotes.value || "",
+          },
+          contract: {
+            title: elCtTitle.value || "",
+            date: elCtDate.value || "",
+            partyB: elCtPartyB.value || "",
+            service: elCtService.value || "",
+            fee: Number(elCtFee.value) || 0,
+            start: elCtStart.value || "",
+            link: elCtLink.value || "",
+          },
+        };
+      }
+
+      function fromData(d){
+        if (!d || typeof d !== "object") return;
+
+        const c = d.company || {};
+        elCoName.value = c.name || elCoName.value;
+        elCoUen.value = c.uen || elCoUen.value;
+        elCoAddr.value = c.addr || elCoAddr.value;
+        elCoPhone.value = c.phone || elCoPhone.value;
+        elCoEmail.value = c.email || elCoEmail.value;
+
+        const inv = d.invoice || {};
+        elInvNo.value = inv.no || "";
+        elInvDate.value = inv.date || elInvDate.value;
+        elDueDate.value = inv.due || elDueDate.value;
+        elCurrency.value = inv.currency || "SGD";
+        elBillTo.value = inv.billTo || "";
+        elDiscount.value = String(inv.discount ?? 0);
+        elGst.value = String(inv.gst ?? 0);
+        elPayInfo.value = inv.payInfo || "";
+        elNotes.value = inv.notes || "";
+
+        // items
+        elItems.innerHTML = "";
+        const its = Array.isArray(inv.items) ? inv.items : [];
+        if (its.length === 0) {
+          elItems.appendChild(makeItemRow(0));
+        } else {
+          its.forEach((x, idx) => {
+            const row = makeItemRow(idx);
+            const ins = row.querySelectorAll("input");
+            ins[0].value = x.desc || "";
+            ins[1].value = String(Number.isFinite(Number(x.qty)) ? Number(x.qty) : 0);
+            ins[2].value = String(Number.isFinite(Number(x.unit)) ? Number(x.unit) : 0);
+            // trigger calc
+            ins[1].dispatchEvent(new Event("input"));
+            elItems.appendChild(row);
+          });
+        }
+        renderItemHint();
+
+        const ct = d.contract || {};
+        elCtTitle.value = ct.title || elCtTitle.value;
+        elCtDate.value = ct.date || elCtDate.value;
+        elCtPartyB.value = ct.partyB || "";
+        elCtService.value = ct.service || "";
+        elCtFee.value = String(ct.fee ?? 0);
+        elCtStart.value = ct.start || "";
+        elCtLink.value = ct.link || elCtLink.value;
+        elOpenTemplate.href = (elCtLink.value || "../01_Legal_and_Contracts/Templates/Maple_Study_Abroad_Service_Contract_Complete.html").trim();
+
+        if (d.mode) setMode(d.mode);
+
+        renderPreview();
+      }
+
+      function save(){
+        try { localStorage.setItem(STORAGE_DATA, JSON.stringify(toData())); } catch {}
+      }
+
+      function load(){
+        try {
+          const raw = localStorage.getItem(STORAGE_DATA);
+          if (!raw) return;
+          fromData(JSON.parse(raw));
+        } catch {
+          // ignore
+        }
+      }
+
+      function exportJson(){
+        const data = JSON.stringify(toData(), null, 2);
+        const blob = new Blob([data], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `maple-generator-${mode}-${new Date().toISOString().slice(0,10)}.json`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+      }
+
+      function initDates(){
+        const today = nowYmd();
+        elInvDate.value = today;
+        elDueDate.value = today;
+        elCtDate.value = today;
+        elCtStart.value = today;
+      }
+
+      function ensureOneItem(){
+        if (elItems.querySelectorAll(".item").length === 0) elItems.appendChild(makeItemRow(0));
+        renderItemHint();
+      }
+
+      // Gate
+      if (REQUIRE_PASS && !isUnlocked()) {
+        elGate.style.display = "block";
+        showGate();
+      } else {
+        showApp();
+      }
+
+      elUnlock.addEventListener("click", () => {
+        const p = (elPass.value || "").trim();
+        if (!p) return;
+        unlockOk(p);
+        showApp();
+      });
+      elPass.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") elUnlock.click();
+      });
+
+      // Tabs
+      document.addEventListener("click", (e) => {
+        const btn = e.target && e.target.closest ? e.target.closest(".tab") : null;
+        if (!btn) return;
+        const m = btn.getAttribute("data-mode");
+        if (!m) return;
+        setMode(m);
+      });
+
+      // Invoice items
+      elAddItem.addEventListener("click", () => {
+        elItems.appendChild(makeItemRow(elItems.querySelectorAll(".item").length));
+        renderItemHint();
+        renderPreview();
+        save();
+      });
+      elClearItems.addEventListener("click", () => {
+        elItems.innerHTML = "";
+        ensureOneItem();
+        renderPreview();
+        save();
+      });
+
+      // Inputs
+      [
+        elCoName, elCoUen, elCoAddr, elCoPhone, elCoEmail,
+        elInvNo, elInvDate, elDueDate, elCurrency, elBillTo,
+        elDiscount, elGst, elPayInfo, elNotes,
+        elCtTitle, elCtDate, elCtPartyB, elCtService, elCtFee, elCtStart, elCtLink,
+      ].forEach(el => {
+        el.addEventListener("input", () => { renderPreview(); save(); });
+        el.addEventListener("change", () => { renderPreview(); save(); });
+      });
+
+      elCtLink.addEventListener("input", () => {
+        elOpenTemplate.href = (elCtLink.value || "../01_Legal_and_Contracts/Templates/Maple_Study_Abroad_Service_Contract_Complete.html").trim();
+      });
+
+      // Actions
+      elPrint.addEventListener("click", () => {
+        setMode("invoice");
+        renderPreview();
+        window.print();
+      });
+      elPrintContract.addEventListener("click", () => {
+        setMode("contract");
+        renderPreview();
+        window.print();
+      });
+
+      elExport.addEventListener("click", () => {
+        exportJson();
+        setStatus("已导出 JSON" );
+      });
+
+      elImport.addEventListener("click", () => elImportFile.click());
+      elImportFile.addEventListener("change", async () => {
+        const file = elImportFile.files && elImportFile.files[0];
+        elImportFile.value = "";
+        if (!file) return;
+        try {
+          const text = await file.text();
+          fromData(JSON.parse(text));
+          save();
+          setStatus("已导入 JSON" );
+        } catch {
+          setStatus("导入失败：不是有效 JSON" );
+        }
+      });
+
+      elLock.addEventListener("click", () => {
+        try { localStorage.removeItem(STORAGE_PASS); } catch {}
+        showGate();
+      });
+      elClearLocal.addEventListener("click", () => {
+        try { localStorage.removeItem(STORAGE_DATA); } catch {}
+        setStatus("已清空本地数据" );
+      });
+
+      // init
+      initDates();
+      ensureOneItem();
+      load();
+      renderPreview();
+      setStatus("Ready" );
+    })();
+  </script>
+</body>
+</html>
