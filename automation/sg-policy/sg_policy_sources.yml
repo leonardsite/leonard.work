@@ -1,0 +1,251 @@
+# 新加坡政策监测 - 部/局 Newsroom 来源（本地静态）
+# 字段：name, kind(ministry|agency), domain, newsroom, rss(optional), api_list(optional), priority(S|A|B|C)
+# 说明：priority 越靠前，越优先抓取。
+# 更新日期：2026-02-12 — 批量修正失效 URL
+
+# ===================== S 级（核心移民/就业/税务/金融） =====================
+
+- name: ICA 移民与关卡局
+  kind: agency
+  domain: https://www.ica.gov.sg
+  api_list: https://www.ica.gov.sg/ICAContentInterface/MediaReleasesList/FindMediaReleases?page=1&year={year}&category=&month=0
+  newsroom: https://www.ica.gov.sg/news-and-publications/newsroom
+  priority: S
+
+- name: MOM 人力部
+  kind: ministry
+  domain: https://www.mom.gov.sg
+  newsroom: https://www.mom.gov.sg/newsroom/press-releases
+  priority: S
+
+- name: MOE 教育部
+  kind: ministry
+  domain: https://www.moe.gov.sg
+  newsroom: https://www.moe.gov.sg/newsroom
+  priority: S
+
+- name: MOH 卫生部
+  kind: ministry
+  domain: https://www.moh.gov.sg
+  newsroom: https://www.moh.gov.sg/newsroom/press-release/
+  priority: S
+
+- name: IRAS 税务局
+  kind: agency
+  domain: https://www.iras.gov.sg
+  newsroom: https://www.iras.gov.sg/news-events/newsroom
+  priority: S
+
+- name: ACRA 企业监管局
+  kind: agency
+  domain: https://www.acra.gov.sg
+  newsroom: https://www.acra.gov.sg/news-events
+  priority: S
+
+- name: MAS 金管局
+  kind: agency
+  domain: https://www.mas.gov.sg
+  newsroom: https://www.mas.gov.sg/news/media-releases
+  priority: S
+
+- name: CPF 公积金局
+  kind: agency
+  domain: https://www.cpf.gov.sg
+  newsroom: https://www.cpf.gov.sg/member/infohub/news/news-releases
+  priority: S
+
+- name: WSG 新加坡劳动力发展局
+  kind: agency
+  domain: https://www.wsg.gov.sg
+  newsroom: https://www.wsg.gov.sg/home/media-room/media-releases-speeches
+  priority: S
+
+- name: SSG 技能创前程署
+  kind: agency
+  domain: https://www.skillsfuture.gov.sg
+  newsroom: https://www.skillsfuture.gov.sg/newsroom
+  priority: S
+
+- name: TAFEP 三方公平雇佣联盟
+  kind: agency
+  domain: https://www.tal.sg
+  newsroom: https://www.tal.sg/media/press-release
+  priority: S
+
+# ===================== A 级（法律/贸易/科技/金融监管） =====================
+
+- name: MSF 社会及家庭发展部
+  kind: ministry
+  domain: https://www.msf.gov.sg
+  newsroom: https://www.msf.gov.sg/media-room
+  priority: A
+
+- name: MinLaw 法律部
+  kind: ministry
+  domain: https://www.mlaw.gov.sg
+  newsroom: https://www.mlaw.gov.sg/news/press-releases/
+  priority: A
+
+- name: AGC 总检察署
+  kind: agency
+  domain: https://www.agc.gov.sg
+  newsroom: https://www.agc.gov.sg/newsroom/
+  priority: A
+
+- name: MTI 贸工部
+  kind: ministry
+  domain: https://www.mti.gov.sg
+  newsroom: https://www.mti.gov.sg/newsroom/
+  priority: A
+
+- name: EnterpriseSG 企业发展局
+  kind: agency
+  domain: https://www.sgpc.gov.sg
+  sgpc_agency: "Enterprise SG"
+  priority: A
+
+- name: EDB 经济发展局
+  kind: agency
+  domain: https://www.sgpc.gov.sg
+  sgpc_agency: "edb"
+  priority: A
+
+- name: IMDA
+  kind: agency
+  domain: https://www.imda.gov.sg
+  newsroom: https://www.imda.gov.sg/resources/press-releases-factsheets
+  priority: A
+
+- name: CSA 网络安全局
+  kind: agency
+  domain: https://www.csa.gov.sg
+  newsroom: https://www.csa.gov.sg/news-events/press-releases/
+  priority: A
+
+- name: PDPC 个资保护委员会
+  kind: agency
+  domain: https://www.pdpc.gov.sg
+  newsroom: https://www.pdpc.gov.sg/news-and-events/press-room
+  # NOTE: JS渲染，模板动态加载
+  priority: A
+
+- name: HSA 卫生科学局
+  kind: agency
+  domain: https://www.hsa.gov.sg
+  newsroom: https://www.hsa.gov.sg/announcements/press-release
+  priority: A
+
+- name: MOF 财政部
+  kind: ministry
+  domain: https://www.mof.gov.sg
+  newsroom: https://www.mof.gov.sg/news-resources/newsroom
+  priority: A
+
+# ===================== B 级（内政/国防/基建/房产） =====================
+
+- name: MHA 内政部
+  kind: ministry
+  domain: https://www.mha.gov.sg
+  newsroom: https://www.mha.gov.sg/media-room/newsroom/
+  priority: B
+
+- name: MND 国家发展部
+  kind: ministry
+  domain: https://www.mnd.gov.sg
+  newsroom: https://www.mnd.gov.sg/newsroom/press-releases
+  priority: B
+
+- name: HDB 建屋局
+  kind: agency
+  domain: https://www.hdb.gov.sg
+  newsroom: https://www.hdb.gov.sg/about-us/news-and-publications/press-releases
+  priority: B
+
+- name: URA 市区重建局
+  kind: agency
+  domain: https://www.ura.gov.sg
+  newsroom: https://www.ura.gov.sg/Corporate/Media-Room/Media-Releases
+  priority: B
+
+- name: SLA 土地局
+  kind: agency
+  domain: https://www.sla.gov.sg
+  newsroom: https://www.sla.gov.sg/news/press-release
+  priority: B
+
+- name: BCA 建设局
+  kind: agency
+  domain: https://www1.bca.gov.sg
+  newsroom: https://www1.bca.gov.sg/about-us/news-and-publications/media-releases
+  priority: B
+
+- name: JTC
+  kind: agency
+  domain: https://www.jtc.gov.sg
+  newsroom: https://www.jtc.gov.sg/about-jtc/news-and-stories
+  priority: B
+
+- name: HPB 健康促进局
+  kind: agency
+  domain: https://www.hpb.gov.sg
+  newsroom: https://www.hpb.gov.sg/newsroom
+  api_json_post:
+    url: https://www.hpb.gov.sg/api/listingdata/getarticles
+    body: '{"pageSize": "20", "pageIndex": "0", "category": "press-releases"}'
+    items_path: items
+    url_field: url
+  priority: B
+
+- name: EMA 能源市场管理局
+  kind: agency
+  domain: https://www.sgpc.gov.sg
+  sgpc_agency: "ema"
+  priority: B
+
+- name: MFA 外交部
+  kind: ministry
+  domain: https://www.mfa.gov.sg
+  newsroom: https://www.mfa.gov.sg/newsroom/press-statements-transcripts-and-photos/
+  priority: B
+
+- name: GovTech 政府科技局
+  kind: agency
+  domain: https://www.tech.gov.sg
+  newsroom: https://www.tech.gov.sg/media/
+  priority: B
+
+# ===================== C 级（环境/交通/公用事业） =====================
+
+- name: LTA 陆交局
+  kind: agency
+  domain: https://www.lta.gov.sg
+  newsroom: https://www.lta.gov.sg/content/ltagov/en/newsroom.html
+  priority: C
+
+- name: NEA 国家环境局
+  kind: agency
+  domain: https://www.nea.gov.sg
+  newsroom: https://www.nea.gov.sg/media/news/news-releases
+  rss: https://www.nea.gov.sg/rss/news_update
+  priority: C
+
+- name: PUB 水务局
+  kind: agency
+  domain: https://www.pub.gov.sg
+  newsroom: https://www.pub.gov.sg/Resources/News-Room/PressReleases
+  # NOTE: 使用 data-href 而非标准 <a href>，需要修改爬虫正则
+  priority: C
+
+- name: SFA 新加坡食品局
+  kind: agency
+  domain: https://www.sfa.gov.sg
+  newsroom: https://www.sfa.gov.sg/newsroom/press-releases
+  rss: https://www.sfa.gov.sg/rss/newsroom
+  priority: C
+
+- name: NParks 国家公园局
+  kind: agency
+  domain: https://www.nparks.gov.sg
+  newsroom: https://www.nparks.gov.sg/news
+  # NOTE: AJAX动态加载
+  priority: C

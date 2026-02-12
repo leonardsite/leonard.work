@@ -48,8 +48,20 @@ ssh -T git@github.com
 - `/pdf.html`: PDF toolbox (client-side: `pdf-lib` + `JSZip`)
 - `/maid-salary.html`: Maid salary calculator (A4 print, includes WP number)
 - `/terminal.html`: Terminal bootstrap commands
+- `/monitoring.html`: Automation monitoring dashboard (internal, `noindex`)
 - `/vault/maple.html`: Maple Education contract/invoice generator (internal, `noindex`)
 - `/School_Matchboard.html`: Legacy matchboard (internal, `noindex`)
+
+## Automation (`automation/`)
+
+Local crontab scripts for automated monitoring:
+
+- **SGX Tritech (5G9)**: Stock price, news, SGX announcements. Gemini AI report, WhatsApp delivery.
+  - Schedule: Mon-Fri 09:00 (open), 17:05 (close) SGT
+  - Stack: `yfinance` + Brave Search + Gemini CLI + OpenClaw webhook
+- **SG Policy Monitor**: 39 government department newsrooms, dedup + archive + Notion.
+  - Schedule: Mon-Sat every hour 08:10-22:10 SGT
+  - Stack: RSS/HTML scraping + Notion API
 
 ## Theme
 

@@ -22,6 +22,19 @@
 !School_Matchboard.html
 !matchboard.config.js
 
+# Monitoring dashboard
+!monitoring.html
+
+# Automation scripts
+!automation/
+!automation/sgx-tritech/
+!automation/sgx-tritech/*.py
+!automation/sgx-tritech/*.sh
+!automation/sg-policy/
+!automation/sg-policy/*.py
+!automation/sg-policy/*.sh
+!automation/sg-policy/*.yml
+
 # Private (not linked from main page)
 !vault/
 !vault/maple.html
