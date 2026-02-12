@@ -1,0 +1,647 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="light dark" />
+  <meta name="description" content="新加坡 FDW 雇佣合同生成器：基于 MOM 官方条款，自动填充、A4 打印、导出 Word。" />
+  <title>FDW 雇佣合同 | Leonard.work</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,450..700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+
+  <script>
+    (() => {
+      try {
+        const t = localStorage.getItem("leonard_theme_v1");
+        if (t === "light" || t === "dark") document.documentElement.dataset.theme = t;
+      } catch {}
+    })();
+  </script>
+
+  <style>
+    :root{
+      --bg: #f6f4ef;
+      --surface: rgba(255,255,255,0.78);
+      --ink: #12131a;
+      --muted: rgba(18,19,26,0.66);
+      --line: rgba(18,19,26,0.12);
+      --lineSoft: rgba(18,19,26,0.08);
+      --lineStrong: rgba(18,19,26,0.22);
+      --ring: rgba(18,19,26,0.06);
+      --stripe: rgba(18,19,26,0.045);
+      --headerA: rgba(255,255,255,0.84);
+      --headerB: rgba(255,255,255,0.58);
+      --surfaceHi: rgba(255,255,255,0.86);
+      --surfaceLo: rgba(255,255,255,0.78);
+      --fieldBg: rgba(255,255,255,0.84);
+      --shadow: 0 14px 40px rgba(9,10,14,0.12);
+      --shadow2: 0 10px 28px rgba(9,10,14,0.12);
+      --radius: 18px;
+      --radius2: 14px;
+      --accent: #2563eb;
+      --accent2: #0ea5e9;
+      --good: #16a34a;
+      --font: "IBM Plex Sans","Segoe UI","Microsoft YaHei",system-ui,-apple-system,sans-serif;
+      --fontDisplay: "Fraunces","Times New Roman",serif;
+    }
+    html{ color-scheme: light dark; }
+    @media(prefers-color-scheme:dark){
+      :root{
+        --bg:#0b1224;--surface:rgba(15,23,42,0.76);--surfaceHi:rgba(15,23,42,0.86);
+        --surfaceLo:rgba(15,23,42,0.70);--fieldBg:rgba(15,23,42,0.86);
+        --ink:#e5e7eb;--muted:rgba(229,231,235,0.66);
+        --line:rgba(229,231,235,0.14);--lineSoft:rgba(229,231,235,0.09);
+        --lineStrong:rgba(229,231,235,0.24);--ring:rgba(229,231,235,0.08);
+        --stripe:rgba(229,231,235,0.05);
+        --headerA:rgba(15,23,42,0.86);--headerB:rgba(15,23,42,0.60);
+        --shadow:0 14px 40px rgba(0,0,0,0.40);--shadow2:0 10px 28px rgba(0,0,0,0.32);
+      }
+    }
+    html[data-theme="light"]{
+      color-scheme:light;
+      --bg:#f6f4ef;--surface:rgba(255,255,255,0.78);--surfaceHi:rgba(255,255,255,0.86);
+      --surfaceLo:rgba(255,255,255,0.78);--fieldBg:rgba(255,255,255,0.84);
+      --ink:#12131a;--muted:rgba(18,19,26,0.66);
+      --line:rgba(18,19,26,0.12);--lineSoft:rgba(18,19,26,0.08);
+      --lineStrong:rgba(18,19,26,0.22);--ring:rgba(18,19,26,0.06);
+      --stripe:rgba(18,19,26,0.045);
+      --headerA:rgba(255,255,255,0.84);--headerB:rgba(255,255,255,0.58);
+      --shadow:0 14px 40px rgba(9,10,14,0.12);--shadow2:0 10px 28px rgba(9,10,14,0.12);
+    }
+    html[data-theme="dark"]{
+      color-scheme:dark;
+      --bg:#0b1224;--surface:rgba(15,23,42,0.76);--surfaceHi:rgba(15,23,42,0.86);
+      --surfaceLo:rgba(15,23,42,0.70);--fieldBg:rgba(15,23,42,0.86);
+      --ink:#e5e7eb;--muted:rgba(229,231,235,0.66);
+      --line:rgba(229,231,235,0.14);--lineSoft:rgba(229,231,235,0.09);
+      --lineStrong:rgba(229,231,235,0.24);--ring:rgba(229,231,235,0.08);
+      --stripe:rgba(229,231,235,0.05);
+      --headerA:rgba(15,23,42,0.86);--headerB:rgba(15,23,42,0.60);
+      --shadow:0 14px 40px rgba(0,0,0,0.40);--shadow2:0 10px 28px rgba(0,0,0,0.32);
+    }
+
+    *{box-sizing:border-box;}
+    body{
+      margin:0;color:var(--ink);font-family:var(--font);
+      background:
+        radial-gradient(1000px 520px at 14% 10%,rgba(37,99,235,0.12),transparent 60%),
+        radial-gradient(860px 520px at 82% 18%,rgba(22,163,74,0.10),transparent 60%),
+        repeating-linear-gradient(45deg,var(--stripe) 0px,var(--stripe) 2px,transparent 2px,transparent 10px),
+        var(--bg);
+      padding:22px 16px 48px;
+    }
+    a{color:inherit;text-decoration:none;}
+    a:hover{text-decoration:underline;}
+
+    .wrap{max-width:1200px;margin:0 auto;display:grid;gap:14px;}
+
+    header{
+      border-radius:calc(var(--radius)+6px);border:1px solid var(--line);
+      background:linear-gradient(135deg,var(--headerA),var(--headerB));
+      box-shadow:var(--shadow);overflow:hidden;padding:16px 18px 14px;position:relative;
+    }
+    header::before{
+      content:"";position:absolute;inset:-70px -70px auto auto;width:340px;height:340px;
+      background:radial-gradient(circle at 30% 30%,rgba(37,99,235,0.24),transparent 62%);
+      transform:rotate(10deg);pointer-events:none;
+    }
+    .toprow{display:flex;align-items:baseline;justify-content:space-between;gap:10px;flex-wrap:wrap;}
+    h1{margin:0;font-family:var(--fontDisplay);font-size:26px;letter-spacing:0.2px;}
+    .hint{color:var(--muted);font-size:12.5px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end;}
+    .theme{border:1px solid var(--line);background:var(--surfaceLo);color:var(--muted);border-radius:999px;padding:7px 10px;font-size:12.5px;cursor:pointer;user-select:none;transition:transform 120ms ease,border-color 120ms ease,box-shadow 120ms ease;}
+    .theme:hover{transform:translateY(-1px);border-color:var(--lineStrong);box-shadow:0 0 0 4px var(--ring);}
+    .lead{margin:6px 0 0;color:var(--muted);line-height:1.5;font-size:14px;}
+
+    .layout{display:grid;gap:14px;grid-template-columns:380px 1fr;align-items:start;}
+    @media(max-width:1000px){.layout{grid-template-columns:1fr;}}
+
+    .panel{border-radius:var(--radius);border:1px solid var(--line);background:var(--surface);box-shadow:var(--shadow2);overflow:hidden;}
+    .panel .hd{padding:14px 14px 12px;border-bottom:1px solid var(--lineSoft);display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;}
+    .panel .hd h2{margin:0;font-size:13px;letter-spacing:0.5px;text-transform:uppercase;color:var(--muted);}
+    .panel .bd{padding:14px;}
+
+    .grid2{display:grid;gap:10px;grid-template-columns:1fr 1fr;}
+    @media(max-width:500px){.grid2{grid-template-columns:1fr;}}
+    .full{grid-column:1/-1;}
+
+    .section-title{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--accent);margin:16px 0 8px;padding-top:12px;border-top:1px solid var(--lineSoft);}
+    .section-title:first-child{margin-top:0;padding-top:0;border-top:none;}
+
+    .field label{display:block;margin-bottom:5px;font-size:12px;color:var(--muted);}
+    input[type="text"],input[type="number"],input[type="date"],select,textarea{
+      width:100%;border-radius:10px;border:1px solid var(--line);background:var(--fieldBg);
+      padding:9px 11px;font-size:13.5px;color:var(--ink);outline:none;font-family:inherit;
+    }
+    textarea{resize:vertical;min-height:60px;}
+    input:focus,select:focus,textarea:focus{border-color:rgba(37,99,235,0.55);box-shadow:0 0 0 3px rgba(37,99,235,0.10);}
+
+    .checks{display:flex;flex-wrap:wrap;gap:6px 12px;}
+    .checks label{font-size:12.5px;color:var(--ink);display:flex;align-items:center;gap:4px;cursor:pointer;}
+    .checks input[type="checkbox"]{width:auto;margin:0;}
+
+    .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+    .btn{
+      border:1px solid var(--line);background:var(--fieldBg);border-radius:10px;
+      padding:9px 14px;font-size:13.5px;cursor:pointer;user-select:none;
+      display:inline-flex;align-items:center;gap:6px;color:var(--ink);font-family:inherit;
+      transition:transform 120ms ease,border-color 120ms ease,box-shadow 120ms ease;
+    }
+    .btn:hover{transform:translateY(-1px);border-color:var(--lineStrong);box-shadow:0 0 0 4px var(--ring);}
+    .btn.primary{border-color:rgba(37,99,235,0.55);background:rgba(37,99,235,0.12);color:var(--accent);}
+    .btn.green{border-color:rgba(22,163,74,0.55);background:rgba(22,163,74,0.12);color:var(--good);}
+
+    .muted{color:var(--muted);font-size:12.5px;line-height:1.45;}
+
+    /* ---- A4 Preview ---- */
+    #contract{
+      font-family:"Times New Roman","Noto Serif SC",serif;
+      font-size:13px;line-height:1.7;color:#000;
+    }
+    #contract h3{font-size:15px;text-align:center;margin:0 0 18px;text-transform:uppercase;letter-spacing:1px;}
+    #contract .c-section{margin:16px 0 8px;font-weight:700;font-size:13.5px;border-bottom:1px solid #ccc;padding-bottom:3px;}
+    #contract .c-row{display:flex;gap:8px;margin:4px 0;}
+    #contract .c-label{min-width:160px;font-weight:600;flex-shrink:0;}
+    #contract .c-val{flex:1;border-bottom:1px dotted #999;min-height:1.4em;}
+    #contract .c-clause{margin:6px 0;text-align:justify;}
+    #contract .c-clause b{font-weight:700;}
+    #contract ol{margin:6px 0 6px 20px;padding:0;}
+    #contract ol li{margin:4px 0;}
+    #contract .sig-grid{display:grid;grid-template-columns:1fr 1fr;gap:30px;margin-top:30px;}
+    #contract .sig-box{border-top:1px solid #000;padding-top:6px;margin-top:50px;}
+    #contract .sig-box .sig-label{font-size:11px;color:#555;}
+    #contract .c-duties{columns:2;column-gap:16px;}
+    #contract .c-duties label{display:block;font-size:12.5px;margin:2px 0;break-inside:avoid;}
+    @media(max-width:600px){#contract .c-duties{columns:1;}}
+
+    @media print{
+      @page{size:A4 portrait;margin:15mm 12mm;}
+      body{background:#fff;padding:0;}
+      header,.panel.controls,.navhint{display:none!important;}
+      .wrap{max-width:none;gap:0;}
+      .layout{grid-template-columns:1fr;gap:0;}
+      .panel{box-shadow:none;border:none;background:#fff;}
+      .panel .hd{display:none;}
+      .panel .bd{padding:0;}
+      #contract{font-size:12px;line-height:1.65;}
+      #contract .c-section{font-size:12.5px;}
+      #contract .sig-box{margin-top:40px;}
+    }
+    @media(prefers-reduced-motion:reduce){*{transition:none!important;}}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="toprow">
+        <h1>FDW 雇佣合同</h1>
+        <div class="hint navhint">
+          <a href="index.html">返回导航</a>
+          <span>基于 MOM 官方条款</span>
+          <button class="theme" type="button" id="theme" title="切换主题">主题：自动</button>
+        </div>
+      </div>
+      <p class="lead">填写左侧表格，右侧自动生成合同。支持 A4 打印和导出 Word 文档。条款参照 MOM 官方指南及 ASEAN 标准合同。</p>
+    </header>
+
+    <div class="layout">
+      <!-- ======== LEFT: FORM ======== -->
+      <section class="panel controls" aria-label="输入">
+        <div class="hd"><h2>Contract Info</h2></div>
+        <div class="bd">
+
+          <div class="section-title">Employer 雇主</div>
+          <div class="grid2">
+            <div class="field"><label for="empName">Full Name</label><input id="empName" type="text" placeholder="e.g. Leonard Chow" /></div>
+            <div class="field"><label for="empNric">NRIC / FIN</label><input id="empNric" type="text" placeholder="e.g. S1234567A" /></div>
+            <div class="field full"><label for="empAddr">Residential Address</label><input id="empAddr" type="text" placeholder="e.g. 123 Bishan St 12 #08-456, S570123" /></div>
+            <div class="field"><label for="empPhone">Phone</label><input id="empPhone" type="text" placeholder="e.g. 9123 4567" /></div>
+          </div>
+
+          <div class="section-title">FDW 女佣</div>
+          <div class="grid2">
+            <div class="field"><label for="fdwName">Full Name</label><input id="fdwName" type="text" placeholder="e.g. Maria Santos" /></div>
+            <div class="field"><label for="fdwFin">FIN / Passport</label><input id="fdwFin" type="text" placeholder="e.g. G1234567X" /></div>
+            <div class="field"><label for="fdwNat">Nationality</label>
+              <select id="fdwNat">
+                <option value="Filipino">Filipino</option>
+                <option value="Indonesian">Indonesian</option>
+                <option value="Myanmar">Myanmar</option>
+                <option value="Indian">Indian</option>
+                <option value="Sri Lankan">Sri Lankan</option>
+                <option value="Bangladeshi">Bangladeshi</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+            <div class="field"><label for="fdwDob">Date of Birth</label><input id="fdwDob" type="date" /></div>
+            <div class="field"><label for="fdwWp">Work Permit No.</label><input id="fdwWp" type="text" placeholder="e.g. 012345678901" /></div>
+          </div>
+
+          <div class="section-title">Contract 合同条款</div>
+          <div class="grid2">
+            <div class="field"><label for="startDate">Start Date</label><input id="startDate" type="date" /></div>
+            <div class="field"><label for="duration">Duration</label>
+              <select id="duration">
+                <option value="24">2 Years (Standard)</option>
+                <option value="12">1 Year</option>
+                <option value="36">3 Years</option>
+              </select>
+            </div>
+            <div class="field"><label for="salary">Monthly Salary (SGD)</label><input id="salary" type="number" min="0" step="1" value="700" /></div>
+            <div class="field"><label for="restDay">Weekly Rest Day</label>
+              <select id="restDay">
+                <option value="Sunday">Sunday</option>
+                <option value="Saturday">Saturday</option>
+                <option value="Monday">Monday</option>
+                <option value="Tuesday">Tuesday</option>
+                <option value="Wednesday">Wednesday</option>
+                <option value="Thursday">Thursday</option>
+                <option value="Friday">Friday</option>
+              </select>
+            </div>
+            <div class="field"><label for="restComp">Rest Day Compensation (SGD/day)</label><input id="restComp" type="number" min="0" step="1" value="" placeholder="e.g. salary/26" /></div>
+            <div class="field"><label for="noticePeriod">Notice Period</label>
+              <select id="noticePeriod">
+                <option value="1 month">1 Month</option>
+                <option value="2 weeks">2 Weeks</option>
+                <option value="7 days">7 Days</option>
+              </select>
+            </div>
+            <div class="field"><label for="foodAllow">Food Allowance (SGD/month, 0=provided)</label><input id="foodAllow" type="number" min="0" step="1" value="0" /></div>
+            <div class="field"><label for="payMethod">Payment Method</label>
+              <select id="payMethod">
+                <option value="Bank Transfer">Bank Transfer</option>
+                <option value="Cash">Cash (with signed record)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="section-title">Duties 职责</div>
+          <div class="checks" id="dutiesChecks">
+            <label><input type="checkbox" value="General housework (cleaning, laundry, ironing)" checked /> Housework</label>
+            <label><input type="checkbox" value="Cooking and meal preparation" checked /> Cooking</label>
+            <label><input type="checkbox" value="Childcare" /> Childcare</label>
+            <label><input type="checkbox" value="Eldercare" /> Eldercare</label>
+            <label><input type="checkbox" value="Grocery shopping" checked /> Shopping</label>
+            <label><input type="checkbox" value="Car washing" /> Car wash</label>
+            <label><input type="checkbox" value="Pet care" /> Pet care</label>
+            <label><input type="checkbox" value="Gardening" /> Gardening</label>
+          </div>
+
+          <div class="section-title">Additional Notes 附加说明</div>
+          <div class="field full">
+            <textarea id="notes" rows="3" placeholder="Optional: any additional terms agreed upon..."></textarea>
+          </div>
+
+          <div class="row" style="margin-top:14px;">
+            <button class="btn primary" type="button" id="btnGen">Generate</button>
+            <button class="btn green" type="button" id="btnWord">Export Word</button>
+            <button class="btn" type="button" id="btnPrint">Print A4</button>
+            <button class="btn" type="button" id="btnReset">Reset</button>
+          </div>
+          <p class="muted" style="margin-top:10px;">Disclaimer: This contract is for reference only. Consult MOM or a legal professional for specific situations.</p>
+        </div>
+      </section>
+
+      <!-- ======== RIGHT: A4 PREVIEW ======== -->
+      <section class="panel" aria-label="合同预览">
+        <div class="hd"><h2>A4 Contract Preview</h2></div>
+        <div class="bd">
+          <div id="contract">
+            <h3>Employment Contract for Foreign Domestic Worker<br><span style="font-size:12px;font-weight:400;color:#555;">雇佣合同 (Based on MOM Guidelines & ASEAN Standard Contract)</span></h3>
+
+            <div class="c-section">1. Parties 合同双方</div>
+            <div class="c-row"><span class="c-label">Employer Name 雇主:</span><span class="c-val" id="o-empName"></span></div>
+            <div class="c-row"><span class="c-label">NRIC / FIN:</span><span class="c-val" id="o-empNric"></span></div>
+            <div class="c-row"><span class="c-label">Address 地址:</span><span class="c-val" id="o-empAddr"></span></div>
+            <div class="c-row"><span class="c-label">Phone 电话:</span><span class="c-val" id="o-empPhone"></span></div>
+            <div style="height:10px;"></div>
+            <div class="c-row"><span class="c-label">FDW Name 女佣:</span><span class="c-val" id="o-fdwName"></span></div>
+            <div class="c-row"><span class="c-label">FIN / Passport:</span><span class="c-val" id="o-fdwFin"></span></div>
+            <div class="c-row"><span class="c-label">Nationality 国籍:</span><span class="c-val" id="o-fdwNat"></span></div>
+            <div class="c-row"><span class="c-label">Date of Birth:</span><span class="c-val" id="o-fdwDob"></span></div>
+            <div class="c-row"><span class="c-label">Work Permit No.:</span><span class="c-val" id="o-fdwWp"></span></div>
+
+            <div class="c-section">2. Employment Period 雇佣期限</div>
+            <div class="c-row"><span class="c-label">Start Date 开始日期:</span><span class="c-val" id="o-start"></span></div>
+            <div class="c-row"><span class="c-label">Duration 期限:</span><span class="c-val" id="o-duration"></span></div>
+            <div class="c-row"><span class="c-label">End Date 结束日期:</span><span class="c-val" id="o-end"></span></div>
+            <div class="c-clause">This contract shall be automatically renewed under the same terms unless either party gives notice of termination as stipulated herein. 除非任一方按本合同规定提前通知终止，本合同自动续约。</div>
+
+            <div class="c-section">3. Salary and Payment 薪酬与支付</div>
+            <div class="c-row"><span class="c-label">Monthly Salary:</span><span class="c-val" id="o-salary"></span></div>
+            <div class="c-row"><span class="c-label">Payment Method:</span><span class="c-val" id="o-payMethod"></span></div>
+            <div class="c-row"><span class="c-label">Payment Date:</span><span class="c-val">Within 7 days after end of each salary period</span></div>
+            <div class="c-clause">
+              <ol>
+                <li>The Employer shall pay the FDW not less than the salary declared to MOM. Salary shall be paid monthly, no later than 7 days after the end of each salary period. 雇主应按时支付不低于向 MOM 申报的薪资。</li>
+                <li>The Employer shall not retain the FDW's salary, bank books, ATM cards, or any personal financial documents. 雇主不得扣留女佣的薪资、银行存折、ATM 卡或个人财务文件。</li>
+                <li>All salary payments shall be documented with written records signed by both parties. 所有薪资支付须有双方签字的书面记录。</li>
+              </ol>
+            </div>
+
+            <div class="c-section">4. Rest Days 休息日</div>
+            <div class="c-row"><span class="c-label">Weekly Rest Day:</span><span class="c-val" id="o-restDay"></span></div>
+            <div class="c-row"><span class="c-label">Compensation (if worked):</span><span class="c-val" id="o-restComp"></span></div>
+            <div class="c-clause">
+              <ol>
+                <li>The FDW is entitled to <b>one rest day per week</b>. The FDW shall have at least <b>one rest day per month that cannot be compensated away</b> (per MOM regulations effective 1 Jan 2023). 女佣每周享有一天休息日，每月至少一天不可用补偿替代。</li>
+                <li>If the FDW agrees to work on a rest day, the Employer shall pay additional compensation of at least one day's salary. 若女佣同意在休息日工作，雇主须额外支付不少于一天薪资的补偿。</li>
+                <li>The FDW is free to spend rest days at any location of her choice. 女佣可自由选择休息日的活动地点。</li>
+              </ol>
+            </div>
+
+            <div class="c-section">5. Food and Accommodation 食宿</div>
+            <div class="c-row"><span class="c-label">Food Arrangement:</span><span class="c-val" id="o-food"></span></div>
+            <div class="c-clause">
+              <ol>
+                <li>The Employer shall provide the FDW with adequate food (3 meals per day) or a food allowance as agreed. If the FDW has dietary restrictions (religious, health, or personal), the Employer shall reasonably accommodate or provide a food allowance. 雇主须为女佣提供充足膳食或食物津贴。</li>
+                <li>The Employer shall provide acceptable accommodation that protects from environmental elements and affords reasonable privacy. 雇主须提供合理的住宿条件。</li>
+              </ol>
+            </div>
+
+            <div class="c-section">6. Duties and Responsibilities 工作职责</div>
+            <div class="c-clause">The FDW shall perform the following domestic duties diligently and honestly at the Employer's residential address only: 女佣应在雇主住宅内勤恳诚实地履行以下家务职责：</div>
+            <div id="o-duties" class="c-duties" style="margin:8px 0;"></div>
+            <div class="c-clause">The FDW shall <b>not</b> be deployed to work for any person other than the Employer, or at any address other than the Employer's registered residential address. 女佣不得为雇主以外的人工作，也不得在雇主注册住址以外的地方工作。</div>
+
+            <div class="c-section">7. Medical Care and Insurance 医疗与保险</div>
+            <div class="c-clause">
+              <ol>
+                <li>The Employer shall purchase and maintain <b>medical insurance</b> (minimum S$60,000/year inpatient coverage) and <b>personal accident insurance</b> (minimum S$60,000) for the FDW throughout the employment period. 雇主须为女佣购买医疗保险和人身意外保险。</li>
+                <li>All insurance costs shall be borne solely by the Employer and <b>shall not</b> be deducted from the FDW's salary. 保险费用由雇主全额承担，不得从女佣薪资中扣除。</li>
+                <li>The Employer shall arrange and pay for the FDW's medical examination within 14 days of arrival and 6-monthly medical examinations thereafter. 雇主须安排并支付女佣的入境体检及每半年的定期体检。</li>
+                <li>The Employer shall send the FDW for medical treatment whenever necessary. 雇主须在女佣需要时安排就医。</li>
+              </ol>
+            </div>
+
+            <div class="c-section">8. Termination 合同终止</div>
+            <div class="c-row"><span class="c-label">Notice Period:</span><span class="c-val" id="o-notice"></span></div>
+            <div class="c-clause">
+              <ol>
+                <li>Either party may terminate this contract by giving the agreed notice period in writing. The terminating party may alternatively pay compensation in lieu of notice (equivalent to the salary for the notice period). 任何一方可书面提前通知终止合同，或支付相应期限的薪资作为代通知金。</li>
+                <li>Upon termination, the Employer shall settle all outstanding salary, accrued benefits, and compensation for unused leave before the FDW's last working day. 终止时，雇主须在女佣最后工作日前结清所有未付薪资和福利。</li>
+                <li>The Employer may terminate immediately without notice for serious misconduct by the FDW. 女佣有严重不当行为时，雇主可立即终止合同。</li>
+              </ol>
+            </div>
+
+            <div class="c-section">9. Repatriation 遣返</div>
+            <div class="c-clause">The Employer shall bear the <b>full cost</b> of repatriating the FDW to her home country upon termination or expiry of this contract, including one-way air ticket with checked baggage, connecting transport, and reasonable transit allowance. 合同终止或到期时，雇主须承担女佣返回原籍国的全部费用。</div>
+
+            <div class="c-section">10. Prohibited Salary Deductions 禁止的薪资扣除</div>
+            <div class="c-clause">The Employer shall <b>not</b> deduct the following from the FDW's salary: work permit renewal fees, security bond, medical insurance premiums, repatriation costs, levy, compulsory training fees, or medical examination fees. 雇主不得从女佣薪资中扣除以下费用：工作准证续签费、保证金、医疗保险费、遣返费、levy、培训费或体检费。</div>
+
+            <div class="c-section">11. Continuous Rest 连续休息</div>
+            <div class="c-clause">The FDW shall be given a minimum of <b>8 consecutive hours</b> of rest per day. 女佣每天应享有至少连续 8 小时的休息时间。</div>
+
+            <div id="o-notes-section" style="display:none;">
+              <div class="c-section">12. Additional Terms 附加条款</div>
+              <div class="c-clause" id="o-notes"></div>
+            </div>
+
+            <div class="c-section" id="o-decl-title">12. Declaration 声明</div>
+            <div class="c-clause">Both parties have read and understood the terms of this contract and agree to abide by them. This contract is executed in duplicate, with each party retaining one copy. 双方已阅读并理解本合同所有条款，同意遵守执行。本合同一式两份，双方各持一份。</div>
+
+            <div class="sig-grid">
+              <div>
+                <div class="sig-box">
+                  <div class="sig-label">Employer Signature 雇主签字</div>
+                  <div style="margin-top:4px;font-size:12px;" id="o-sigEmp"></div>
+                  <div style="font-size:11px;color:#888;">Date: _______________</div>
+                </div>
+              </div>
+              <div>
+                <div class="sig-box">
+                  <div class="sig-label">FDW Signature 女佣签字</div>
+                  <div style="margin-top:4px;font-size:12px;" id="o-sigFdw"></div>
+                  <div style="font-size:11px;color:#888;">Date: _______________</div>
+                </div>
+              </div>
+            </div>
+
+            <div style="text-align:center;margin-top:24px;font-size:10px;color:#999;">
+              Generated by Leonard.work | Based on MOM Guidelines | For reference only
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <script>
+  (function(){
+    "use strict";
+
+    const STORAGE = "leonard_fdw_contract_v1";
+
+    const ids = [
+      "empName","empNric","empAddr","empPhone",
+      "fdwName","fdwFin","fdwNat","fdwDob","fdwWp",
+      "startDate","duration","salary","restDay","restComp","noticePeriod",
+      "foodAllow","payMethod","notes"
+    ];
+    const el = {};
+    ids.forEach(id => el[id] = document.getElementById(id));
+
+    function val(id){ return (el[id].value || "").trim(); }
+    function num(id){ return Number(el[id].value) || 0; }
+
+    function fmtDate(v){
+      if(!v) return "";
+      const d = new Date(v + "T00:00:00");
+      if(isNaN(d.getTime())) return v;
+      return d.toLocaleDateString("en-SG",{day:"numeric",month:"long",year:"numeric"});
+    }
+    function addMonths(dateStr, months){
+      if(!dateStr) return "";
+      const d = new Date(dateStr + "T00:00:00");
+      d.setMonth(d.getMonth() + months);
+      d.setDate(d.getDate() - 1);
+      return d.toISOString().slice(0,10);
+    }
+
+    function getCheckedDuties(){
+      const boxes = document.querySelectorAll("#dutiesChecks input[type=checkbox]");
+      const duties = [];
+      boxes.forEach(cb => { if(cb.checked) duties.push(cb.value); });
+      return duties;
+    }
+
+    function setCheckedDuties(arr){
+      const boxes = document.querySelectorAll("#dutiesChecks input[type=checkbox]");
+      boxes.forEach(cb => { cb.checked = arr.includes(cb.value); });
+    }
+
+    function setText(id, text){ const e = document.getElementById(id); if(e) e.textContent = text || ""; }
+
+    function render(){
+      setText("o-empName", val("empName"));
+      setText("o-empNric", val("empNric"));
+      setText("o-empAddr", val("empAddr"));
+      setText("o-empPhone", val("empPhone"));
+      setText("o-fdwName", val("fdwName"));
+      setText("o-fdwFin", val("fdwFin"));
+      setText("o-fdwNat", val("fdwNat"));
+      setText("o-fdwDob", fmtDate(val("fdwDob")));
+      setText("o-fdwWp", val("fdwWp"));
+
+      setText("o-start", fmtDate(val("startDate")));
+      const dur = num("duration");
+      setText("o-duration", dur + " months" + (dur===24?" (2 years)":dur===12?" (1 year)":dur===36?" (3 years)":""));
+      setText("o-end", fmtDate(addMonths(val("startDate"), dur)));
+
+      const sal = num("salary");
+      setText("o-salary", sal > 0 ? "SGD " + sal.toFixed(2) + " per month" : "");
+      setText("o-payMethod", val("payMethod"));
+
+      setText("o-restDay", val("restDay") + " of each week");
+      const rc = num("restComp");
+      const rcAuto = sal > 0 ? (sal / 26).toFixed(2) : "0.00";
+      setText("o-restComp", rc > 0 ? "SGD " + rc.toFixed(2) + " per day" : "SGD " + rcAuto + " per day (salary / 26)");
+
+      const fa = num("foodAllow");
+      setText("o-food", fa > 0 ? "Food allowance of SGD " + fa.toFixed(2) + " per month" : "Provided by Employer (3 meals per day)");
+
+      setText("o-notice", val("noticePeriod") + " written notice by either party (or payment in lieu)");
+
+      // Duties
+      const duties = getCheckedDuties();
+      const dutiesEl = document.getElementById("o-duties");
+      dutiesEl.innerHTML = duties.map((d,i) => "<label>" + (i+1) + ". " + d + "</label>").join("");
+
+      // Notes
+      const notes = val("notes");
+      const notesSec = document.getElementById("o-notes-section");
+      const declTitle = document.getElementById("o-decl-title");
+      if(notes){
+        notesSec.style.display = "";
+        setText("o-notes", notes);
+        declTitle.textContent = "13. Declaration 声明";
+      } else {
+        notesSec.style.display = "none";
+        declTitle.textContent = "12. Declaration 声明";
+      }
+
+      // Signatures
+      setText("o-sigEmp", "Name: " + (val("empName") || "_______________"));
+      setText("o-sigFdw", "Name: " + (val("fdwName") || "_______________"));
+
+      save();
+    }
+
+    function save(){
+      try{
+        const data = {};
+        ids.forEach(id => data[id] = el[id].value);
+        data.duties = getCheckedDuties();
+        localStorage.setItem(STORAGE, JSON.stringify(data));
+      } catch{}
+    }
+
+    function load(){
+      try{
+        const raw = localStorage.getItem(STORAGE);
+        if(!raw) return;
+        const data = JSON.parse(raw);
+        ids.forEach(id => { if(data[id] != null) el[id].value = data[id]; });
+        if(data.duties) setCheckedDuties(data.duties);
+      } catch{}
+    }
+
+    function reset(){
+      ids.forEach(id => {
+        if(el[id].tagName === "SELECT") el[id].selectedIndex = 0;
+        else if(el[id].type === "number") el[id].value = id==="salary"?"700":"0";
+        else el[id].value = "";
+      });
+      const boxes = document.querySelectorAll("#dutiesChecks input[type=checkbox]");
+      boxes.forEach((cb,i) => cb.checked = i < 3);
+      try{ localStorage.removeItem(STORAGE); } catch{}
+      render();
+    }
+
+    function exportWord(){
+      render();
+      const content = document.getElementById("contract").innerHTML;
+      const html = `
+<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">
+<head><meta charset="utf-8"><title>FDW Employment Contract</title>
+<style>
+body{font-family:"Times New Roman",serif;font-size:12pt;line-height:1.8;color:#000;margin:2cm;}
+h3{font-size:14pt;text-align:center;margin:0 0 18pt;text-transform:uppercase;letter-spacing:1pt;}
+.c-section{margin:14pt 0 6pt;font-weight:bold;font-size:12.5pt;border-bottom:1px solid #ccc;padding-bottom:2pt;}
+.c-row{margin:3pt 0;}
+.c-label{font-weight:bold;display:inline-block;min-width:140pt;}
+.c-val{border-bottom:1px dotted #999;}
+.c-clause{margin:5pt 0;text-align:justify;}
+ol{margin:5pt 0 5pt 18pt;padding:0;}
+ol li{margin:3pt 0;}
+.sig-grid{display:flex;justify-content:space-between;margin-top:28pt;}
+.sig-grid>div{width:45%;}
+.sig-box{border-top:1px solid #000;padding-top:6pt;margin-top:50pt;}
+.sig-label{font-size:9pt;color:#555;}
+.c-duties label{display:block;font-size:11pt;margin:2pt 0;}
+</style></head><body>${content}</body></html>`;
+      const blob = new Blob(["\ufeff" + html], {type:"application/msword"});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      const empName = val("empName") || "FDW";
+      const fdwName = val("fdwName") || "Contract";
+      a.download = "FDW_Contract_" + empName.replace(/\s+/g,"_") + "_" + fdwName.replace(/\s+/g,"_") + ".doc";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    // Init
+    const now = new Date();
+    const pad = n => String(n).padStart(2,"0");
+    el.startDate.value = now.getFullYear() + "-" + pad(now.getMonth()+1) + "-" + pad(now.getDate());
+
+    load();
+
+    // Bind events
+    ids.forEach(id => {
+      el[id].addEventListener("input", render);
+      el[id].addEventListener("change", render);
+    });
+    document.querySelectorAll("#dutiesChecks input[type=checkbox]").forEach(cb => {
+      cb.addEventListener("change", render);
+    });
+
+    document.getElementById("btnGen").addEventListener("click", render);
+    document.getElementById("btnPrint").addEventListener("click", () => { render(); window.print(); });
+    document.getElementById("btnWord").addEventListener("click", exportWord);
+    document.getElementById("btnReset").addEventListener("click", reset);
+
+    render();
+  })();
+  </script>
+
+  <script>
+    (() => {
+      const KEY = "leonard_theme_v1";
+      const btn = document.getElementById("theme");
+      if(!btn) return;
+      const order = ["auto","light","dark"];
+      const labels = {auto:"自动",light:"浅色",dark:"深色"};
+      function read(){ try{ return localStorage.getItem(KEY)||"auto"; }catch{ return "auto"; }}
+      function write(v){ try{ localStorage.setItem(KEY,v); }catch{}}
+      function apply(v){
+        if(v==="light"||v==="dark") document.documentElement.dataset.theme=v;
+        else delete document.documentElement.dataset.theme;
+        btn.textContent="主题："+( labels[v]||labels.auto);
+      }
+      apply(read());
+      btn.addEventListener("click",()=>{
+        const cur=read();
+        const next=order[(order.indexOf(cur)+1)%order.length]||"auto";
+        write(next); apply(next);
+      });
+    })();
+  </script>
+</body>
+</html>
