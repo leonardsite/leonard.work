@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="color-scheme" content="light" />
+  <meta name="color-scheme" content="light dark" />
   <meta name="description" content="新加坡常用工具导航：政府服务、出行、支付、生活、住房、健康、工作、学习、出入境、地图天气。" />
   <title>新加坡常用工具目录 | Leonard.work</title>
 
@@ -13,6 +13,17 @@
 
   <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20128%20128%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23e11d48%22/%3E%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%23fb7185%22/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width%3D%22128%22%20height%3D%22128%22%20rx%3D%2226%22%20fill%3D%22url(%23g)%22/%3E%3Cpath%20d%3D%22M42%2084%20c10%208%2034%208%2044%200%22%20fill%3D%22none%22%20stroke%3D%22white%22%20stroke-width%3D%2210%22%20stroke-linecap%3D%22round%22/%3E%3Cpath%20d%3D%22M44%2052%20h40%22%20fill%3D%22none%22%20stroke%3D%22white%22%20stroke-width%3D%2210%22%20stroke-linecap%3D%22round%22/%3E%3C/svg%3E" />
 
+  <script>
+    (() => {
+      try {
+        const t = localStorage.getItem("leonard_theme_v1");
+        if (t === "light" || t === "dark") document.documentElement.dataset.theme = t;
+      } catch {
+        // ignore
+      }
+    })();
+  </script>
+
   <style>
     :root{
       --bg: #f6f4ef;
@@ -21,6 +32,18 @@
       --ink: #12131a;
       --muted: rgba(18, 19, 26, 0.66);
       --line: rgba(18, 19, 26, 0.12);
+      --lineSoft: rgba(18, 19, 26, 0.08);
+      --lineStrong: rgba(18, 19, 26, 0.26);
+      --ring: rgba(18, 19, 26, 0.06);
+      --stripe: rgba(18, 19, 26, 0.045);
+
+      --headerA: rgba(255,255,255,0.78);
+      --headerB: rgba(255,255,255,0.58);
+
+      --surfaceHi: rgba(255,255,255,0.86);
+      --surfaceLo: rgba(255,255,255,0.70);
+      --fieldBg: rgba(255,255,255,0.82);
+      --toastBg: rgba(255,255,255,0.92);
       --shadow: 0 14px 40px rgba(9, 10, 14, 0.12);
       --shadow2: 0 10px 28px rgba(9, 10, 14, 0.12);
       --accent: #e11d48; /* SG-flag-ish red */
@@ -36,6 +59,84 @@
       --fontDisplay: "Fraunces", "Times New Roman", serif;
     }
 
+    html{ color-scheme: light dark; }
+
+    @media (prefers-color-scheme: dark){
+      :root{
+        --bg: #0b1224;
+        --surface: rgba(15, 23, 42, 0.74);
+        --surfaceHi: rgba(15, 23, 42, 0.86);
+        --surfaceLo: rgba(15, 23, 42, 0.70);
+        --fieldBg: rgba(15, 23, 42, 0.86);
+        --toastBg: rgba(2, 6, 23, 0.92);
+
+        --ink: #e5e7eb;
+        --muted: rgba(229, 231, 235, 0.66);
+
+        --line: rgba(229, 231, 235, 0.14);
+        --lineSoft: rgba(229, 231, 235, 0.09);
+        --lineStrong: rgba(229, 231, 235, 0.22);
+        --ring: rgba(229, 231, 235, 0.08);
+        --stripe: rgba(229, 231, 235, 0.05);
+
+        --headerA: rgba(15,23,42,0.86);
+        --headerB: rgba(15,23,42,0.60);
+
+        --shadow: 0 14px 40px rgba(0, 0, 0, 0.40);
+        --shadow2: 0 10px 28px rgba(0, 0, 0, 0.32);
+      }
+    }
+
+    html[data-theme="light"]{
+      color-scheme: light;
+      --bg: #f6f4ef;
+      --surface: rgba(255, 255, 255, 0.76);
+      --surfaceHi: rgba(255,255,255,0.86);
+      --surfaceLo: rgba(255,255,255,0.70);
+      --fieldBg: rgba(255,255,255,0.82);
+      --toastBg: rgba(255,255,255,0.92);
+
+      --ink: #12131a;
+      --muted: rgba(18, 19, 26, 0.66);
+
+      --line: rgba(18, 19, 26, 0.12);
+      --lineSoft: rgba(18, 19, 26, 0.08);
+      --lineStrong: rgba(18, 19, 26, 0.26);
+      --ring: rgba(18, 19, 26, 0.06);
+      --stripe: rgba(18, 19, 26, 0.045);
+
+      --headerA: rgba(255,255,255,0.78);
+      --headerB: rgba(255,255,255,0.58);
+
+      --shadow: 0 14px 40px rgba(9, 10, 14, 0.12);
+      --shadow2: 0 10px 28px rgba(9, 10, 14, 0.12);
+    }
+
+    html[data-theme="dark"]{
+      color-scheme: dark;
+      --bg: #0b1224;
+      --surface: rgba(15, 23, 42, 0.74);
+      --surfaceHi: rgba(15, 23, 42, 0.86);
+      --surfaceLo: rgba(15, 23, 42, 0.70);
+      --fieldBg: rgba(15, 23, 42, 0.86);
+      --toastBg: rgba(2, 6, 23, 0.92);
+
+      --ink: #e5e7eb;
+      --muted: rgba(229, 231, 235, 0.66);
+
+      --line: rgba(229, 231, 235, 0.14);
+      --lineSoft: rgba(229, 231, 235, 0.09);
+      --lineStrong: rgba(229, 231, 235, 0.22);
+      --ring: rgba(229, 231, 235, 0.08);
+      --stripe: rgba(229, 231, 235, 0.05);
+
+      --headerA: rgba(15,23,42,0.86);
+      --headerB: rgba(15,23,42,0.60);
+
+      --shadow: 0 14px 40px rgba(0, 0, 0, 0.40);
+      --shadow2: 0 10px 28px rgba(0, 0, 0, 0.32);
+    }
+
     * { box-sizing: border-box; }
     html, body { height: 100%; }
     body{
@@ -46,7 +147,7 @@
         radial-gradient(1000px 520px at 14% 10%, rgba(225, 29, 72, 0.14), transparent 60%),
         radial-gradient(860px 520px at 82% 18%, rgba(14, 165, 233, 0.14), transparent 60%),
         radial-gradient(900px 520px at 42% 96%, rgba(225, 29, 72, 0.08), transparent 60%),
-        repeating-linear-gradient(45deg, rgba(18, 19, 26, 0.045) 0px, rgba(18, 19, 26, 0.045) 2px, transparent 2px, transparent 10px),
+        repeating-linear-gradient(45deg, var(--stripe) 0px, var(--stripe) 2px, transparent 2px, transparent 10px),
         var(--bg);
       padding: 22px 16px 48px;
     }
@@ -65,7 +166,7 @@
       position: relative;
       border-radius: calc(var(--radius) + 6px);
       border: 1px solid var(--line);
-      background: linear-gradient(135deg, rgba(255,255,255,0.78), rgba(255,255,255,0.58));
+      background: linear-gradient(135deg, var(--headerA), var(--headerB));
       box-shadow: var(--shadow);
       overflow: hidden;
       padding: 18px 18px 14px;
@@ -98,6 +199,27 @@
     .brand .hint{
       color: var(--muted);
       font-size: 12.5px;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+    .theme{
+      border: 1px solid var(--line);
+      background: var(--surfaceLo);
+      color: var(--muted);
+      border-radius: 999px;
+      padding: 7px 10px;
+      font-size: 12.5px;
+      cursor: pointer;
+      user-select: none;
+      transition: transform 120ms ease, border-color 120ms ease, box-shadow 120ms ease;
+    }
+    .theme:hover{
+      transform: translateY(-1px);
+      border-color: var(--lineStrong);
+      box-shadow: 0 0 0 4px var(--ring);
     }
 
     .lead{
@@ -129,7 +251,7 @@
 
     .panel .hd{
       padding: 14px 14px 12px;
-      border-bottom: 1px solid rgba(18, 19, 26, 0.08);
+      border-bottom: 1px solid var(--lineSoft);
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -141,7 +263,7 @@
       font-size: 14px;
       letter-spacing: 0.4px;
       text-transform: uppercase;
-      color: rgba(18, 19, 26, 0.66);
+      color: var(--muted);
     }
     .panel .bd{ padding: 14px; }
 
@@ -164,8 +286,8 @@
     input[type="search"], input[type="text"], input[type="number"], select, textarea{
       width: 100%;
       border-radius: 12px;
-      border: 1px solid rgba(18, 19, 26, 0.16);
-      background: rgba(255,255,255,0.82);
+      border: 1px solid var(--line);
+      background: var(--fieldBg);
       padding: 10px 12px;
       font-size: 14px;
       color: var(--ink);
@@ -179,16 +301,16 @@
 
     .chips{ display: flex; flex-wrap: wrap; gap: 8px; }
     .chip{
-      border: 1px solid rgba(18, 19, 26, 0.16);
+      border: 1px solid var(--line);
       border-radius: 999px;
       padding: 7px 10px;
       font-size: 13px;
-      background: rgba(255,255,255,0.78);
+      background: var(--surfaceLo);
       cursor: pointer;
       user-select: none;
       transition: transform 120ms ease, background 120ms ease, border-color 120ms ease;
     }
-    .chip:hover{ transform: translateY(-1px); border-color: rgba(18, 19, 26, 0.26); }
+    .chip:hover{ transform: translateY(-1px); border-color: var(--lineStrong); }
     .chip[aria-pressed="true"]{
       border-color: rgba(225, 29, 72, 0.65);
       background: rgba(225, 29, 72, 0.10);
@@ -204,9 +326,9 @@
     }
 
     .card{
-      border: 1px solid rgba(18, 19, 26, 0.14);
+      border: 1px solid var(--line);
       border-radius: var(--radius2);
-      background: rgba(255,255,255,0.86);
+      background: var(--surfaceHi);
       padding: 12px 12px 10px;
       display: grid;
       gap: 8px;
@@ -217,7 +339,7 @@
     }
     .card:hover{
       transform: translateY(-2px);
-      border-color: rgba(18, 19, 26, 0.24);
+      border-color: var(--lineStrong);
       box-shadow: 0 12px 26px rgba(9,10,14,0.10);
     }
     .card .row{
@@ -242,9 +364,9 @@
       font-size: 12px;
       border-radius: 999px;
       padding: 4px 8px;
-      border: 1px solid rgba(18, 19, 26, 0.14);
-      color: rgba(18, 19, 26, 0.74);
-      background: rgba(255,255,255,0.70);
+      border: 1px solid var(--line);
+      color: var(--muted);
+      background: var(--surfaceLo);
     }
     .badge.red{ border-color: rgba(225, 29, 72, 0.30); background: rgba(225, 29, 72, 0.09); }
     .badge.blue{ border-color: rgba(14, 165, 233, 0.30); background: rgba(14, 165, 233, 0.09); }
@@ -264,8 +386,8 @@
       font-size: 13px;
       padding: 8px 10px;
       border-radius: 12px;
-      border: 1px solid rgba(18, 19, 26, 0.16);
-      background: rgba(255,255,255,0.82);
+      border: 1px solid var(--line);
+      background: var(--fieldBg);
       transition: transform 120ms ease, border-color 120ms ease, box-shadow 120ms ease;
     }
     .link:hover{
@@ -276,8 +398,8 @@
     }
 
     .fav{
-      border: 1px solid rgba(18, 19, 26, 0.16);
-      background: rgba(255,255,255,0.82);
+      border: 1px solid var(--line);
+      background: var(--fieldBg);
       border-radius: 12px;
       padding: 8px 10px;
       cursor: pointer;
@@ -285,14 +407,14 @@
       align-items: center;
       gap: 8px;
       font-size: 13px;
-      color: rgba(18, 19, 26, 0.82);
+      color: var(--ink);
       user-select: none;
       transition: transform 120ms ease, border-color 120ms ease, box-shadow 120ms ease;
     }
     .fav:hover{
       transform: translateY(-1px);
-      border-color: rgba(18, 19, 26, 0.26);
-      box-shadow: 0 0 0 4px rgba(18, 19, 26, 0.06);
+      border-color: var(--lineStrong);
+      box-shadow: 0 0 0 4px var(--ring);
     }
     .fav[aria-pressed="true"]{
       border-color: rgba(225, 29, 72, 0.55);
@@ -316,9 +438,9 @@
       margin-top: 10px;
     }
     .btn{
-      border: 1px solid rgba(18, 19, 26, 0.16);
-      background: rgba(255,255,255,0.82);
-      color: rgba(18, 19, 26, 0.84);
+      border: 1px solid var(--line);
+      background: var(--fieldBg);
+      color: var(--ink);
       border-radius: 999px;
       padding: 8px 10px;
       font-size: 13px;
@@ -328,8 +450,8 @@
     }
     .btn:hover{
       transform: translateY(-1px);
-      border-color: rgba(18, 19, 26, 0.26);
-      box-shadow: 0 0 0 4px rgba(18, 19, 26, 0.06);
+      border-color: var(--lineStrong);
+      box-shadow: 0 0 0 4px var(--ring);
     }
     .btn.primary{
       border-color: rgba(225, 29, 72, 0.45);
@@ -342,9 +464,9 @@
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
     .kpi .box{
-      border: 1px solid rgba(18, 19, 26, 0.12);
+      border: 1px solid var(--line);
       border-radius: 14px;
-      background: rgba(255,255,255,0.86);
+      background: var(--surfaceHi);
       padding: 10px 12px;
     }
     .kpi .k{ color: var(--muted); font-size: 12px; margin-bottom: 6px; }
@@ -363,15 +485,15 @@
     }
     .toast .msg{
       width: min(720px, 100%);
-      border: 1px solid rgba(18, 19, 26, 0.18);
-      background: rgba(255,255,255,0.92);
+      border: 1px solid var(--lineStrong);
+      background: var(--toastBg);
       border-radius: 14px;
       padding: 10px 12px;
       box-shadow: 0 14px 34px rgba(9,10,14,0.12);
       transform: translateY(18px);
       opacity: 0;
       transition: transform 160ms ease, opacity 160ms ease;
-      color: rgba(18, 19, 26, 0.84);
+      color: var(--ink);
       font-size: 13px;
     }
     .toast .msg.on{
@@ -389,7 +511,7 @@
     <header class="top">
       <div class="brand">
         <h1>新加坡常用工具目录</h1>
-        <div class="hint">Cloudflare 直出 · 纯静态 · <a href="index.html">返回导航</a></div>
+        <div class="hint">Cloudflare 直出 · 纯静态 · <a href="index.html">返回导航</a> <button class="theme" type="button" id="theme" title="切换主题：自动/浅色/深色">主题：自动</button></div>
       </div>
       <p class="lead">
         把日常会用到的 SG 服务放到一个页：搜索、按分类过滤、常用收藏（只存在你自己的浏览器）。
@@ -1170,6 +1292,40 @@
         const el = document.getElementById(id);
         el.addEventListener("input", calcGst);
         el.addEventListener("change", calcGst);
+      });
+    })();
+  </script>
+
+  <script>
+    (() => {
+      const KEY = "leonard_theme_v1";
+      const btn = document.getElementById("theme");
+      if (!btn) return;
+
+      const order = ["auto", "light", "dark"];
+      const labels = { auto: "自动", light: "浅色", dark: "深色" };
+
+      function read() {
+        try { return localStorage.getItem(KEY) || "auto"; } catch { return "auto"; }
+      }
+      function write(v) {
+        try { localStorage.setItem(KEY, v); } catch { /* ignore */ }
+      }
+      function apply(v) {
+        if (v === "light" || v === "dark") document.documentElement.dataset.theme = v;
+        else delete document.documentElement.dataset.theme;
+        btn.textContent = `主题：${labels[v] || labels.auto}`;
+        btn.setAttribute("data-theme", v);
+      }
+
+      apply(read());
+
+      btn.addEventListener("click", () => {
+        const cur = read();
+        const idx = order.indexOf(cur);
+        const next = order[(idx + 1) % order.length] || "auto";
+        write(next);
+        apply(next);
       });
     })();
   </script>

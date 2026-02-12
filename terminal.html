@@ -3,13 +3,25 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="color-scheme" content="light" />
+  <meta name="color-scheme" content="light dark" />
   <meta name="description" content="新电脑初始化命令：Windows(WSL)/Ubuntu/macOS，一键安装 git、zsh、node/pnpm、python、java，以及 codex/claude/gemini 等 CLI。" />
   <title>终端初始化命令 | Leonard.work</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,450..700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+
+  <script>
+    (() => {
+      try {
+        const t = localStorage.getItem("leonard_theme_v1");
+        if (t === "light" || t === "dark") document.documentElement.dataset.theme = t;
+      } catch {
+        // ignore
+      }
+    })();
+  </script>
+
 
   <style>
     :root{
@@ -18,6 +30,18 @@
       --ink: #12131a;
       --muted: rgba(18, 19, 26, 0.66);
       --line: rgba(18, 19, 26, 0.12);
+      --lineSoft: rgba(18, 19, 26, 0.08);
+      --lineStrong: rgba(18, 19, 26, 0.22);
+      --ring: rgba(18, 19, 26, 0.06);
+      --stripe: rgba(18, 19, 26, 0.045);
+
+      --headerA: rgba(255,255,255,0.84);
+      --headerB: rgba(255,255,255,0.58);
+
+      --surfaceHi: rgba(255,255,255,0.86);
+      --surfaceLo: rgba(255,255,255,0.78);
+      --fieldBg: rgba(255,255,255,0.86);
+
       --shadow: 0 14px 40px rgba(9, 10, 14, 0.12);
       --shadow2: 0 10px 28px rgba(9, 10, 14, 0.12);
       --radius: 18px;
@@ -31,6 +55,82 @@
       --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
     }
 
+    html{ color-scheme: light dark; }
+
+    @media (prefers-color-scheme: dark){
+      :root{
+        --bg: #0b1224;
+        --surface: rgba(15, 23, 42, 0.76);
+        --surfaceHi: rgba(15, 23, 42, 0.86);
+        --surfaceLo: rgba(15, 23, 42, 0.70);
+        --fieldBg: rgba(15, 23, 42, 0.86);
+
+        --ink: #e5e7eb;
+        --muted: rgba(229, 231, 235, 0.66);
+
+        --line: rgba(229, 231, 235, 0.14);
+        --lineSoft: rgba(229, 231, 235, 0.09);
+        --lineStrong: rgba(229, 231, 235, 0.24);
+        --ring: rgba(229, 231, 235, 0.08);
+        --stripe: rgba(229, 231, 235, 0.05);
+
+        --headerA: rgba(15, 23, 42, 0.86);
+        --headerB: rgba(15, 23, 42, 0.60);
+
+        --shadow: 0 14px 40px rgba(0, 0, 0, 0.40);
+        --shadow2: 0 10px 28px rgba(0, 0, 0, 0.32);
+      }
+    }
+
+    html[data-theme="light"]{
+      color-scheme: light;
+      --bg: #f6f4ef;
+      --surface: rgba(255, 255, 255, 0.80);
+      --surfaceHi: rgba(255,255,255,0.86);
+      --surfaceLo: rgba(255,255,255,0.78);
+      --fieldBg: rgba(255,255,255,0.86);
+
+      --ink: #12131a;
+      --muted: rgba(18, 19, 26, 0.66);
+
+      --line: rgba(18, 19, 26, 0.12);
+      --lineSoft: rgba(18, 19, 26, 0.08);
+      --lineStrong: rgba(18, 19, 26, 0.22);
+      --ring: rgba(18, 19, 26, 0.06);
+      --stripe: rgba(18, 19, 26, 0.045);
+
+      --headerA: rgba(255,255,255,0.84);
+      --headerB: rgba(255,255,255,0.58);
+
+      --shadow: 0 14px 40px rgba(9, 10, 14, 0.12);
+      --shadow2: 0 10px 28px rgba(9, 10, 14, 0.12);
+    }
+
+    html[data-theme="dark"]{
+      color-scheme: dark;
+      --bg: #0b1224;
+      --surface: rgba(15, 23, 42, 0.76);
+      --surfaceHi: rgba(15, 23, 42, 0.86);
+      --surfaceLo: rgba(15, 23, 42, 0.70);
+      --fieldBg: rgba(15, 23, 42, 0.86);
+
+      --ink: #e5e7eb;
+      --muted: rgba(229, 231, 235, 0.66);
+
+      --line: rgba(229, 231, 235, 0.14);
+      --lineSoft: rgba(229, 231, 235, 0.09);
+      --lineStrong: rgba(229, 231, 235, 0.24);
+      --ring: rgba(229, 231, 235, 0.08);
+      --stripe: rgba(229, 231, 235, 0.05);
+
+      --headerA: rgba(15, 23, 42, 0.86);
+      --headerB: rgba(15, 23, 42, 0.60);
+
+      --shadow: 0 14px 40px rgba(0, 0, 0, 0.40);
+      --shadow2: 0 10px 28px rgba(0, 0, 0, 0.32);
+    }
+
+
     *{ box-sizing: border-box; }
     body{
       margin: 0;
@@ -39,7 +139,7 @@
       background:
         radial-gradient(1000px 520px at 14% 10%, rgba(14, 165, 233, 0.14), transparent 60%),
         radial-gradient(860px 520px at 82% 18%, rgba(225, 29, 72, 0.10), transparent 60%),
-        repeating-linear-gradient(45deg, rgba(18, 19, 26, 0.045) 0px, rgba(18, 19, 26, 0.045) 2px, transparent 2px, transparent 10px),
+        repeating-linear-gradient(45deg, var(--stripe) 0px, var(--stripe) 2px, transparent 2px, transparent 10px),
         var(--bg);
       padding: 22px 16px 48px;
     }
@@ -52,7 +152,7 @@
     header{
       border-radius: calc(var(--radius) + 6px);
       border: 1px solid var(--line);
-      background: linear-gradient(135deg, rgba(255,255,255,0.84), rgba(255,255,255,0.58));
+      background: linear-gradient(135deg, var(--headerA), var(--headerB));
       box-shadow: var(--shadow);
       overflow: hidden;
       padding: 16px 18px 14px;
@@ -71,19 +171,21 @@
 
     .toprow{ display:flex; align-items: baseline; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
     h1{ margin: 0; font-family: var(--fontDisplay); font-size: 26px; letter-spacing: 0.2px; }
-    .hint{ color: var(--muted); font-size: 12.5px; }
+    .hint{ color: var(--muted); font-size: 12.5px; display:flex; gap: 8px; align-items:center; flex-wrap: wrap; justify-content: flex-end; }
+    .theme{ border: 1px solid var(--line); background: var(--surfaceLo); color: var(--muted); border-radius: 999px; padding: 7px 10px; font-size: 12.5px; cursor: pointer; user-select: none; transition: transform 120ms ease, border-color 120ms ease, box-shadow 120ms ease; }
+    .theme:hover{ transform: translateY(-1px); border-color: var(--lineStrong); box-shadow: 0 0 0 4px var(--ring); }
     .lead{ margin: 6px 0 0; color: var(--muted); line-height: 1.5; font-size: 14px; }
 
     .panel{
       border-radius: var(--radius);
-      border: 1px solid rgba(18, 19, 26, 0.14);
+      border: 1px solid var(--line);
       background: var(--surface);
       box-shadow: var(--shadow2);
       overflow: hidden;
     }
     .panel .hd{
       padding: 14px 14px 12px;
-      border-bottom: 1px solid rgba(18, 19, 26, 0.08);
+      border-bottom: 1px solid var(--lineSoft);
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -95,7 +197,7 @@
       font-size: 13px;
       letter-spacing: 0.5px;
       text-transform: uppercase;
-      color: rgba(18, 19, 26, 0.66);
+      color: var(--muted);
     }
     .panel .bd{ padding: 14px; }
 
@@ -104,7 +206,7 @@
       background: rgba(14, 165, 233, 0.08);
       border-radius: 14px;
       padding: 10px 12px;
-      color: rgba(18, 19, 26, 0.78);
+      color: var(--ink);
       font-size: 13px;
       line-height: 1.45;
       margin-bottom: 10px;
@@ -113,14 +215,14 @@
     .blocks{ display: grid; gap: 10px; }
 
     .block{
-      border: 1px solid rgba(18, 19, 26, 0.14);
-      background: rgba(255,255,255,0.86);
+      border: 1px solid var(--line);
+      background: var(--surfaceHi);
       border-radius: var(--radius2);
       overflow: hidden;
     }
     .block .bh{
       padding: 10px 12px;
-      border-bottom: 1px solid rgba(18, 19, 26, 0.08);
+      border-bottom: 1px solid var(--lineSoft);
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -142,8 +244,8 @@
     }
 
     .btn{
-      border: 1px solid rgba(18, 19, 26, 0.16);
-      background: rgba(255,255,255,0.86);
+      border: 1px solid var(--line);
+      background: var(--surfaceHi);
       border-radius: 999px;
       padding: 7px 10px;
       font-size: 12.5px;
@@ -157,8 +259,8 @@
     }
     .btn:hover{
       transform: translateY(-1px);
-      border-color: rgba(18, 19, 26, 0.26);
-      box-shadow: 0 0 0 4px rgba(18, 19, 26, 0.06);
+      border-color: var(--lineStrong);
+      box-shadow: 0 0 0 4px var(--ring);
     }
     .btn.primary{
       border-color: rgba(14, 165, 233, 0.45);
@@ -169,8 +271,8 @@
 
     .toc{ display:flex; gap: 8px; flex-wrap: wrap; }
     .chip{
-      border: 1px solid rgba(18, 19, 26, 0.14);
-      background: rgba(255,255,255,0.78);
+      border: 1px solid var(--line);
+      background: var(--surfaceLo);
       border-radius: 999px;
       padding: 7px 10px;
       font-size: 13px;
@@ -186,7 +288,7 @@
     <header>
       <div class="toprow">
         <h1>终端初始化命令</h1>
-        <div class="hint"><a href="index.html">返回导航</a> · 一次性脚本，复制即可</div>
+        <div class="hint"><a href="index.html">返回导航</a> · 一次性脚本，复制即可 <button class="theme" type="button" id="theme" title="切换主题：自动/浅色/深色">主题：自动</button></div>
       </div>
       <p class="lead">目标：新电脑快速装好开发环境（git、zsh、node/pnpm、python、java、常用工具），并安装 codex/claude/gemini CLI。建议先读每段脚本的注释再执行。</p>
       <div class="toc" style="margin-top:10px;">
@@ -485,6 +587,41 @@ brew install --cask font-jetbrains-mono-nerd-font
         const old = btn.textContent;
         btn.textContent = "已复制";
         window.setTimeout(() => { btn.textContent = old; }, 900);
+      });
+    })();
+  </script>
+
+
+  <script>
+    (() => {
+      const KEY = "leonard_theme_v1";
+      const btn = document.getElementById("theme");
+      if (!btn) return;
+
+      const order = ["auto", "light", "dark"];
+      const labels = { auto: "自动", light: "浅色", dark: "深色" };
+
+      function read() {
+        try { return localStorage.getItem(KEY) || "auto"; } catch { return "auto"; }
+      }
+      function write(v) {
+        try { localStorage.setItem(KEY, v); } catch { /* ignore */ }
+      }
+      function apply(v) {
+        if (v === "light" || v === "dark") document.documentElement.dataset.theme = v;
+        else delete document.documentElement.dataset.theme;
+        btn.textContent = `主题：${labels[v] || labels.auto}`;
+        btn.setAttribute("data-theme", v);
+      }
+
+      apply(read());
+
+      btn.addEventListener("click", () => {
+        const cur = read();
+        const idx = order.indexOf(cur);
+        const next = order[(idx + 1) % order.length] || "auto";
+        write(next);
+        apply(next);
       });
     })();
   </script>
