@@ -4,6 +4,10 @@
 # Keep this ignore file
 !.gitignore
 
+# Docs
+!README.md
+
+
 # Core matchboard pages
 !index.html
 !sg.html
