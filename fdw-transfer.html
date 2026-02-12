@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>新加坡 FDW 本地 Transfer 全攻略</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;600;700&display=swap');
+
+  :root {
+    --bg: #f8f7f4;
+    --card: #ffffff;
+    --accent: #2563eb;
+    --accent-light: #eff6ff;
+    --accent-border: #bfdbfe;
+    --green: #16a34a;
+    --green-bg: #f0fdf4;
+    --green-border: #bbf7d0;
+    --orange: #ea580c;
+    --orange-bg: #fff7ed;
+    --orange-border: #fed7aa;
+    --red: #dc2626;
+    --red-bg: #fef2f2;
+    --red-border: #fecaca;
+    --gray-50: #fafaf9;
+    --gray-100: #f5f5f4;
+    --gray-200: #e7e5e4;
+    --gray-300: #d6d3d1;
+    --gray-500: #78716c;
+    --gray-600: #57534e;
+    --gray-700: #44403c;
+    --gray-800: #292524;
+    --gray-900: #1c1917;
+    --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+    --shadow-md: 0 4px 6px rgba(0,0,0,0.05), 0 2px 4px rgba(0,0,0,0.04);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg);
+    color: var(--gray-800);
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .container {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 40px 24px 80px;
+  }
+
+  /* Header */
+  .header {
+    text-align: center;
+    margin-bottom: 48px;
+  }
+  .header .badge {
+    display: inline-block;
+    background: var(--accent);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 6px 16px;
+    border-radius: 100px;
+    margin-bottom: 20px;
+  }
+  .header h1 {
+    font-size: 32px;
+    font-weight: 800;
+    color: var(--gray-900);
+    line-height: 1.3;
+    margin-bottom: 12px;
+  }
+  .header .subtitle {
+    font-size: 15px;
+    color: var(--gray-500);
+    max-width: 500px;
+    margin: 0 auto;
+  }
+
+  /* Step Card */
+  .step-card {
+    background: var(--card);
+    border: 1px solid var(--gray-200);
+    border-radius: 16px;
+    padding: 32px;
+    margin-bottom: 20px;
+    box-shadow: var(--shadow);
+    position: relative;
+  }
+  .step-card.highlight {
+    border-color: var(--accent-border);
+    background: linear-gradient(135deg, var(--card) 0%, var(--accent-light) 100%);
+  }
+
+  .step-number {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  .step-number .num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    background: var(--accent);
+    color: #fff;
+    font-size: 15px;
+    font-weight: 700;
+    border-radius: 10px;
+  }
+  .step-number .num.pre { background: var(--gray-500); }
+  .step-number .num.done { background: var(--green); }
+  .step-number .label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--gray-500);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .step-card h2 {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--gray-900);
+    margin-bottom: 16px;
+    line-height: 1.4;
+  }
+
+  .step-card p {
+    font-size: 15px;
+    color: var(--gray-700);
+    margin-bottom: 12px;
+  }
+
+  /* Role tag */
+  .role-tag {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    padding: 4px 12px;
+    border-radius: 6px;
+    margin-bottom: 16px;
+  }
+  .role-tag.new { background: #dbeafe; color: #1d4ed8; }
+  .role-tag.current { background: #fef3c7; color: #92400e; }
+  .role-tag.both { background: #e0e7ff; color: #4338ca; }
+
+  /* Link button */
+  .link-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--accent);
+    color: #fff;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 10px 20px;
+    border-radius: 10px;
+    margin: 6px 6px 6px 0;
+    transition: all 0.15s ease;
+    box-shadow: 0 1px 2px rgba(37,99,235,0.2);
+  }
+  .link-btn:hover {
+    background: #1d4ed8;
+    box-shadow: 0 4px 12px rgba(37,99,235,0.3);
+    transform: translateY(-1px);
+  }
+  .link-btn.secondary {
+    background: var(--card);
+    color: var(--accent);
+    border: 1.5px solid var(--accent-border);
+    box-shadow: none;
+  }
+  .link-btn.secondary:hover {
+    background: var(--accent-light);
+    border-color: var(--accent);
+  }
+  .link-btn svg { flex-shrink: 0; }
+
+  /* Action items */
+  .action-list {
+    list-style: none;
+    margin: 16px 0;
+  }
+  .action-list li {
+    display: flex;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--gray-100);
+    font-size: 15px;
+    color: var(--gray-700);
+    align-items: flex-start;
+  }
+  .action-list li:last-child { border-bottom: none; }
+  .action-list .icon {
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 1px;
+    font-size: 16px;
+  }
+
+  /* eService menu path */
+  .menu-path {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--gray-50);
+    border: 1px solid var(--gray-200);
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--gray-800);
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    margin: 8px 0;
+    flex-wrap: wrap;
+  }
+  .menu-path .arrow { color: var(--gray-300); font-size: 11px; }
+
+  /* Callout boxes */
+  .callout {
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin: 20px 0;
+    font-size: 14px;
+  }
+  .callout.info {
+    background: var(--accent-light);
+    border: 1px solid var(--accent-border);
+    color: #1e40af;
+  }
+  .callout.warn {
+    background: var(--orange-bg);
+    border: 1px solid var(--orange-border);
+    color: #9a3412;
+  }
+  .callout.danger {
+    background: var(--red-bg);
+    border: 1px solid var(--red-border);
+    color: #991b1b;
+  }
+  .callout.success {
+    background: var(--green-bg);
+    border: 1px solid var(--green-border);
+    color: #166534;
+  }
+  .callout strong { font-weight: 700; }
+
+  /* Checklist */
+  .checklist {
+    list-style: none;
+    margin: 16px 0;
+  }
+  .checklist li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 16px;
+    margin-bottom: 8px;
+    background: var(--gray-50);
+    border-radius: 10px;
+    font-size: 14px;
+    color: var(--gray-700);
+  }
+  .checklist li .check {
+    flex-shrink: 0;
+    font-size: 16px;
+    margin-top: 1px;
+  }
+
+  /* Warning strip at bottom */
+  .warning-strip {
+    background: var(--card);
+    border: 2px solid var(--red-border);
+    border-radius: 16px;
+    padding: 32px;
+    margin-top: 40px;
+  }
+  .warning-strip h3 {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--red);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .warning-item {
+    display: flex;
+    gap: 14px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--gray-100);
+    align-items: flex-start;
+  }
+  .warning-item:last-child { border-bottom: none; }
+  .warning-item .idx {
+    flex-shrink: 0;
+    width: 28px; height: 28px;
+    background: var(--red-bg);
+    color: var(--red);
+    font-weight: 700;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+  }
+  .warning-item p { font-size: 14px; color: var(--gray-700); }
+  .warning-item strong { color: var(--gray-900); }
+
+  .divider {
+    width: 40px;
+    height: 3px;
+    background: var(--gray-200);
+    border-radius: 2px;
+    margin: 36px auto;
+  }
+
+  .footer {
+    text-align: center;
+    font-size: 12px;
+    color: var(--gray-500);
+    margin-top: 48px;
+    padding-top: 24px;
+    border-top: 1px solid var(--gray-200);
+  }
+
+  @media (max-width: 600px) {
+    .container { padding: 24px 16px 60px; }
+    .step-card { padding: 24px 20px; }
+    .header h1 { font-size: 26px; }
+    .link-btn { font-size: 13px; padding: 9px 16px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="badge">🇸🇬 MOM 官方流程</div>
+    <h1>新加坡 FDW 本地 Transfer<br>点击即用全攻略</h1>
+    <p class="subtitle">Helper 人在新加坡，按 MOM 官方流程 step-by-step，所有链接一键直达</p>
+  </div>
+
+  <!-- ========== STEP 0 ========== -->
+  <div class="step-card">
+    <div class="step-number">
+      <span class="num pre">0</span>
+      <span class="label">前置判断</span>
+    </div>
+    <h2>你需不需要上 EOP？</h2>
+    <p>只有 <strong>第一次请 MDW 的雇主</strong> 才必须完成 EOP（Employer's Orientation Programme）。如果你之前名下请过女佣，系统通常不会再卡你。</p>
+    <div class="callout info">
+      <strong>💡 最稳的做法：</strong>先登录 FDW eService 试试能不能进下一步。如果系统没卡你，就不需要 EOP。
+    </div>
+  </div>
+
+  <!-- ========== STEP 1 ========== -->
+  <div class="step-card">
+    <div class="step-number">
+      <span class="num" style="background: #6b7280;">1</span>
+      <span class="label">如需要</span>
+    </div>
+    <h2>完成 EOP（仅限首次雇主）</h2>
+    <p>至少在提交 Work Permit 申请前 <strong>2 个工作日</strong> 完成课程。</p>
+
+    <div style="margin-top: 16px;">
+      <a class="link-btn" href="https://www.mom.gov.sg/passes-and-permits/work-permit-for-foreign-domestic-worker/eligibility-and-requirements/employers-orientation-programme-eop" target="_blank" rel="noopener">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 3H3v10h10V9M11 1h4v4M15 1 8 8"/></svg>
+        EOP 官方规则说明
+      </a>
+    </div>
+    <p style="font-size: 13px; color: var(--gray-500); margin: 16px 0 8px;">报名上课直达链接：</p>
+    <div>
+      <a class="link-btn secondary" href="https://www.eop.com.sg/" target="_blank" rel="noopener">GMC 报名</a>
+      <a class="link-btn secondary" href="https://eop.wearecaring.com/" target="_blank" rel="noopener">We Are Caring 报名</a>
+    </div>
+  </div>
+
+  <!-- ========== ENTRY PORTAL ========== -->
+  <div class="step-card highlight">
+    <div class="step-number">
+      <span class="num" style="background: var(--green);">✦</span>
+      <span class="label">总入口</span>
+    </div>
+    <h2>FDW eService 登录入口</h2>
+    <p>下面所有操作，两边雇主都从这里登录。点 <strong>"For employer or sponsor → Log in with Singpass"</strong>。</p>
+    <div style="margin-top: 12px;">
+      <a class="link-btn" href="https://www.mom.gov.sg/eservices/services/work-permit-transactions-for-domestic-helpers-and-confinement-nannies" target="_blank" rel="noopener" style="font-size: 15px; padding: 14px 28px;">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 3H3v12h12V9M11 1h6v6M17 1 9 9"/></svg>
+        打开 FDW eService 🔗
+      </a>
+    </div>
+  </div>
+
+  <!-- ========== STEP 2 ========== -->
+  <div class="step-card">
+    <div class="step-number">
+      <span class="num">2</span>
+      <span class="label">核心步骤</span>
+    </div>
+    <span class="role-tag new">👤 新雇主（你）操作</span>
+    <h2>发起 Transfer，请求现雇主同意</h2>
+
+    <p><strong>先确认两个前提：</strong></p>
+    <ul class="checklist">
+      <li><span class="check">☐</span> Helper 已做 <strong>6ME</strong>（6-Monthly Medical Examination）</li>
+      <li><span class="check">☐</span> Work Permit 剩余 <strong>＞ 30 天</strong>（不够的话，现雇主要先 extend）</li>
+    </ul>
+
+    <p><strong>在 eService 里的操作路径：</strong></p>
+    <div class="menu-path">
+      FDW eService <span class="arrow">›</span> <strong>Apply for a Work Permit</strong>
+    </div>
+    <p>在申请流程中，系统会让你：</p>
+    <div class="menu-path">
+      Request for the current employer's consent for the transfer
+    </div>
+    <div class="callout info">
+      <strong>📨 系统会自动发邮件给现雇主</strong>，通知对方来 approve。你不需要另外通知（但提前沟通好更稳）。
+    </div>
+  </div>
+
+  <!-- ========== STEP 3 ========== -->
+  <div class="step-card">
+    <div class="step-number">
+      <span class="num">3</span>
+      <span class="label">核心步骤</span>
+    </div>
+    <span class="role-tag current">👤 现雇主操作</span>
+    <h2>现雇主 Approve Transfer</h2>
+
+    <ul class="action-list">
+      <li>
+        <span class="icon">📩</span>
+        <div>等 MOM 的邮件通知（<strong>没有邮件别乱点</strong>）</div>
+      </li>
+      <li>
+        <span class="icon">✅</span>
+        <div>登录 FDW eService → <strong>Approve</strong> transfer request</div>
+      </li>
+      <li>
+        <span class="icon">💰</span>
+        <div>Levy 持续缴到新 WP issued 那天；issued 后旧 WP <strong>自动取消</strong>，levy 自动停</div>
+      </li>
+      <li>
+        <span class="icon">✂️</span>
+        <div>旧 Work Permit 卡 → <strong>剪成两半丢掉</strong>（防滥用）</div>
+      </li>
+    </ul>
+  </div>
+
+  <!-- ========== STEP 4 ========== -->
+  <div class="step-card">
+    <div class="step-number">
+      <span class="num">4</span>
+      <span class="label">核心步骤</span>
+    </div>
+    <span class="role-tag new">👤 新雇主（你）操作</span>
+    <h2>正式提交申请，拿 IPA</h2>
+
+    <p>现雇主同意后，你回到 eService 把申请提交完：</p>
+    <div class="menu-path">
+      FDW eService <span class="arrow">›</span> <strong>Apply for a Work Permit</strong> <span class="arrow">›</span> 提交完成
+    </div>
+
+    <div class="callout success">
+      <strong>⏱ 通常 1 周内出结果。</strong>批准后会给你 IPA（In-Principle Approval）+ Declaration Form（可在 eService 下载）。
+    </div>
+  </div>
+
+  <!-- ========== STEP 5 ========== -->
+  <div class="step-card">
+    <div class="step-number">
+      <span class="num">5</span>
+      <span class="label">准备材料</span>
+    </div>
+    <span class="role-tag new">👤 新雇主（你）操作</span>
+    <h2>拿到 IPA 后必须准备的材料</h2>
+    <p>少任何一项，issuance 都会卡住！</p>
+
+    <ul class="action-list">
+      <li>
+        <span class="icon">🔒</span>
+        <div>
+          <strong>Security Bond $5,000</strong>（马来西亚籍免）<br>
+          <a class="link-btn secondary" href="https://www.mom.gov.sg/passes-and-permits/work-permit-for-foreign-domestic-worker/eligibility-and-requirements/security-bond" target="_blank" rel="noopener" style="margin-top: 8px; font-size: 13px;">
+            查看 Security Bond 详情 →
+          </a>
+        </div>
+      </li>
+      <li>
+        <span class="icon">🏥</span>
+        <div>
+          <strong>Medical Insurance + Personal Accident Insurance</strong><br>
+          <a class="link-btn secondary" href="https://www.mom.gov.sg/passes-and-permits/work-permit-for-foreign-domestic-worker/eligibility-and-requirements/insurance-requirements" target="_blank" rel="noopener" style="margin-top: 8px; font-size: 13px;">
+            查看保险要求 →
+          </a>
+        </div>
+      </li>
+      <li>
+        <span class="icon">📝</span>
+        <div><strong>Declaration Form</strong> — 你和 helper 都签好名（从 eService 下载打印）</div>
+      </li>
+    </ul>
+  </div>
+
+  <!-- ========== STEP 6 ========== -->
+  <div class="step-card">
+    <div class="step-number">
+      <span class="num">6</span>
+      <span class="label">协调</span>
+    </div>
+    <span class="role-tag both">👥 双方协商</span>
+    <h2>约定 Transfer Date（交接日）</h2>
+    <p>你和现雇主商定好具体哪天交接。</p>
+    <div class="callout warn">
+      <strong>⚠️ MOM 提醒：</strong>6ME + 请求同意这两步，要在 WP 过期前 <strong>至少 30 天</strong> 完成。务必算好时间！
+    </div>
+  </div>
+
+  <!-- ========== STEP 7 ========== -->
+  <div class="step-card highlight">
+    <div class="step-number">
+      <span class="num done">7</span>
+      <span class="label">最终步骤</span>
+    </div>
+    <span class="role-tag new">👤 新雇主（你）操作</span>
+    <h2>Transfer Date 当天 — 正式 Issue 新 WP</h2>
+
+    <p>交接日当天，你登录 eService：</p>
+    <div class="menu-path">
+      FDW eService <span class="arrow">›</span> <strong>Ask for a Work Permit to be issued</strong>
+    </div>
+
+    <p style="margin-top: 16px;"><strong>按顺序做 3 件事：</strong></p>
+    <ul class="action-list">
+      <li>
+        <span class="icon" style="font-size: 20px; font-weight: 700; color: var(--accent);">①</span>
+        <div><strong>Issue 新 Work Permit</strong></div>
+      </li>
+      <li>
+        <span class="icon" style="font-size: 20px; font-weight: 700; color: var(--accent);">②</span>
+        <div><strong>Upload Declaration Form</strong>（已签好的那份）</div>
+      </li>
+      <li>
+        <span class="icon" style="font-size: 20px; font-weight: 700; color: var(--accent);">③</span>
+        <div><strong>Print Temporary Work Permit (TWP)</strong>（给 helper 的临时证）</div>
+      </li>
+    </ul>
+
+    <div class="callout success">
+      <strong>🎉 Issue 完成后：</strong><br>
+      · 旧 WP 自动取消，现雇主 levy 自动停<br>
+      · 把 TWP 给 helper，她当天就能合法开工！
+    </div>
+  </div>
+
+  <!-- ========== WARNING STRIP ========== -->
+  <div class="warning-strip">
+    <h3>🚨 你必须盯死的 3 个"卡点"</h3>
+
+    <div class="warning-item">
+      <span class="idx">1</span>
+      <div>
+        <p><strong>现雇主不点同意 → 流程死锁</strong></p>
+        <p>所以前期一定要先谈妥，确认对方会配合。</p>
+      </div>
+    </div>
+
+    <div class="warning-item">
+      <span class="idx">2</span>
+      <div>
+        <p><strong>6ME 没做 / 没提交 → 申请被打回</strong></p>
+        <p>你提交申请前就会被要求补，不要等到最后一刻。</p>
+      </div>
+    </div>
+
+    <div class="warning-item">
+      <span class="idx">3</span>
+      <div>
+        <p><strong>拿到 IPA 拖着不 Issue → 会被罚</strong></p>
+        <p>MOM 有明确截止规则（<strong>21 天</strong> 或 WP 到期日取更早），拖过会罚。</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    基于 MOM 官方流程整理 · 所有链接指向 mom.gov.sg 官方页面<br>
+    建议操作前再次确认 MOM 最新要求
+  </div>
+
+</div>
+
+</body>
+</html>
