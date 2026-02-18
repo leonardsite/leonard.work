@@ -24,6 +24,10 @@
 
 # Monitoring dashboard
 !monitoring.html
+# NEXUS AI-Team pages
+!nexus.html
+!nexus-jd.html
+!nexus-skills.html
 
 # Automation scripts
 !automation/

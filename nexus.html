@@ -1,0 +1,978 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NEXUS AI-Team — Your AI-Powered Company</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* ─── Custom Properties ─── */
+    :root {
+      --purple: #7c3aed;
+      --blue:   #2563eb;
+      --cyan:   #06b6d4;
+      --glow-purple: rgba(124,58,237,0.45);
+      --glow-blue:   rgba(37,99,235,0.35);
+    }
+
+    /* ─── Base ─── */
+    body {
+      background: #050811;
+      color: #e2e8f0;
+      font-family: 'Inter', system-ui, sans-serif;
+      overflow-x: hidden;
+    }
+
+    /* ─── Scrollbar ─── */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #0a0f1e; }
+    ::-webkit-scrollbar-thumb { background: #3730a3; border-radius: 3px; }
+
+    /* ─── Gradient Text ─── */
+    .grad-text {
+      background: linear-gradient(135deg, #a78bfa 0%, #60a5fa 50%, #22d3ee 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* ─── Hero Grid Background ─── */
+    .hero-grid {
+      background-image:
+        linear-gradient(rgba(99,102,241,0.08) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(99,102,241,0.08) 1px, transparent 1px);
+      background-size: 48px 48px;
+    }
+
+    /* ─── Animated Gradient Orbs ─── */
+    .orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(100px);
+      opacity: 0.35;
+      animation: drift 12s ease-in-out infinite alternate;
+    }
+    .orb-1 { width: 520px; height: 520px; background: radial-gradient(circle, #7c3aed, transparent 70%); top: -160px; left: -120px; animation-delay: 0s; }
+    .orb-2 { width: 420px; height: 420px; background: radial-gradient(circle, #1d4ed8, transparent 70%); top: 80px; right: -100px; animation-delay: -4s; }
+    .orb-3 { width: 300px; height: 300px; background: radial-gradient(circle, #0891b2, transparent 70%); bottom: 60px; left: 30%; animation-delay: -8s; }
+
+    @keyframes drift {
+      from { transform: translate(0, 0) scale(1); }
+      to   { transform: translate(30px, 20px) scale(1.08); }
+    }
+
+    /* ─── Floating particles (CSS-only) ─── */
+    .particles {
+      position: absolute; inset: 0;
+      overflow: hidden; pointer-events: none;
+    }
+    .particle {
+      position: absolute;
+      width: 2px; height: 2px;
+      border-radius: 50%;
+      background: rgba(167,139,250,0.6);
+      animation: float-up linear infinite;
+    }
+    @keyframes float-up {
+      0%   { transform: translateY(100vh) translateX(0); opacity: 0; }
+      10%  { opacity: 1; }
+      90%  { opacity: 0.4; }
+      100% { transform: translateY(-10vh) translateX(30px); opacity: 0; }
+    }
+
+    /* ─── Glass Card ─── */
+    .glass {
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid rgba(99,102,241,0.18);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+    }
+    .glass:hover {
+      border-color: rgba(139,92,246,0.45);
+      box-shadow: 0 0 28px rgba(124,58,237,0.15);
+      transition: all 0.3s ease;
+    }
+
+    /* ─── Glow Button ─── */
+    .btn-primary {
+      background: linear-gradient(135deg, #7c3aed, #2563eb);
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+    .btn-primary::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg, #6d28d9, #1d4ed8);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .btn-primary:hover::before { opacity: 1; }
+    .btn-primary:hover { box-shadow: 0 0 30px rgba(124,58,237,0.55); transform: translateY(-1px); }
+
+    .btn-ghost {
+      border: 1px solid rgba(99,102,241,0.4);
+      transition: all 0.3s ease;
+    }
+    .btn-ghost:hover {
+      border-color: rgba(139,92,246,0.7);
+      background: rgba(99,102,241,0.1);
+      box-shadow: 0 0 20px rgba(124,58,237,0.2);
+    }
+
+    /* ─── Section Fade-In ─── */
+    .fade-in-section {
+      opacity: 0;
+      transform: translateY(32px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .fade-in-section.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ─── Step Connector Line ─── */
+    .step-line {
+      position: absolute;
+      top: 28px;
+      left: calc(50% + 32px);
+      width: calc(100% - 64px);
+      height: 2px;
+      background: linear-gradient(90deg, rgba(124,58,237,0.6), rgba(37,99,235,0.6));
+    }
+
+    /* ─── Architecture Diagram ─── */
+    .arch-box {
+      border: 1px solid rgba(99,102,241,0.4);
+      background: rgba(15,23,42,0.8);
+      border-radius: 10px;
+      padding: 10px 18px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      white-space: nowrap;
+      position: relative;
+    }
+    .arch-box.highlight {
+      border-color: rgba(139,92,246,0.7);
+      box-shadow: 0 0 18px rgba(124,58,237,0.25);
+      background: rgba(88,28,220,0.18);
+    }
+    .arch-arrow {
+      display: flex; align-items: center; justify-content: center;
+      color: rgba(139,92,246,0.7);
+      font-size: 1.2rem;
+      padding: 0 4px;
+    }
+
+    /* ─── Code Block ─── */
+    .code-block {
+      background: #0d1117;
+      border: 1px solid rgba(99,102,241,0.25);
+      border-radius: 12px;
+      font-family: 'Fira Code', 'Cascadia Code', monospace;
+      font-size: 0.875rem;
+      line-height: 1.7;
+      overflow-x: auto;
+    }
+    .code-block .line-num {
+      color: rgba(99,102,241,0.4);
+      user-select: none;
+      margin-right: 16px;
+      min-width: 20px;
+      display: inline-block;
+      text-align: right;
+    }
+    .kw  { color: #c084fc; }
+    .str { color: #86efac; }
+    .key { color: #7dd3fc; }
+    .num { color: #fbbf24; }
+    .cm  { color: #4b5563; font-style: italic; }
+    .op  { color: #f472b6; }
+
+    /* ─── Federation Node Diagram ─── */
+    .fed-node {
+      display: flex; flex-direction: column; align-items: center; gap: 6px;
+    }
+    .fed-node-icon {
+      width: 52px; height: 52px;
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.4rem;
+      border: 1px solid rgba(99,102,241,0.45);
+      background: rgba(88,28,220,0.15);
+    }
+    .fed-center {
+      width: 80px; height: 80px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      background: linear-gradient(135deg, rgba(124,58,237,0.4), rgba(37,99,235,0.4));
+      border: 2px solid rgba(139,92,246,0.6);
+      box-shadow: 0 0 30px rgba(124,58,237,0.3);
+      font-size: 1.6rem;
+      animation: pulse-glow 2.5s ease-in-out infinite;
+    }
+    @keyframes pulse-glow {
+      0%, 100% { box-shadow: 0 0 20px rgba(124,58,237,0.3); }
+      50%       { box-shadow: 0 0 45px rgba(124,58,237,0.6); }
+    }
+
+    /* ─── Navbar ─── */
+    .navbar {
+      background: rgba(5,8,17,0.75);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(99,102,241,0.12);
+    }
+
+    /* ─── Feature Card Hover ─── */
+    .feature-card {
+      transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+    }
+    .feature-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 20px 60px rgba(88,28,220,0.2);
+    }
+
+    /* ─── Divider ─── */
+    .section-divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(99,102,241,0.3), transparent);
+    }
+
+    /* ─── Tag Badge ─── */
+    .tag {
+      background: rgba(88,28,220,0.18);
+      border: 1px solid rgba(139,92,246,0.3);
+      color: #a78bfa;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 3px 10px;
+      border-radius: 999px;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════
+     NAVBAR
+═══════════════════════════════════════════ -->
+<nav class="navbar fixed top-0 left-0 right-0 z-50">
+  <div class="max-w-6xl mx-auto px-6 h-14 flex items-center justify-between">
+    <div class="flex items-center gap-2">
+      <span class="text-lg font-black grad-text tracking-tight">NEXUS</span>
+      <span class="tag">AI-Team</span>
+    </div>
+    <div class="hidden md:flex items-center gap-7 text-sm text-slate-400">
+      <a href="#how-it-works" class="hover:text-white transition-colors">How It Works</a>
+      <a href="#features" class="hover:text-white transition-colors">Features</a>
+      <a href="#architecture" class="hover:text-white transition-colors">Architecture</a>
+      <a href="#federation" class="hover:text-white transition-colors">Federation</a>
+      <a href="#quickstart" class="hover:text-white transition-colors">Quick Start</a>
+    </div>
+    <a href="https://github.com/shuaige121/nexus-ai-team" target="_blank"
+       class="btn-ghost text-sm text-slate-300 px-4 py-1.5 rounded-lg flex items-center gap-2">
+      <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+      GitHub
+    </a>
+  </div>
+</nav>
+
+
+<!-- ═══════════════════════════════════════════
+     SECTION 1: HERO
+═══════════════════════════════════════════ -->
+<section class="relative min-h-screen flex items-center justify-center hero-grid overflow-hidden pt-14">
+
+  <!-- Orbs -->
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+
+  <!-- Particles -->
+  <div class="particles">
+    <div class="particle" style="left:8%;  animation-duration:18s; animation-delay:0s;   width:3px; height:3px;"></div>
+    <div class="particle" style="left:18%; animation-duration:22s; animation-delay:3s;"></div>
+    <div class="particle" style="left:27%; animation-duration:16s; animation-delay:6s;   width:3px; height:3px;"></div>
+    <div class="particle" style="left:38%; animation-duration:20s; animation-delay:1s;"></div>
+    <div class="particle" style="left:52%; animation-duration:25s; animation-delay:8s;   width:2px; height:2px;"></div>
+    <div class="particle" style="left:63%; animation-duration:19s; animation-delay:4s;   width:3px; height:3px;"></div>
+    <div class="particle" style="left:74%; animation-duration:23s; animation-delay:11s;"></div>
+    <div class="particle" style="left:85%; animation-duration:17s; animation-delay:2s;   width:3px; height:3px;"></div>
+    <div class="particle" style="left:91%; animation-duration:21s; animation-delay:7s;"></div>
+    <div class="particle" style="left:45%; animation-duration:14s; animation-delay:9s;   width:2px; height:2px;"></div>
+  </div>
+
+  <!-- Content -->
+  <div class="relative z-10 text-center max-w-4xl mx-auto px-6">
+    <div class="inline-flex items-center gap-2 mb-8 px-4 py-2 rounded-full glass text-sm text-slate-400">
+      <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse inline-block"></span>
+      Neural Executive Unified System &mdash; v2.0 Beta
+    </div>
+
+    <h1 class="text-6xl md:text-8xl font-black mb-6 leading-[1.05] tracking-tight">
+      <span class="grad-text">NEXUS</span><br/>
+      <span class="text-white">AI-Team</span>
+    </h1>
+
+    <p class="text-xl md:text-2xl text-slate-400 mb-4 font-light leading-relaxed">
+      Your AI-Powered Company.
+      <span class="text-white font-medium">One Command Away.</span>
+    </p>
+    <p class="text-base text-slate-500 mb-12 max-w-2xl mx-auto">
+      Deploy a fully-staffed AI organization — CEO, engineers, QA, HR — that receives your directives,
+      delegates intelligently, and delivers quality-checked results. You are the Board. NEXUS does the rest.
+    </p>
+
+    <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+      <a href="#quickstart"
+         class="btn-primary relative z-10 px-8 py-3.5 rounded-xl font-semibold text-white text-base flex items-center gap-2 shadow-2xl">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+        Get Started
+      </a>
+      <a href="https://github.com/shuaige121/nexus-ai-team" target="_blank"
+         class="btn-ghost px-8 py-3.5 rounded-xl font-semibold text-slate-300 text-base flex items-center gap-2">
+        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+        View on GitHub
+      </a>
+    </div>
+
+    <!-- Stat Strip -->
+    <div class="mt-20 grid grid-cols-3 gap-6 max-w-lg mx-auto">
+      <div class="text-center">
+        <div class="text-3xl font-black grad-text">5+</div>
+        <div class="text-xs text-slate-500 mt-1">AI Roles</div>
+      </div>
+      <div class="text-center border-x border-slate-800">
+        <div class="text-3xl font-black grad-text">4</div>
+        <div class="text-xs text-slate-500 mt-1">Entry Channels</div>
+      </div>
+      <div class="text-center">
+        <div class="text-3xl font-black grad-text">∞</div>
+        <div class="text-xs text-slate-500 mt-1">Federation Nodes</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scroll hint -->
+  <div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-slate-600 text-xs animate-bounce">
+    <span>Scroll</span>
+    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+
+<!-- ═══════════════════════════════════════════
+     SECTION 2: HOW IT WORKS
+═══════════════════════════════════════════ -->
+<section id="how-it-works" class="py-28 px-6">
+  <div class="max-w-5xl mx-auto fade-in-section">
+    <div class="text-center mb-16">
+      <span class="tag">Process</span>
+      <h2 class="text-4xl md:text-5xl font-bold mt-4 mb-4">
+        How <span class="grad-text">NEXUS</span> Works
+      </h2>
+      <p class="text-slate-400 text-lg max-w-2xl mx-auto">
+        Three steps from idea to delivered result — fully automated, always quality-checked.
+      </p>
+    </div>
+
+    <div class="grid md:grid-cols-3 gap-8 relative">
+      <!-- Step 1 -->
+      <div class="flex flex-col items-center text-center relative">
+        <div class="w-14 h-14 rounded-2xl flex items-center justify-center mb-6 bg-gradient-to-br from-violet-600 to-violet-900 shadow-lg shadow-violet-900/40 text-2xl">
+          💬
+        </div>
+        <div class="absolute top-7 left-[calc(50%+36px)] hidden md:block w-[calc(100%-72px)] h-px bg-gradient-to-r from-violet-600/60 to-blue-600/60"></div>
+        <div class="w-8 h-8 rounded-full bg-violet-900/50 border border-violet-600/40 flex items-center justify-center text-sm font-bold text-violet-400 mb-4">1</div>
+        <h3 class="text-xl font-bold mb-3 text-white">Issue a Directive</h3>
+        <p class="text-slate-400 text-sm leading-relaxed">
+          Send a task via Telegram, Web UI, REST API, or WebSocket. No special syntax — just natural language.
+        </p>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="flex flex-col items-center text-center relative">
+        <div class="w-14 h-14 rounded-2xl flex items-center justify-center mb-6 bg-gradient-to-br from-blue-600 to-blue-900 shadow-lg shadow-blue-900/40 text-2xl">
+          🤖
+        </div>
+        <div class="absolute top-7 left-[calc(50%+36px)] hidden md:block w-[calc(100%-72px)] h-px bg-gradient-to-r from-blue-600/60 to-cyan-600/60"></div>
+        <div class="w-8 h-8 rounded-full bg-blue-900/50 border border-blue-600/40 flex items-center justify-center text-sm font-bold text-blue-400 mb-4">2</div>
+        <h3 class="text-xl font-bold mb-3 text-white">AI Team Collaborates</h3>
+        <p class="text-slate-400 text-sm leading-relaxed">
+          CEO Agent decomposes the goal, delegates sub-tasks to Directors and Interns, and tracks progress automatically.
+        </p>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="flex flex-col items-center text-center">
+        <div class="w-14 h-14 rounded-2xl flex items-center justify-center mb-6 bg-gradient-to-br from-cyan-600 to-cyan-900 shadow-lg shadow-cyan-900/40 text-2xl">
+          ✅
+        </div>
+        <div class="w-8 h-8 rounded-full bg-cyan-900/50 border border-cyan-600/40 flex items-center justify-center text-sm font-bold text-cyan-400 mb-4">3</div>
+        <h3 class="text-xl font-bold mb-3 text-white">QA-Verified Delivery</h3>
+        <p class="text-slate-400 text-sm leading-relaxed">
+          Every output passes an automated quality-assurance review before delivery. Failures loop back for correction — up to 3 rounds.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+
+<!-- ═══════════════════════════════════════════
+     SECTION 3: FEATURES
+═══════════════════════════════════════════ -->
+<section id="features" class="py-28 px-6">
+  <div class="max-w-6xl mx-auto fade-in-section">
+    <div class="text-center mb-16">
+      <span class="tag">Capabilities</span>
+      <h2 class="text-4xl md:text-5xl font-bold mt-4 mb-4">
+        Built for <span class="grad-text">Real Work</span>
+      </h2>
+      <p class="text-slate-400 text-lg max-w-2xl mx-auto">
+        Everything an AI company needs, assembled in one deployable system.
+      </p>
+    </div>
+
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+      <!-- Card 1 -->
+      <div class="glass rounded-2xl p-6 feature-card">
+        <div class="text-3xl mb-4">🏢</div>
+        <h3 class="text-lg font-bold mb-2 text-white">AI Company Simulation</h3>
+        <p class="text-slate-400 text-sm leading-relaxed">
+          Full org chart: CEO, Engineering Director, QA Lead, HR, IT Ops — each with defined responsibilities and escalation paths. A real company, run by AI.
+        </p>
+      </div>
+
+      <!-- Card 2 -->
+      <div class="glass rounded-2xl p-6 feature-card">
+        <div class="text-3xl mb-4">🧭</div>
+        <h3 class="text-lg font-bold mb-2 text-white">Multi-Level Agent Routing</h3>
+        <p class="text-slate-400 text-sm leading-relaxed">
+          Tasks are complexity-scored and automatically routed to the right tier — Intern for simple tasks, Director for strategy, CEO for cross-department decisions.
+        </p>
+      </div>
+
+      <!-- Card 3 -->
+      <div class="glass rounded-2xl p-6 feature-card">
+        <div class="text-3xl mb-4">🌐</div>
+        <h3 class="text-lg font-bold mb-2 text-white">Multi-Channel Access</h3>
+        <p class="text-slate-400 text-sm leading-relaxed">
+          Connect via Telegram bot, Web UI, REST API, or WebSocket. One backend, every interface — meet users where they already are.
+        </p>
+      </div>
+
+      <!-- Card 4 -->
+      <div class="glass rounded-2xl p-6 feature-card">
+        <div class="text-3xl mb-4">🔍</div>
+        <h3 class="text-lg font-bold mb-2 text-white">Automated QA Pipeline</h3>
+        <p class="text-slate-400 text-sm leading-relaxed">
+          Worker → QA → PASS or FAIL loop. Every deliverable is reviewed against the original contract before reaching you. Maximum 3 correction cycles.
+        </p>
+      </div>
+
+      <!-- Card 5 -->
+      <div class="glass rounded-2xl p-6 feature-card">
+        <div class="text-3xl mb-4">💓</div>
+        <h3 class="text-lg font-bold mb-2 text-white">Health Monitoring & Recovery</h3>
+        <p class="text-slate-400 text-sm leading-relaxed">
+          Built-in heartbeat checks, auto-restart on failure, and systemd integration. Your AI company stays online even when individual agents crash.
+        </p>
+      </div>
+
+      <!-- Card 6 -->
+      <div class="glass rounded-2xl p-6 feature-card" style="border-color: rgba(139,92,246,0.4); background: rgba(88,28,220,0.08);">
+        <div class="text-3xl mb-4">🕸️</div>
+        <h3 class="text-lg font-bold mb-2 text-white">Open Federation Protocol</h3>
+        <p class="text-slate-400 text-sm leading-relaxed">
+          Any OpenClaw instance worldwide can join as a federated worker node. Scale your AI workforce beyond a single server — truly distributed execution.
+        </p>
+        <div class="mt-3">
+          <span class="tag" style="background: rgba(124,58,237,0.25); border-color: rgba(139,92,246,0.5); color: #c4b5fd;">New in v2</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+
+<!-- ═══════════════════════════════════════════
+     SECTION 4: ARCHITECTURE
+═══════════════════════════════════════════ -->
+<section id="architecture" class="py-28 px-6">
+  <div class="max-w-5xl mx-auto fade-in-section">
+    <div class="text-center mb-16">
+      <span class="tag">System Design</span>
+      <h2 class="text-4xl md:text-5xl font-bold mt-4 mb-4">
+        <span class="grad-text">Architecture</span> Overview
+      </h2>
+      <p class="text-slate-400 text-lg max-w-2xl mx-auto">
+        A layered, event-driven hierarchy from user input to distributed execution.
+      </p>
+    </div>
+
+    <div class="glass rounded-3xl p-8 md:p-12">
+      <!-- Top: Entry Channels -->
+      <div class="mb-10">
+        <p class="text-xs text-slate-500 uppercase tracking-widest mb-4 text-center font-semibold">Entry Channels</p>
+        <div class="flex items-center justify-center flex-wrap gap-3">
+          <div class="arch-box flex items-center gap-2"><span>📱</span> Telegram</div>
+          <div class="arch-box flex items-center gap-2"><span>🌐</span> Web UI</div>
+          <div class="arch-box flex items-center gap-2"><span>🔌</span> REST API</div>
+          <div class="arch-box flex items-center gap-2"><span>⚡</span> WebSocket</div>
+        </div>
+        <!-- Down arrow -->
+        <div class="flex justify-center mt-4">
+          <div class="flex flex-col items-center gap-1">
+            <div class="w-px h-8 bg-gradient-to-b from-violet-500/60 to-blue-500/60"></div>
+            <svg class="w-3 h-3 text-violet-400" fill="currentColor" viewBox="0 0 16 16"><path d="M8 11L1 4h14z"/></svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Gateway -->
+      <div class="flex justify-center mb-6">
+        <div class="arch-box highlight flex items-center gap-3 px-6 py-3 text-base">
+          <span>🚀</span>
+          <div>
+            <div class="text-violet-300 font-bold">NEXUS Gateway</div>
+            <div class="text-slate-500 text-xs font-normal">FastAPI + LiteLLM · Auth · Rate Limit</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Down arrow -->
+      <div class="flex justify-center mb-6">
+        <div class="flex flex-col items-center gap-1">
+          <div class="w-px h-8 bg-gradient-to-b from-blue-500/60 to-violet-500/60"></div>
+          <svg class="w-3 h-3 text-blue-400" fill="currentColor" viewBox="0 0 16 16"><path d="M8 11L1 4h14z"/></svg>
+        </div>
+      </div>
+
+      <!-- CEO Layer -->
+      <div class="flex justify-center mb-6">
+        <div class="arch-box highlight flex items-center gap-3 px-6 py-3 text-base">
+          <span>👔</span>
+          <div>
+            <div class="text-blue-300 font-bold">CEO Agent</div>
+            <div class="text-slate-500 text-xs font-normal">Task decomposition · Delegation · Oversight</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Down arrow -->
+      <div class="flex justify-center mb-6">
+        <div class="flex flex-col items-center gap-1">
+          <div class="w-px h-8 bg-gradient-to-b from-violet-500/60 to-cyan-500/60"></div>
+          <svg class="w-3 h-3 text-violet-400" fill="currentColor" viewBox="0 0 16 16"><path d="M8 11L1 4h14z"/></svg>
+        </div>
+      </div>
+
+      <!-- Directors -->
+      <div class="mb-6">
+        <p class="text-xs text-slate-500 uppercase tracking-widest mb-4 text-center font-semibold">Department Directors</p>
+        <div class="flex items-center justify-center flex-wrap gap-3">
+          <div class="arch-box flex items-center gap-2"><span>⚙️</span> Engineering</div>
+          <div class="arch-box flex items-center gap-2"><span>🔎</span> QA Lead</div>
+          <div class="arch-box flex items-center gap-2"><span>👥</span> HR</div>
+          <div class="arch-box flex items-center gap-2"><span>🖥️</span> IT Ops</div>
+        </div>
+      </div>
+
+      <!-- Down arrow -->
+      <div class="flex justify-center mb-6">
+        <div class="flex flex-col items-center gap-1">
+          <div class="w-px h-8 bg-gradient-to-b from-cyan-500/60 to-emerald-500/60"></div>
+          <svg class="w-3 h-3 text-cyan-400" fill="currentColor" viewBox="0 0 16 16"><path d="M8 11L1 4h14z"/></svg>
+        </div>
+      </div>
+
+      <!-- Workers -->
+      <div>
+        <p class="text-xs text-slate-500 uppercase tracking-widest mb-4 text-center font-semibold">Worker Interns (Local + Federated)</p>
+        <div class="flex items-center justify-center flex-wrap gap-3">
+          <div class="arch-box text-emerald-400/90 border-emerald-900/60 flex items-center gap-2"><span>🛠️</span> Dev Intern</div>
+          <div class="arch-box text-emerald-400/90 border-emerald-900/60 flex items-center gap-2"><span>🧪</span> QA Intern</div>
+          <div class="arch-box text-emerald-400/90 border-emerald-900/60 flex items-center gap-2"><span>📝</span> Docs Intern</div>
+          <div class="arch-box text-cyan-400/90 border-cyan-900/60 flex items-center gap-2">
+            <span>🕸️</span> Federation Node
+            <span class="tag" style="font-size:0.6rem;">Remote</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+
+<!-- ═══════════════════════════════════════════
+     SECTION 5: FEDERATION
+═══════════════════════════════════════════ -->
+<section id="federation" class="py-28 px-6 relative overflow-hidden">
+  <!-- Background glow -->
+  <div class="absolute inset-0 pointer-events-none" style="background: radial-gradient(ellipse 80% 50% at 50% 50%, rgba(88,28,220,0.08) 0%, transparent 70%);"></div>
+
+  <div class="max-w-5xl mx-auto fade-in-section relative z-10">
+    <div class="text-center mb-16">
+      <span class="tag" style="background: rgba(124,58,237,0.2); border-color: rgba(139,92,246,0.5); color: #c4b5fd;">Featured</span>
+      <h2 class="text-4xl md:text-5xl font-bold mt-4 mb-4">
+        Open <span class="grad-text">Federation</span> Protocol
+      </h2>
+      <p class="text-slate-400 text-lg max-w-2xl mx-auto">
+        NEXUS is not a silo. Anyone can register their own OpenClaw instance as a worker node —
+        turning your private AI into a member of a global AI company.
+      </p>
+    </div>
+
+    <div class="grid lg:grid-cols-2 gap-12 items-center">
+      <!-- Left: Diagram -->
+      <div class="flex flex-col items-center">
+        <p class="text-xs text-slate-500 uppercase tracking-widest mb-8 font-semibold">Federated Network</p>
+
+        <!-- Node grid -->
+        <div class="relative flex flex-col items-center gap-6 w-full">
+
+          <!-- Top row of nodes -->
+          <div class="flex items-end justify-center gap-12">
+            <div class="fed-node">
+              <div class="fed-node-icon">🇯🇵</div>
+              <span class="text-xs text-slate-500">Tokyo Node</span>
+              <div class="w-px h-6 bg-violet-500/40"></div>
+            </div>
+            <div class="fed-node">
+              <div class="fed-node-icon">🇩🇪</div>
+              <span class="text-xs text-slate-500">Berlin Node</span>
+              <div class="w-px h-6 bg-violet-500/40"></div>
+            </div>
+          </div>
+
+          <!-- Center: Nexus Hub -->
+          <div class="flex items-center gap-8">
+            <div class="fed-node">
+              <div class="w-px h-6 bg-violet-500/40"></div>
+              <div class="fed-node-icon">🏠</div>
+              <span class="text-xs text-slate-500">My Node</span>
+            </div>
+
+            <!-- Lines emanating to center -->
+            <div class="flex flex-col items-center gap-1">
+              <span class="text-slate-600 text-xl">&#8594;</span>
+            </div>
+
+            <div class="fed-center text-3xl" title="NEXUS Hub">N</div>
+
+            <div class="flex flex-col items-center gap-1">
+              <span class="text-slate-600 text-xl">&#8592;</span>
+            </div>
+
+            <div class="fed-node">
+              <div class="w-px h-6 bg-violet-500/40"></div>
+              <div class="fed-node-icon">☁️</div>
+              <span class="text-xs text-slate-500">Cloud Node</span>
+            </div>
+          </div>
+
+          <!-- Bottom row -->
+          <div class="flex items-start justify-center gap-12">
+            <div class="fed-node">
+              <div class="w-px h-6 bg-violet-500/40"></div>
+              <div class="fed-node-icon">🖥️</div>
+              <span class="text-xs text-slate-500">On-Prem Node</span>
+            </div>
+            <div class="fed-node">
+              <div class="w-px h-6 bg-violet-500/40"></div>
+              <div class="fed-node-icon">🏗️</div>
+              <span class="text-xs text-slate-500">Dev Node</span>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="mt-8 text-center">
+          <p class="text-slate-500 text-sm">Each node runs <span class="text-violet-400 font-medium">OpenClaw</span> independently.<br/>NEXUS orchestrates them as one unified team.</p>
+        </div>
+      </div>
+
+      <!-- Right: API Code -->
+      <div>
+        <h3 class="text-xl font-bold mb-2 text-white">Join in One Request</h3>
+        <p class="text-slate-400 text-sm mb-6 leading-relaxed">
+          Register your OpenClaw instance as a federated worker. Specify your role and capabilities — NEXUS CEO will start routing compatible tasks to your node automatically.
+        </p>
+
+        <!-- Code block -->
+        <div class="code-block p-5 text-sm mb-6">
+          <div class="flex items-center gap-2 mb-4 pb-3 border-b border-slate-800">
+            <div class="w-3 h-3 rounded-full bg-red-500/70"></div>
+            <div class="w-3 h-3 rounded-full bg-yellow-500/70"></div>
+            <div class="w-3 h-3 rounded-full bg-green-500/70"></div>
+            <span class="text-slate-600 text-xs ml-2 font-mono">federation-join.http</span>
+          </div>
+<pre><span class="line-num">1</span><span class="kw">POST</span> <span class="str">/api/federation/join</span>
+<span class="line-num">2</span><span class="key">Authorization</span><span class="op">:</span> <span class="str">Bearer &lt;your-nexus-token&gt;</span>
+<span class="line-num">3</span><span class="key">Content-Type</span><span class="op">:</span> <span class="str">application/json</span>
+<span class="line-num">4</span>
+<span class="line-num">5</span><span class="op">{</span>
+<span class="line-num">6</span>  <span class="key">"node_url"</span><span class="op">:</span> <span class="str">"https://my-openclaw.example.com"</span><span class="op">,</span>
+<span class="line-num">7</span>  <span class="key">"role"</span><span class="op">:</span> <span class="str">"engineering-intern"</span><span class="op">,</span>
+<span class="line-num">8</span>  <span class="key">"capabilities"</span><span class="op">:</span> <span class="op">[</span>
+<span class="line-num">9</span>    <span class="str">"python"</span><span class="op">,</span> <span class="str">"javascript"</span><span class="op">,</span> <span class="str">"docker"</span>
+<span class="line-num">10</span>  <span class="op">],</span>
+<span class="line-num">11</span>  <span class="key">"max_concurrent"</span><span class="op">:</span> <span class="num">3</span><span class="op">,</span>
+<span class="line-num">12</span>  <span class="key">"region"</span><span class="op">:</span> <span class="str">"ap-northeast"</span>
+<span class="line-num">13</span><span class="op">}</span></pre>
+        </div>
+
+        <!-- Response example -->
+        <div class="code-block p-5 text-sm">
+          <div class="flex items-center gap-2 mb-4 pb-3 border-b border-slate-800">
+            <span class="text-emerald-400 text-xs font-semibold">200 OK</span>
+            <span class="text-slate-600 text-xs ml-2 font-mono">— response</span>
+          </div>
+<pre><span class="line-num">1</span><span class="op">{</span>
+<span class="line-num">2</span>  <span class="key">"status"</span><span class="op">:</span> <span class="str">"accepted"</span><span class="op">,</span>
+<span class="line-num">3</span>  <span class="key">"node_id"</span><span class="op">:</span> <span class="str">"node_a3f9c2"</span><span class="op">,</span>
+<span class="line-num">4</span>  <span class="key">"assigned_role"</span><span class="op">:</span> <span class="str">"engineering-intern"</span><span class="op">,</span>
+<span class="line-num">5</span>  <span class="key">"message"</span><span class="op">:</span> <span class="str">"Welcome to the team. First task incoming."</span>
+<span class="line-num">6</span><span class="op">}</span></pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- Benefit Pills -->
+    <div class="mt-14 flex flex-wrap justify-center gap-3">
+      <div class="glass rounded-xl px-5 py-3 flex items-center gap-3">
+        <span class="text-lg">🔐</span>
+        <div>
+          <div class="text-sm font-semibold text-white">Node Auth</div>
+          <div class="text-xs text-slate-500">JWT-signed heartbeats</div>
+        </div>
+      </div>
+      <div class="glass rounded-xl px-5 py-3 flex items-center gap-3">
+        <span class="text-lg">📦</span>
+        <div>
+          <div class="text-sm font-semibold text-white">Contract-based</div>
+          <div class="text-xs text-slate-500">Structured task delivery</div>
+        </div>
+      </div>
+      <div class="glass rounded-xl px-5 py-3 flex items-center gap-3">
+        <span class="text-lg">⚖️</span>
+        <div>
+          <div class="text-sm font-semibold text-white">Load Balanced</div>
+          <div class="text-xs text-slate-500">CEO routes by capability</div>
+        </div>
+      </div>
+      <div class="glass rounded-xl px-5 py-3 flex items-center gap-3">
+        <span class="text-lg">🔄</span>
+        <div>
+          <div class="text-sm font-semibold text-white">Auto Failover</div>
+          <div class="text-xs text-slate-500">Offline nodes deregistered</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+
+<!-- ═══════════════════════════════════════════
+     SECTION 6: QUICK START
+═══════════════════════════════════════════ -->
+<section id="quickstart" class="py-28 px-6">
+  <div class="max-w-4xl mx-auto fade-in-section">
+    <div class="text-center mb-16">
+      <span class="tag">Deploy</span>
+      <h2 class="text-4xl md:text-5xl font-bold mt-4 mb-4">
+        Up in <span class="grad-text">60 Seconds</span>
+      </h2>
+      <p class="text-slate-400 text-lg max-w-2xl mx-auto">
+        Docker Compose handles everything. Your AI company is ready before your coffee brews.
+      </p>
+    </div>
+
+    <!-- Step 1: Clone -->
+    <div class="mb-6">
+      <p class="text-sm text-slate-500 mb-2 flex items-center gap-2">
+        <span class="w-5 h-5 rounded-full bg-violet-900/60 border border-violet-700/50 flex items-center justify-center text-xs text-violet-400 font-bold">1</span>
+        Clone the repository
+      </p>
+      <div class="code-block p-4">
+        <pre><span class="kw">git</span> clone https://github.com/shuaige121/nexus-ai-team.git
+<span class="kw">cd</span> nexus-ai-team</pre>
+      </div>
+    </div>
+
+    <!-- Step 2: Configure -->
+    <div class="mb-6">
+      <p class="text-sm text-slate-500 mb-2 flex items-center gap-2">
+        <span class="w-5 h-5 rounded-full bg-violet-900/60 border border-violet-700/50 flex items-center justify-center text-xs text-violet-400 font-bold">2</span>
+        Configure your environment
+      </p>
+      <div class="code-block p-5">
+        <div class="flex items-center gap-2 mb-3 pb-3 border-b border-slate-800">
+          <span class="text-slate-500 text-xs font-mono">.env</span>
+        </div>
+<pre><span class="cm"># LLM Provider</span>
+<span class="key">ANTHROPIC_API_KEY</span><span class="op">=</span><span class="str">sk-ant-...</span>
+<span class="key">OPENAI_API_KEY</span><span class="op">=</span><span class="str">sk-...</span>          <span class="cm"># optional fallback</span>
+
+<span class="cm"># Agent Model Tiers</span>
+<span class="key">CEO_MODEL</span><span class="op">=</span><span class="str">claude-opus-4-6</span>
+<span class="key">DIRECTOR_MODEL</span><span class="op">=</span><span class="str">claude-sonnet-4-6</span>
+<span class="key">INTERN_MODEL</span><span class="op">=</span><span class="str">claude-haiku-3-5</span>
+
+<span class="cm"># Channels</span>
+<span class="key">TELEGRAM_BOT_TOKEN</span><span class="op">=</span><span class="str">7123456789:AAH...</span>
+<span class="key">NEXUS_PORT</span><span class="op">=</span><span class="num">8080</span>
+
+<span class="cm"># Federation</span>
+<span class="key">FEDERATION_ENABLED</span><span class="op">=</span><span class="str">true</span>
+<span class="key">NEXUS_SECRET</span><span class="op">=</span><span class="str">change-me-in-production</span></pre>
+      </div>
+    </div>
+
+    <!-- Step 3: Launch -->
+    <div class="mb-10">
+      <p class="text-sm text-slate-500 mb-2 flex items-center gap-2">
+        <span class="w-5 h-5 rounded-full bg-violet-900/60 border border-violet-700/50 flex items-center justify-center text-xs text-violet-400 font-bold">3</span>
+        Launch your AI company
+      </p>
+      <div class="code-block p-4">
+<pre><span class="kw">docker</span> compose up <span class="op">-d</span>
+
+<span class="cm"># ✓ nexus-gateway    started on :8080</span>
+<span class="cm"># ✓ nexus-ceo        ready</span>
+<span class="cm"># ✓ nexus-engineering ready</span>
+<span class="cm"># ✓ nexus-qa         ready</span>
+<span class="cm"># ✓ nexus-telegram   listening</span></pre>
+      </div>
+    </div>
+
+    <!-- Step 4: Send first task -->
+    <div class="mb-10">
+      <p class="text-sm text-slate-500 mb-2 flex items-center gap-2">
+        <span class="w-5 h-5 rounded-full bg-emerald-900/60 border border-emerald-700/50 flex items-center justify-center text-xs text-emerald-400 font-bold">4</span>
+        Issue your first directive
+      </p>
+      <div class="code-block p-5">
+<pre><span class="kw">curl</span> <span class="op">-X</span> POST http://localhost:<span class="num">8080</span>/api/task <span class="op">\</span>
+  <span class="op">-H</span> <span class="str">"Authorization: Bearer $NEXUS_SECRET"</span> <span class="op">\</span>
+  <span class="op">-d</span> <span class="str">'{
+    "instruction": "Build a REST API for user authentication with JWT",
+    "priority": "high",
+    "deadline": "2h"
+  }'</span></pre>
+      </div>
+    </div>
+
+    <!-- CTA -->
+    <div class="text-center">
+      <a href="https://github.com/shuaige121/nexus-ai-team" target="_blank"
+         class="btn-primary relative z-10 inline-flex px-10 py-4 rounded-xl font-semibold text-white text-base items-center gap-3 shadow-2xl">
+        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+        Star on GitHub
+      </a>
+      <p class="text-slate-600 text-sm mt-4">Apache 2.0 License &middot; Free to self-host</p>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+
+<!-- ═══════════════════════════════════════════
+     SECTION 7: FOOTER
+═══════════════════════════════════════════ -->
+<footer class="py-16 px-6">
+  <div class="max-w-5xl mx-auto">
+    <div class="grid md:grid-cols-3 gap-10 mb-12">
+      <!-- Brand -->
+      <div>
+        <div class="flex items-center gap-2 mb-4">
+          <span class="text-2xl font-black grad-text">NEXUS</span>
+          <span class="tag">AI-Team</span>
+        </div>
+        <p class="text-slate-500 text-sm leading-relaxed">
+          Neural Executive Unified System. An AI-powered company simulation framework for autonomous task execution.
+        </p>
+      </div>
+
+      <!-- Links -->
+      <div>
+        <h4 class="text-sm font-semibold text-white mb-4 uppercase tracking-wider">Resources</h4>
+        <ul class="space-y-2.5 text-sm text-slate-500">
+          <li><a href="https://github.com/shuaige121/nexus-ai-team" target="_blank" class="hover:text-violet-400 transition-colors">GitHub Repository</a></li>
+          <li><a href="https://github.com/shuaige121/nexus-ai-team/wiki" target="_blank" class="hover:text-violet-400 transition-colors">Documentation</a></li>
+          <li><a href="https://github.com/shuaige121/nexus-ai-team/issues" target="_blank" class="hover:text-violet-400 transition-colors">Issue Tracker</a></li>
+          <li><a href="#federation" class="hover:text-violet-400 transition-colors">Federation Protocol</a></li>
+        </ul>
+      </div>
+
+      <!-- Tech Stack -->
+      <div>
+        <h4 class="text-sm font-semibold text-white mb-4 uppercase tracking-wider">Built With</h4>
+        <ul class="space-y-2.5 text-sm text-slate-500">
+          <li class="flex items-center gap-2"><span class="text-base">🤖</span> Claude (Anthropic)</li>
+          <li class="flex items-center gap-2"><span class="text-base">🦾</span> OpenClaw Agent Framework</li>
+          <li class="flex items-center gap-2"><span class="text-base">⚡</span> FastAPI + LiteLLM</li>
+          <li class="flex items-center gap-2"><span class="text-base">🐳</span> Docker + Docker Compose</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Bottom bar -->
+    <div class="border-t border-slate-800/60 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
+      <p class="text-slate-600 text-sm">
+        &copy; 2026 NEXUS AI-Team &middot; Apache 2.0 License
+      </p>
+      <p class="text-slate-700 text-sm flex items-center gap-1.5">
+        Built with
+        <span class="text-violet-500 font-semibold">Claude</span>
+        +
+        <span class="text-blue-500 font-semibold">OpenClaw</span>
+        &middot;
+        <a href="https://github.com/shuaige121/nexus-ai-team" target="_blank" class="text-slate-600 hover:text-violet-400 transition-colors flex items-center gap-1">
+          <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+          shuaige121/nexus-ai-team
+        </a>
+      </p>
+    </div>
+  </div>
+</footer>
+
+
+<!-- ═══════════════════════════════════════════
+     SCROLL ANIMATION (IntersectionObserver)
+═══════════════════════════════════════════ -->
+<script>
+  (function() {
+    var io = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          io.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+
+    document.querySelectorAll('.fade-in-section').forEach(function(el) {
+      io.observe(el);
+    });
+  })();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NEXUS Agent JD Generator</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            nexus: {
+              bg:       '#0d0f14',
+              surface:  '#141720',
+              card:     '#1a1e2e',
+              border:   '#252a3a',
+              accent:   '#3b82f6',
+              accentHover: '#2563eb',
+              success:  '#10b981',
+              warning:  '#f59e0b',
+              danger:   '#ef4444',
+              muted:    '#6b7280',
+              text:     '#e2e8f0',
+              textDim:  '#94a3b8',
+              purple:   '#8b5cf6',
+              cyan:     '#06b6d4',
+            }
+          },
+          fontFamily: {
+            mono: ['JetBrains Mono', 'Fira Code', 'Consolas', 'monospace'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600&display=swap');
+
+    * { box-sizing: border-box; }
+
+    body {
+      background-color: #0d0f14;
+      color: #e2e8f0;
+      font-family: 'JetBrains Mono', 'Fira Code', Consolas, monospace;
+      margin: 0;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #141720; }
+    ::-webkit-scrollbar-thumb { background: #252a3a; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #3b4a6b; }
+
+    .form-input {
+      background: #0d0f14;
+      border: 1px solid #252a3a;
+      color: #e2e8f0;
+      border-radius: 6px;
+      padding: 8px 12px;
+      width: 100%;
+      font-family: inherit;
+      font-size: 13px;
+      transition: border-color 0.15s, box-shadow 0.15s;
+      outline: none;
+    }
+    .form-input:focus {
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 2px rgba(59,130,246,0.15);
+    }
+    .form-input::placeholder { color: #4b5563; }
+
+    textarea.form-input { resize: vertical; min-height: 80px; }
+
+    .form-label {
+      display: block;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      color: #94a3b8;
+      margin-bottom: 5px;
+      text-transform: uppercase;
+    }
+
+    .section-title {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #3b82f6;
+      padding: 6px 0;
+      border-bottom: 1px solid #252a3a;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .section-title::before {
+      content: '';
+      width: 3px;
+      height: 14px;
+      background: #3b82f6;
+      border-radius: 2px;
+      display: inline-block;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      border-radius: 6px;
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      cursor: pointer;
+      border: none;
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+    .btn-primary   { background: #3b82f6; color: #fff; }
+    .btn-primary:hover { background: #2563eb; }
+    .btn-success   { background: #10b981; color: #fff; }
+    .btn-success:hover { background: #059669; }
+    .btn-warning   { background: #f59e0b; color: #000; }
+    .btn-warning:hover { background: #d97706; }
+    .btn-purple    { background: #8b5cf6; color: #fff; }
+    .btn-purple:hover { background: #7c3aed; }
+    .btn-cyan      { background: #06b6d4; color: #000; }
+    .btn-cyan:hover { background: #0891b2; }
+    .btn-ghost     { background: #1a1e2e; border: 1px solid #252a3a; color: #94a3b8; }
+    .btn-ghost:hover { background: #252a3a; color: #e2e8f0; }
+
+    .preview-pane {
+      background: #0d0f14;
+      color: #e2e8f0;
+      font-size: 13px;
+      line-height: 1.7;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-family: inherit;
+      padding: 20px;
+      height: 100%;
+      overflow-y: auto;
+    }
+
+    .preview-pane h1 { color: #3b82f6; font-size: 18px; margin: 0 0 8px; border-bottom: 1px solid #252a3a; padding-bottom: 8px; }
+    .preview-pane h2 { color: #8b5cf6; font-size: 14px; margin: 16px 0 8px; }
+    .preview-pane h3 { color: #06b6d4; font-size: 13px; margin: 12px 0 6px; }
+    .preview-pane strong { color: #f59e0b; }
+    .preview-pane code { background: #1a1e2e; padding: 1px 5px; border-radius: 3px; font-size: 12px; }
+    .preview-pane hr { border-color: #252a3a; margin: 12px 0; }
+
+    .tab-btn {
+      padding: 6px 14px;
+      font-family: inherit;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      cursor: pointer;
+      border: none;
+      border-radius: 4px;
+      transition: all 0.15s;
+    }
+    .tab-btn.active { background: #3b82f6; color: #fff; }
+    .tab-btn:not(.active) { background: transparent; color: #6b7280; }
+    .tab-btn:not(.active):hover { color: #94a3b8; background: #1a1e2e; }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .grid-form { display: grid; grid-template-columns: 1fr; gap: 12px; }
+
+    .badge {
+      display: inline-block;
+      padding: 2px 7px;
+      border-radius: 3px;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+    }
+    .badge-auto { background: #1a1e2e; border: 1px solid #252a3a; color: #6b7280; }
+
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: #1a1e2e;
+      border: 1px solid #10b981;
+      color: #10b981;
+      padding: 10px 18px;
+      border-radius: 6px;
+      font-size: 12px;
+      z-index: 9999;
+      opacity: 0;
+      transform: translateY(8px);
+      transition: all 0.2s;
+      pointer-events: none;
+    }
+    .toast.show { opacity: 1; transform: translateY(0); }
+
+    .left-panel { overflow-y: auto; height: calc(100vh - 56px); }
+    .right-panel { overflow: hidden; height: calc(100vh - 56px); display: flex; flex-direction: column; }
+  </style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="flex items-center justify-between px-6 py-3 border-b" style="border-color:#252a3a; background:#141720; height:56px;">
+  <div class="flex items-center gap-3">
+    <div style="width:8px;height:8px;background:#3b82f6;border-radius:50%;box-shadow:0 0 8px #3b82f6;"></div>
+    <span style="font-size:13px;font-weight:600;letter-spacing:0.1em;color:#e2e8f0;">NEXUS</span>
+    <span style="color:#252a3a;font-size:14px;">/</span>
+    <span style="font-size:12px;color:#6b7280;">Agent JD Generator</span>
+  </div>
+  <div class="flex items-center gap-2">
+    <button class="btn btn-ghost" onclick="handleImport()" title="从 JSON 文件导入">
+      <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      导入 JSON
+    </button>
+    <button class="btn btn-ghost" onclick="resetForm()" title="清空重置">
+      <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.13"/></svg>
+      重置
+    </button>
+    <button class="btn btn-primary" onclick="exportMarkdown()">
+      <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      导出 MD
+    </button>
+    <button class="btn btn-success" onclick="exportJSON()">
+      <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      导出 JSON
+    </button>
+    <button class="btn btn-warning" onclick="exportYAML()">
+      <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      导出 YAML
+    </button>
+  </div>
+</div>
+
+<!-- Main Layout -->
+<div style="display:grid; grid-template-columns:1fr 1fr; height:calc(100vh - 56px);">
+
+  <!-- LEFT: Form Panel -->
+  <div class="left-panel" style="border-right:1px solid #252a3a; background:#141720;">
+    <div style="padding:20px;">
+
+      <!-- Section: Basic Info -->
+      <div style="margin-bottom:24px;">
+        <div class="section-title">基本信息</div>
+        <div class="grid-2" style="margin-bottom:12px;">
+          <div>
+            <label class="form-label">Agent 名称</label>
+            <input class="form-input" type="text" id="agentName" placeholder="e.g. 首席执行官" oninput="onNameInput(this.value); saveToStorage(); updatePreview();" />
+          </div>
+          <div>
+            <label class="form-label">Agent ID <span class="badge badge-auto">auto</span></label>
+            <input class="form-input" type="text" id="agentId" placeholder="e.g. ceo" oninput="saveToStorage(); updatePreview();" />
+          </div>
+        </div>
+        <div class="grid-2" style="margin-bottom:12px;">
+          <div>
+            <label class="form-label">部门</label>
+            <select class="form-input" id="department" onchange="saveToStorage(); updatePreview();">
+              <option value="">-- 选择部门 --</option>
+              <option value="Executive Office">Executive Office</option>
+              <option value="Engineering">Engineering</option>
+              <option value="QA">QA</option>
+              <option value="HR">HR</option>
+              <option value="IT Support">IT Support</option>
+              <option value="Product">Product</option>
+            </select>
+          </div>
+          <div>
+            <label class="form-label">职级</label>
+            <select class="form-input" id="level" onchange="saveToStorage(); updatePreview();">
+              <option value="">-- 选择职级 --</option>
+              <option value="C-Level">C-Level</option>
+              <option value="Director">Director</option>
+              <option value="Lead">Lead</option>
+              <option value="Senior">Senior</option>
+              <option value="Junior">Junior</option>
+              <option value="Intern">Intern</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label class="form-label">汇报对象</label>
+          <input class="form-input" type="text" id="reportsTo" placeholder="e.g. board（用户/董事会）" oninput="saveToStorage(); updatePreview();" />
+        </div>
+      </div>
+
+      <!-- Section: RACE Profile -->
+      <div style="margin-bottom:24px;">
+        <div class="section-title">RACE Profile</div>
+        <div class="grid-form">
+          <div>
+            <label class="form-label">Role — 角色定义</label>
+            <textarea class="form-input" id="raceRole" placeholder="这个 Agent 是谁，代表什么角色..." oninput="saveToStorage(); updatePreview();"></textarea>
+          </div>
+          <div>
+            <label class="form-label">Action — 具体行为</label>
+            <textarea class="form-input" id="raceAction" placeholder="该 Agent 应当执行哪些具体行为..." oninput="saveToStorage(); updatePreview();"></textarea>
+          </div>
+          <div>
+            <label class="form-label">Context — 工作场景</label>
+            <textarea class="form-input" id="raceContext" placeholder="在什么组织结构和工作场景下运行..." oninput="saveToStorage(); updatePreview();"></textarea>
+          </div>
+          <div>
+            <label class="form-label">Expectation — 期望产出</label>
+            <textarea class="form-input" id="raceExpectation" placeholder="期望输出什么样的结果..." oninput="saveToStorage(); updatePreview();"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section: Personality -->
+      <div style="margin-bottom:24px;">
+        <div class="section-title">性格设定</div>
+        <div class="grid-2" style="margin-bottom:12px;">
+          <div>
+            <label class="form-label">沟通风格</label>
+            <select class="form-input" id="commStyle" onchange="saveToStorage(); updatePreview();">
+              <option value="">-- 选择风格 --</option>
+              <option value="严谨果断">严谨果断</option>
+              <option value="技术极客">技术极客</option>
+              <option value="温暖友善">温暖友善</option>
+              <option value="挑剔严格">挑剔严格</option>
+              <option value="创意发散">创意发散</option>
+              <option value="冷静分析">冷静分析</option>
+            </select>
+          </div>
+          <div>
+            <label class="form-label">口头禅</label>
+            <input class="form-input" type="text" id="catchphrase" placeholder='e.g. "数据说话"' oninput="saveToStorage(); updatePreview();" />
+          </div>
+        </div>
+        <div style="margin-bottom:12px;">
+          <label class="form-label">性格描述</label>
+          <textarea class="form-input" id="personality" placeholder="自由描述 Agent 的性格特征..." oninput="saveToStorage(); updatePreview();"></textarea>
+        </div>
+        <div>
+          <label class="form-label">工作偏好</label>
+          <textarea class="form-input" id="workPreference" placeholder="倾向于如何工作、处理问题的方式..." oninput="saveToStorage(); updatePreview();"></textarea>
+        </div>
+      </div>
+
+      <!-- Section: JD -->
+      <div style="margin-bottom:24px;">
+        <div class="section-title">JD — Job Description</div>
+        <div class="grid-form">
+          <div>
+            <label class="form-label">核心职责 <span style="color:#4b5563;font-size:10px;">(每行一条，以 - 开头)</span></label>
+            <textarea class="form-input" id="responsibilities" style="min-height:100px;" placeholder="- 接收并分解任务&#10;- 协调各部门执行&#10;- 审核最终产出" oninput="saveToStorage(); updatePreview();"></textarea>
+          </div>
+          <div>
+            <label class="form-label">权限范围</label>
+            <textarea class="form-input" id="authority" placeholder="该 Agent 有权做什么决策..." oninput="saveToStorage(); updatePreview();"></textarea>
+          </div>
+          <div>
+            <label class="form-label">协作关系</label>
+            <textarea class="form-input" id="collaboration" placeholder="与哪些 Agent 协作，如何交互..." oninput="saveToStorage(); updatePreview();"></textarea>
+          </div>
+          <div>
+            <label class="form-label">KPI 指标</label>
+            <textarea class="form-input" id="kpi" placeholder="衡量工作成效的指标..." oninput="saveToStorage(); updatePreview();"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section: Resume -->
+      <div style="margin-bottom:24px;">
+        <div class="section-title">Resume — 虚构简历</div>
+        <div class="grid-form">
+          <div>
+            <label class="form-label">背景故事</label>
+            <textarea class="form-input" id="backstory" placeholder="这个 Agent 的虚构来历、成长经历..." oninput="saveToStorage(); updatePreview();"></textarea>
+          </div>
+          <div>
+            <label class="form-label">核心技能 <span style="color:#4b5563;font-size:10px;">(每行一条)</span></label>
+            <textarea class="form-input" id="skills" placeholder="强推理能力&#10;战略思维&#10;质量把控" oninput="saveToStorage(); updatePreview();"></textarea>
+          </div>
+          <div>
+            <label class="form-label">过往经历</label>
+            <textarea class="form-input" id="experience" placeholder="虚构的工作经历、项目经验..." oninput="saveToStorage(); updatePreview();"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section: Model Config (for YAML) -->
+      <div style="margin-bottom:24px;">
+        <div class="section-title">模型配置 <span style="color:#4b5563;font-size:10px;font-weight:400;text-transform:none;letter-spacing:0;">(用于导出 YAML)</span></div>
+        <div class="grid-2" style="margin-bottom:12px;">
+          <div>
+            <label class="form-label">Species (模型名)</label>
+            <input class="form-input" type="text" id="species" placeholder="e.g. Claude Sonnet" oninput="saveToStorage(); updatePreview();" />
+          </div>
+          <div>
+            <label class="form-label">Provider</label>
+            <select class="form-input" id="provider" onchange="saveToStorage(); updatePreview();">
+              <option value="anthropic">anthropic</option>
+              <option value="openai">openai</option>
+              <option value="google">google</option>
+              <option value="other">other</option>
+            </select>
+          </div>
+        </div>
+        <div class="grid-2" style="margin-bottom:12px;">
+          <div>
+            <label class="form-label">Model ID</label>
+            <input class="form-input" type="text" id="modelId" placeholder="e.g. claude-sonnet-4-5-20250514" oninput="saveToStorage(); updatePreview();" />
+          </div>
+          <div>
+            <label class="form-label">API Key Env</label>
+            <input class="form-input" type="text" id="apiKeyEnv" placeholder="e.g. ANTHROPIC_API_KEY" oninput="saveToStorage(); updatePreview();" />
+          </div>
+        </div>
+        <div class="grid-2" style="margin-bottom:12px;">
+          <div>
+            <label class="form-label">Temperature</label>
+            <input class="form-input" type="number" id="temperature" placeholder="0.3" min="0" max="2" step="0.1" oninput="saveToStorage(); updatePreview();" />
+          </div>
+          <div>
+            <label class="form-label">Max Tokens</label>
+            <input class="form-input" type="number" id="maxTokens" placeholder="4096" oninput="saveToStorage(); updatePreview();" />
+          </div>
+        </div>
+        <div class="grid-2">
+          <div>
+            <label class="form-label">Reasoning</label>
+            <select class="form-input" id="reasoning" onchange="saveToStorage(); updatePreview();">
+              <option value="excellent">excellent</option>
+              <option value="good">good</option>
+              <option value="average">average</option>
+              <option value="basic">basic</option>
+            </select>
+          </div>
+          <div>
+            <label class="form-label">Speed</label>
+            <select class="form-input" id="speed" onchange="saveToStorage(); updatePreview();">
+              <option value="fast">fast</option>
+              <option value="medium">medium</option>
+              <option value="slow">slow</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- end padding div -->
+  </div><!-- end left panel -->
+
+  <!-- RIGHT: Preview Panel -->
+  <div class="right-panel" style="background:#0d0f14;">
+    <!-- Preview Tabs -->
+    <div style="display:flex; align-items:center; gap:6px; padding:10px 16px; border-bottom:1px solid #252a3a; background:#141720; flex-shrink:0;">
+      <button class="tab-btn active" id="tab-md" onclick="switchTab('md')">Markdown</button>
+      <button class="tab-btn" id="tab-json" onclick="switchTab('json')">JSON</button>
+      <button class="tab-btn" id="tab-yaml" onclick="switchTab('yaml')">YAML</button>
+      <div style="margin-left:auto; font-size:10px; color:#4b5563; letter-spacing:0.04em;">LIVE PREVIEW</div>
+    </div>
+    <!-- Preview Content -->
+    <div style="flex:1; overflow:hidden;">
+      <div id="preview-md" class="preview-pane"></div>
+      <div id="preview-json" class="preview-pane" style="display:none;"></div>
+      <div id="preview-yaml" class="preview-pane" style="display:none;"></div>
+    </div>
+  </div>
+
+</div><!-- end main grid -->
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- Hidden file input for import -->
+<input type="file" id="fileInput" accept=".json" style="display:none;" onchange="handleFileLoad(event)" />
+
+<script>
+// ─────────────────────────────────────────────
+// Utilities
+// ─────────────────────────────────────────────
+let currentTab = 'md';
+
+function showToast(msg, type='success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.borderColor = type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : '#f59e0b';
+  t.style.color = type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : '#f59e0b';
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+function toSnakeCase(str) {
+  return str
+    .toLowerCase()
+    .replace(/[\u4e00-\u9fff]+/g, '') // remove CJK
+    .trim()
+    .replace(/[^a-z0-9\s_]/g, '')
+    .replace(/\s+/g, '_')
+    .replace(/_+/g, '_')
+    .replace(/^_|_$/g, '') || 'agent';
+}
+
+function onNameInput(val) {
+  const idField = document.getElementById('agentId');
+  if (!idField._manuallyEdited) {
+    idField.value = toSnakeCase(val);
+  }
+}
+
+// Allow manual override of agent ID
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('agentId').addEventListener('keydown', function() {
+    this._manuallyEdited = true;
+  });
+  loadFromStorage();
+  updatePreview();
+});
+
+// ─────────────────────────────────────────────
+// Data Collection
+// ─────────────────────────────────────────────
+function collectData() {
+  return {
+    basic: {
+      name:       val('agentName'),
+      id:         val('agentId'),
+      department: val('department'),
+      level:      val('level'),
+      reportsTo:  val('reportsTo'),
+    },
+    race: {
+      role:        val('raceRole'),
+      action:      val('raceAction'),
+      context:     val('raceContext'),
+      expectation: val('raceExpectation'),
+    },
+    personality: {
+      commStyle:      val('commStyle'),
+      description:    val('personality'),
+      catchphrase:    val('catchphrase'),
+      workPreference: val('workPreference'),
+    },
+    jd: {
+      responsibilities: val('responsibilities'),
+      authority:        val('authority'),
+      collaboration:    val('collaboration'),
+      kpi:              val('kpi'),
+    },
+    resume: {
+      backstory:  val('backstory'),
+      skills:     val('skills'),
+      experience: val('experience'),
+    },
+    model: {
+      species:    val('species'),
+      provider:   val('provider'),
+      modelId:    val('modelId'),
+      apiKeyEnv:  val('apiKeyEnv'),
+      temperature: val('temperature') || '0.3',
+      maxTokens:  val('maxTokens') || '4096',
+      reasoning:  val('reasoning'),
+      speed:      val('speed'),
+    }
+  };
+}
+
+function val(id) {
+  const el = document.getElementById(id);
+  return el ? el.value.trim() : '';
+}
+
+// ─────────────────────────────────────────────
+// Markdown Generator
+// ─────────────────────────────────────────────
+function generateMarkdown(d) {
+  const name = d.basic.name || 'Unnamed Agent';
+  const id   = d.basic.id   || 'unknown';
+
+  let md = '';
+  md += `# 岗位说明书 (Job Description)\n\n`;
+  md += `## 基本信息\n\n`;
+  md += `- **岗位ID**: ${id}\n`;
+  md += `- **部门**: ${d.basic.department || '—'}\n`;
+  md += `- **级别**: ${d.basic.level || '—'}\n`;
+  md += `- **岗位名称**: ${name}\n`;
+  md += `- **汇报对象**: ${d.basic.reportsTo || '—'}\n\n`;
+
+  md += `---\n\n`;
+
+  md += `## RACE Profile\n\n`;
+  md += `### Role — 角色定义\n\n${d.race.role || '—'}\n\n`;
+  md += `### Action — 具体行为\n\n${d.race.action || '—'}\n\n`;
+  md += `### Context — 工作场景\n\n${d.race.context || '—'}\n\n`;
+  md += `### Expectation — 期望产出\n\n${d.race.expectation || '—'}\n\n`;
+
+  md += `---\n\n`;
+
+  md += `## 性格设定\n\n`;
+  md += `- **沟通风格**: ${d.personality.commStyle || '—'}\n`;
+  md += `- **口头禅**: ${d.personality.catchphrase ? `"${d.personality.catchphrase}"` : '—'}\n\n`;
+  if (d.personality.description) {
+    md += `### 性格描述\n\n${d.personality.description}\n\n`;
+  }
+  if (d.personality.workPreference) {
+    md += `### 工作偏好\n\n${d.personality.workPreference}\n\n`;
+  }
+
+  md += `---\n\n`;
+
+  md += `## 职责描述\n\n`;
+  if (d.jd.responsibilities) {
+    const lines = d.jd.responsibilities.split('\n').filter(l => l.trim());
+    lines.forEach(line => {
+      const clean = line.trim();
+      md += (clean.startsWith('-') ? clean : `- ${clean}`) + '\n';
+    });
+  } else {
+    md += `—\n`;
+  }
+  md += '\n';
+
+  md += `## 决策权限\n\n${d.jd.authority || '—'}\n\n`;
+  md += `## 协作关系\n\n${d.jd.collaboration || '—'}\n\n`;
+  md += `## KPI 指标\n\n${d.jd.kpi || '—'}\n\n`;
+
+  md += `---\n\n`;
+
+  md += `## Resume — 虚构简历\n\n`;
+  md += `### 背景故事\n\n${d.resume.backstory || '—'}\n\n`;
+
+  if (d.resume.skills) {
+    md += `### 核心技能\n\n`;
+    const skills = d.resume.skills.split('\n').filter(l => l.trim());
+    skills.forEach(s => {
+      const clean = s.trim();
+      md += (clean.startsWith('-') ? clean : `- ${clean}`) + '\n';
+    });
+    md += '\n';
+  }
+
+  if (d.resume.experience) {
+    md += `### 过往经历\n\n${d.resume.experience}\n\n`;
+  }
+
+  md += `---\n\n`;
+  md += `*Generated by NEXUS Agent JD Generator — ${new Date().toISOString().split('T')[0]}*\n`;
+
+  return md;
+}
+
+// ─────────────────────────────────────────────
+// YAML Generator (race.yaml style)
+// ─────────────────────────────────────────────
+function generateYAML(d) {
+  const id   = d.basic.id   || 'unknown';
+  const name = d.basic.name || 'Unnamed Agent';
+
+  const providerEndpoints = {
+    anthropic: 'https://api.anthropic.com/v1/messages',
+    openai:    'https://api.openai.com/v1/chat/completions',
+    google:    'https://generativelanguage.googleapis.com/v1beta/models',
+    other:     'https://your-endpoint/v1',
+  };
+
+  const endpoint = providerEndpoints[d.model.provider] || providerEndpoints.other;
+
+  let y = `# ${name} — Agent Configuration\n`;
+  y += `# Generated by NEXUS Agent JD Generator\n\n`;
+
+  y += `agent_id: "${id}"\n`;
+  y += `name: "${name}"\n`;
+  y += `department: "${d.basic.department || ''}"\n`;
+  y += `level: "${d.basic.level || ''}"\n`;
+  y += `reports_to: "${d.basic.reportsTo || ''}"\n\n`;
+
+  y += `# RACE Profile\n`;
+  y += `race:\n`;
+  y += `  role: |\n${indentBlock(d.race.role || '—', 4)}\n`;
+  y += `  action: |\n${indentBlock(d.race.action || '—', 4)}\n`;
+  y += `  context: |\n${indentBlock(d.race.context || '—', 4)}\n`;
+  y += `  expectation: |\n${indentBlock(d.race.expectation || '—', 4)}\n\n`;
+
+  y += `# Personality\n`;
+  y += `personality:\n`;
+  y += `  comm_style: "${d.personality.commStyle || ''}"\n`;
+  y += `  catchphrase: "${d.personality.catchphrase || ''}"\n`;
+  y += `  description: |\n${indentBlock(d.personality.description || '—', 4)}\n`;
+  y += `  work_preference: |\n${indentBlock(d.personality.workPreference || '—', 4)}\n\n`;
+
+  y += `# Model Configuration\n`;
+  y += `species: "${d.model.species || ''}"\n`;
+  y += `provider: "${d.model.provider}"\n`;
+  y += `endpoint: "${endpoint}"\n`;
+  y += `api_key_env: "${d.model.apiKeyEnv || ''}"\n`;
+  y += `model: "${d.model.modelId || ''}"\n\n`;
+
+  y += `parameters:\n`;
+  y += `  temperature: ${parseFloat(d.model.temperature) || 0.3}\n`;
+  y += `  max_tokens: ${parseInt(d.model.maxTokens) || 4096}\n\n`;
+
+  y += `capabilities:\n`;
+  y += `  reasoning: "${d.model.reasoning}"\n`;
+  y += `  speed: "${d.model.speed}"\n`;
+  y += `  tool_use: true\n`;
+  y += `  languages:\n`;
+  y += `    - "zh"\n`;
+  y += `    - "en"\n\n`;
+
+  y += `# Job Description\n`;
+  y += `responsibilities: |\n`;
+  const respLines = (d.jd.responsibilities || '').split('\n').filter(l => l.trim());
+  if (respLines.length) {
+    respLines.forEach(line => {
+      const clean = line.trim();
+      y += `  ${clean.startsWith('-') ? clean : '- ' + clean}\n`;
+    });
+  } else {
+    y += `  — (not specified)\n`;
+  }
+  y += '\n';
+
+  y += `authority: |\n${indentBlock(d.jd.authority || '—', 2)}\n\n`;
+  y += `collaboration: |\n${indentBlock(d.jd.collaboration || '—', 2)}\n\n`;
+  y += `kpi: |\n${indentBlock(d.jd.kpi || '—', 2)}\n\n`;
+
+  y += `# Resume\n`;
+  y += `resume:\n`;
+  y += `  backstory: |\n${indentBlock(d.resume.backstory || '—', 4)}\n`;
+
+  const skillLines = (d.resume.skills || '').split('\n').filter(l => l.trim());
+  y += `  skills:\n`;
+  if (skillLines.length) {
+    skillLines.forEach(s => { y += `    - "${s.replace(/^-\s*/, '').trim()}"\n`; });
+  } else {
+    y += `    []\n`;
+  }
+
+  y += `  experience: |\n${indentBlock(d.resume.experience || '—', 4)}\n`;
+
+  return y;
+}
+
+function indentBlock(text, spaces) {
+  const pad = ' '.repeat(spaces);
+  return text.split('\n').map(line => pad + line).join('\n');
+}
+
+// ─────────────────────────────────────────────
+// Preview Rendering (syntax-highlighted text)
+// ─────────────────────────────────────────────
+function renderMarkdownPreview(md) {
+  // Very lightweight syntax coloring for preview
+  let html = md
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/^# (.+)$/gm, '<span style="color:#3b82f6;font-size:16px;font-weight:600;"># $1</span>')
+    .replace(/^## (.+)$/gm, '<span style="color:#8b5cf6;font-weight:600;">## $1</span>')
+    .replace(/^### (.+)$/gm, '<span style="color:#06b6d4;font-weight:500;">### $1</span>')
+    .replace(/\*\*(.+?)\*\*/g, '<span style="color:#f59e0b;font-weight:600;">**$1**</span>')
+    .replace(/^---$/gm, '<span style="color:#252a3a;">---</span>')
+    .replace(/^(\s*- .+)$/gm, '<span style="color:#a3e635;">$1</span>')
+    .replace(/^\*(.+)\*$/gm, '<span style="color:#4b5563;font-style:italic;">*$1*</span>');
+  return html;
+}
+
+function renderJSONPreview(json) {
+  return JSON.stringify(json, null, 2)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"([^"]+)":/g, '<span style="color:#8b5cf6;">"$1"</span>:')
+    .replace(/: "([^"]*)"/g, ': <span style="color:#a3e635;">"$1"</span>')
+    .replace(/: (\d+\.?\d*)/g, ': <span style="color:#f59e0b;">$1</span>')
+    .replace(/: (true|false|null)/g, ': <span style="color:#06b6d4;">$1</span>');
+}
+
+function renderYAMLPreview(yaml) {
+  return yaml
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/^(#.*)$/gm, '<span style="color:#4b5563;">$1</span>')
+    .replace(/^([a-z_]+):/gm, '<span style="color:#8b5cf6;">$1</span>:')
+    .replace(/^(\s+[a-z_]+):/gm, '<span style="color:#06b6d4;">$1</span>:')
+    .replace(/: "([^"]*)"/g, ': <span style="color:#a3e635;">"$1"</span>')
+    .replace(/: (\d+\.?\d*)$/gm, ': <span style="color:#f59e0b;">$1</span>')
+    .replace(/: (true|false)$/gm, ': <span style="color:#f59e0b;">$1</span>')
+    .replace(/^(\s+- .+)$/gm, '<span style="color:#94a3b8;">$1</span>');
+}
+
+// ─────────────────────────────────────────────
+// Update Preview
+// ─────────────────────────────────────────────
+function updatePreview() {
+  const d  = collectData();
+  const md = generateMarkdown(d);
+  const yaml = generateYAML(d);
+
+  document.getElementById('preview-md').innerHTML   = renderMarkdownPreview(md);
+  document.getElementById('preview-json').innerHTML = renderJSONPreview(d);
+  document.getElementById('preview-yaml').innerHTML = renderYAMLPreview(yaml);
+}
+
+function switchTab(tab) {
+  currentTab = tab;
+  ['md','json','yaml'].forEach(t => {
+    document.getElementById(`preview-${t}`).style.display = t === tab ? 'block' : 'none';
+    document.getElementById(`tab-${t}`).classList.toggle('active', t === tab);
+  });
+}
+
+// ─────────────────────────────────────────────
+// Export Functions
+// ─────────────────────────────────────────────
+function downloadFile(filename, content, mime) {
+  const blob = new Blob([content], { type: mime });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function exportMarkdown() {
+  const d    = collectData();
+  const md   = generateMarkdown(d);
+  const name = d.basic.id || 'agent';
+  downloadFile(`${name}_jd.md`, md, 'text/markdown');
+  showToast('Markdown 已导出');
+}
+
+function exportJSON() {
+  const d    = collectData();
+  const name = d.basic.id || 'agent';
+  downloadFile(`${name}_jd.json`, JSON.stringify(d, null, 2), 'application/json');
+  showToast('JSON 已导出');
+}
+
+function exportYAML() {
+  const d    = collectData();
+  const yaml = generateYAML(d);
+  const name = d.basic.id || 'agent';
+  downloadFile(`${name}_race.yaml`, yaml, 'text/yaml');
+  showToast('YAML 已导出');
+}
+
+// ─────────────────────────────────────────────
+// Import JSON
+// ─────────────────────────────────────────────
+function handleImport() {
+  document.getElementById('fileInput').click();
+}
+
+function handleFileLoad(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const data = JSON.parse(e.target.result);
+      loadDataIntoForm(data);
+      showToast('JSON 导入成功');
+    } catch(err) {
+      showToast('JSON 格式错误', 'error');
+    }
+  };
+  reader.readAsText(file);
+  // Reset file input
+  event.target.value = '';
+}
+
+function loadDataIntoForm(d) {
+  const set = (id, val) => { const el = document.getElementById(id); if (el && val !== undefined) el.value = val; };
+
+  if (d.basic) {
+    set('agentName',  d.basic.name);
+    set('agentId',    d.basic.id);
+    set('department', d.basic.department);
+    set('level',      d.basic.level);
+    set('reportsTo',  d.basic.reportsTo);
+    document.getElementById('agentId')._manuallyEdited = true;
+  }
+  if (d.race) {
+    set('raceRole',        d.race.role);
+    set('raceAction',      d.race.action);
+    set('raceContext',     d.race.context);
+    set('raceExpectation', d.race.expectation);
+  }
+  if (d.personality) {
+    set('commStyle',      d.personality.commStyle);
+    set('personality',    d.personality.description);
+    set('catchphrase',    d.personality.catchphrase);
+    set('workPreference', d.personality.workPreference);
+  }
+  if (d.jd) {
+    set('responsibilities', d.jd.responsibilities);
+    set('authority',        d.jd.authority);
+    set('collaboration',    d.jd.collaboration);
+    set('kpi',              d.jd.kpi);
+  }
+  if (d.resume) {
+    set('backstory',   d.resume.backstory);
+    set('skills',      d.resume.skills);
+    set('experience',  d.resume.experience);
+  }
+  if (d.model) {
+    set('species',     d.model.species);
+    set('provider',    d.model.provider);
+    set('modelId',     d.model.modelId);
+    set('apiKeyEnv',   d.model.apiKeyEnv);
+    set('temperature', d.model.temperature);
+    set('maxTokens',   d.model.maxTokens);
+    set('reasoning',   d.model.reasoning);
+    set('speed',       d.model.speed);
+  }
+
+  saveToStorage();
+  updatePreview();
+}
+
+// ─────────────────────────────────────────────
+// LocalStorage Auto-Save
+// ─────────────────────────────────────────────
+const STORAGE_KEY = 'nexus_jd_generator_v1';
+
+function saveToStorage() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(collectData()));
+  } catch(e) {}
+}
+
+function loadFromStorage() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      const data = JSON.parse(raw);
+      loadDataIntoForm(data);
+    }
+  } catch(e) {}
+}
+
+function resetForm() {
+  if (!confirm('确认清空所有表单数据？')) return;
+  localStorage.removeItem(STORAGE_KEY);
+  const fields = ['agentName','agentId','reportsTo','raceRole','raceAction','raceContext','raceExpectation',
+    'personality','catchphrase','workPreference','responsibilities','authority','collaboration','kpi',
+    'backstory','skills','experience','species','modelId','apiKeyEnv','temperature','maxTokens'];
+  fields.forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
+  const selects = ['department','level','commStyle','provider','reasoning','speed'];
+  selects.forEach(id => { const el = document.getElementById(id); if(el) el.selectedIndex = 0; });
+  document.getElementById('agentId')._manuallyEdited = false;
+  updatePreview();
+  showToast('已重置', 'warning');
+}
+</script>
+
+</body>
+</html>

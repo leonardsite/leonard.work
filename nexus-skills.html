@@ -1,0 +1,1239 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NEXUS Skill Marketplace</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+    * { box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #080d14;
+      color: #e2e8f0;
+      min-height: 100vh;
+    }
+
+    .mono { font-family: 'JetBrains Mono', monospace; }
+
+    /* Grid background */
+    .grid-bg {
+      background-image:
+        linear-gradient(rgba(56, 189, 248, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(56, 189, 248, 0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+    }
+
+    /* Glow effects */
+    .glow-cyan { box-shadow: 0 0 20px rgba(56, 189, 248, 0.15), 0 0 40px rgba(56, 189, 248, 0.05); }
+    .glow-purple { box-shadow: 0 0 20px rgba(168, 85, 247, 0.15), 0 0 40px rgba(168, 85, 247, 0.05); }
+    .text-glow-cyan { text-shadow: 0 0 20px rgba(56, 189, 248, 0.5); }
+
+    /* Animated border */
+    .border-glow {
+      border: 1px solid rgba(56, 189, 248, 0.2);
+      transition: border-color 0.3s, box-shadow 0.3s;
+    }
+    .border-glow:hover {
+      border-color: rgba(56, 189, 248, 0.5);
+      box-shadow: 0 0 20px rgba(56, 189, 248, 0.1), inset 0 0 20px rgba(56, 189, 248, 0.02);
+    }
+
+    /* Card */
+    .skill-card {
+      background: linear-gradient(135deg, rgba(15, 23, 35, 0.9) 0%, rgba(10, 16, 26, 0.95) 100%);
+      border: 1px solid rgba(56, 189, 248, 0.12);
+      border-radius: 12px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+    .skill-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(56, 189, 248, 0.04) 0%, transparent 60%);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .skill-card:hover {
+      border-color: rgba(56, 189, 248, 0.4);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 0 20px rgba(56, 189, 248, 0.08);
+    }
+    .skill-card:hover::before { opacity: 1; }
+
+    /* Nav */
+    .nav-link {
+      color: #94a3b8;
+      padding: 8px 16px;
+      border-radius: 8px;
+      transition: all 0.2s;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      border: 1px solid transparent;
+    }
+    .nav-link:hover {
+      color: #38bdf8;
+      background: rgba(56, 189, 248, 0.05);
+      border-color: rgba(56, 189, 248, 0.15);
+    }
+    .nav-link.active {
+      color: #38bdf8;
+      background: rgba(56, 189, 248, 0.08);
+      border-color: rgba(56, 189, 248, 0.25);
+    }
+
+    /* Buttons */
+    .btn-primary {
+      background: linear-gradient(135deg, #0ea5e9 0%, #6366f1 100%);
+      color: white;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 14px;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-primary:hover {
+      opacity: 0.9;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 15px rgba(14, 165, 233, 0.3);
+    }
+
+    .btn-approve {
+      background: rgba(16, 185, 129, 0.15);
+      color: #10b981;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-approve:hover {
+      background: rgba(16, 185, 129, 0.25);
+      box-shadow: 0 0 12px rgba(16, 185, 129, 0.2);
+    }
+
+    .btn-reject {
+      background: rgba(239, 68, 68, 0.1);
+      color: #ef4444;
+      border: 1px solid rgba(239, 68, 68, 0.25);
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-reject:hover {
+      background: rgba(239, 68, 68, 0.2);
+      box-shadow: 0 0 12px rgba(239, 68, 68, 0.15);
+    }
+
+    /* Input fields */
+    .field-input {
+      width: 100%;
+      background: rgba(10, 16, 26, 0.8);
+      border: 1px solid rgba(56, 189, 248, 0.15);
+      border-radius: 8px;
+      padding: 10px 14px;
+      color: #e2e8f0;
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .field-input:focus {
+      border-color: rgba(56, 189, 248, 0.5);
+      box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.06);
+    }
+    .field-input::placeholder { color: #475569; }
+
+    /* Tag */
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 500;
+    }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(4px);
+      z-index: 50;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .modal-box {
+      background: linear-gradient(135deg, #0d1929 0%, #090f1a 100%);
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      border-radius: 16px;
+      max-width: 600px;
+      width: 100%;
+      max-height: 85vh;
+      overflow-y: auto;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6), 0 0 40px rgba(56, 189, 248, 0.05);
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #0d1929; }
+    ::-webkit-scrollbar-thumb { background: rgba(56, 189, 248, 0.2); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(56, 189, 248, 0.4); }
+
+    /* Page transitions */
+    .page { display: none; animation: fadeIn 0.3s ease; }
+    .page.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* Category filter pills */
+    .cat-pill {
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      border: 1px solid rgba(56, 189, 248, 0.15);
+      color: #94a3b8;
+      background: rgba(15, 23, 35, 0.6);
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .cat-pill:hover { border-color: rgba(56, 189, 248, 0.4); color: #38bdf8; }
+    .cat-pill.active {
+      background: rgba(56, 189, 248, 0.12);
+      border-color: rgba(56, 189, 248, 0.45);
+      color: #38bdf8;
+    }
+
+    /* Rating stars */
+    .star { color: #fbbf24; }
+    .star-empty { color: #334155; }
+
+    /* Status badge */
+    .badge-pending {
+      background: rgba(251, 191, 36, 0.1);
+      color: #fbbf24;
+      border: 1px solid rgba(251, 191, 36, 0.25);
+      padding: 2px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+    .badge-approved {
+      background: rgba(16, 185, 129, 0.1);
+      color: #10b981;
+      border: 1px solid rgba(16, 185, 129, 0.25);
+      padding: 2px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+    .badge-rejected {
+      background: rgba(239, 68, 68, 0.1);
+      color: #ef4444;
+      border: 1px solid rgba(239, 68, 68, 0.2);
+      padding: 2px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    /* Top header gradient bar */
+    .header-bar {
+      height: 2px;
+      background: linear-gradient(90deg, transparent 0%, #0ea5e9 30%, #6366f1 70%, transparent 100%);
+    }
+
+    /* Install button in card */
+    .install-btn {
+      background: rgba(56, 189, 248, 0.08);
+      border: 1px solid rgba(56, 189, 248, 0.2);
+      color: #38bdf8;
+      padding: 5px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .install-btn:hover {
+      background: rgba(56, 189, 248, 0.15);
+      border-color: rgba(56, 189, 248, 0.4);
+    }
+
+    /* Pulse dot */
+    .pulse-dot {
+      width: 8px; height: 8px;
+      background: #10b981;
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+      50% { box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+    }
+
+    /* Textarea */
+    textarea.field-input { resize: vertical; min-height: 90px; }
+
+    /* File upload zone */
+    .upload-zone {
+      border: 2px dashed rgba(56, 189, 248, 0.2);
+      border-radius: 10px;
+      padding: 24px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: rgba(10, 16, 26, 0.5);
+    }
+    .upload-zone:hover {
+      border-color: rgba(56, 189, 248, 0.45);
+      background: rgba(56, 189, 248, 0.03);
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      z-index: 100;
+      background: linear-gradient(135deg, #0d1929 0%, #090f1a 100%);
+      border: 1px solid rgba(16, 185, 129, 0.4);
+      border-radius: 10px;
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 20px rgba(16, 185, 129, 0.1);
+      transform: translateY(80px);
+      opacity: 0;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      min-width: 260px;
+    }
+    .toast.show { transform: translateY(0); opacity: 1; }
+
+    /* Admin panel rows */
+    .review-row {
+      background: rgba(12, 18, 30, 0.7);
+      border: 1px solid rgba(56, 189, 248, 0.1);
+      border-radius: 10px;
+      padding: 16px;
+      transition: border-color 0.2s;
+    }
+    .review-row:hover { border-color: rgba(56, 189, 248, 0.2); }
+
+    /* Search input icon */
+    .search-wrap { position: relative; }
+    .search-wrap svg {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #475569;
+      pointer-events: none;
+    }
+    .search-input { padding-left: 42px !important; }
+
+    /* Stats bar */
+    .stat-card {
+      background: rgba(12, 18, 30, 0.8);
+      border: 1px solid rgba(56, 189, 248, 0.1);
+      border-radius: 10px;
+      padding: 16px 20px;
+    }
+
+    /* Code block */
+    .code-block {
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(56, 189, 248, 0.12);
+      border-radius: 8px;
+      padding: 12px 16px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      color: #7dd3fc;
+      overflow-x: auto;
+    }
+  </style>
+</head>
+<body class="grid-bg">
+
+  <!-- Header gradient bar -->
+  <div class="header-bar"></div>
+
+  <!-- Navigation -->
+  <nav style="background: rgba(8, 13, 20, 0.92); border-bottom: 1px solid rgba(56,189,248,0.1); backdrop-filter: blur(12px); position: sticky; top: 0; z-index: 40;">
+    <div style="max-width: 1280px; margin: 0 auto; padding: 0 24px; display: flex; align-items: center; height: 64px; gap: 24px;">
+
+      <!-- Logo -->
+      <div style="display: flex; align-items: center; gap: 10px; flex-shrink: 0;">
+        <div style="width: 32px; height: 32px; background: linear-gradient(135deg, #0ea5e9, #6366f1); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px;">N</div>
+        <div>
+          <div style="font-size: 14px; font-weight: 700; color: #e2e8f0; letter-spacing: 0.05em;">NEXUS</div>
+          <div style="font-size: 10px; color: #475569; letter-spacing: 0.1em; margin-top: -2px;">SKILL MARKETPLACE</div>
+        </div>
+      </div>
+
+      <!-- Nav links -->
+      <div style="display: flex; gap: 4px; margin-left: 12px;">
+        <div class="nav-link active" id="nav-browse" onclick="showPage('browse')">
+          <span style="margin-right: 6px;">&#9783;</span> Browse
+        </div>
+        <div class="nav-link" id="nav-submit" onclick="showPage('submit')">
+          <span style="margin-right: 6px;">&#43;</span> Submit
+        </div>
+        <div class="nav-link" id="nav-admin" onclick="showPage('admin')">
+          <span style="margin-right: 6px;">&#9965;</span> Admin
+        </div>
+      </div>
+
+      <!-- Right side: live count -->
+      <div style="margin-left: auto; display: flex; align-items: center; gap: 8px;">
+        <div class="pulse-dot"></div>
+        <span style="font-size: 12px; color: #64748b;" id="nav-count">10 skills live</span>
+      </div>
+
+    </div>
+  </nav>
+
+  <!-- Main content -->
+  <main style="max-width: 1280px; margin: 0 auto; padding: 32px 24px;">
+
+    <!-- ===================== BROWSE PAGE ===================== -->
+    <div class="page active" id="page-browse">
+
+      <!-- Hero -->
+      <div style="text-align: center; padding: 40px 0 32px;">
+        <div style="font-size: 11px; letter-spacing: 0.2em; color: #38bdf8; font-weight: 600; margin-bottom: 12px; text-transform: uppercase;">Community-Powered Tool Ecosystem</div>
+        <h1 style="font-size: 42px; font-weight: 800; background: linear-gradient(135deg, #e2e8f0 0%, #38bdf8 50%, #818cf8 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; line-height: 1.2; margin-bottom: 12px;">
+          NEXUS Skill Marketplace
+        </h1>
+        <p style="color: #64748b; font-size: 16px; max-width: 480px; margin: 0 auto;">
+          Discover, Share &amp; Install AI Agent Skills
+        </p>
+      </div>
+
+      <!-- Stats row -->
+      <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 28px;">
+        <div class="stat-card" style="text-align: center;">
+          <div style="font-size: 24px; font-weight: 700; color: #38bdf8;" id="stat-published">10</div>
+          <div style="font-size: 12px; color: #64748b; margin-top: 2px;">Published</div>
+        </div>
+        <div class="stat-card" style="text-align: center;">
+          <div style="font-size: 24px; font-weight: 700; color: #a78bfa;" id="stat-pending">0</div>
+          <div style="font-size: 12px; color: #64748b; margin-top: 2px;">Pending Review</div>
+        </div>
+        <div class="stat-card" style="text-align: center;">
+          <div style="font-size: 24px; font-weight: 700; color: #34d399;" id="stat-installs">24.7K</div>
+          <div style="font-size: 12px; color: #64748b; margin-top: 2px;">Total Installs</div>
+        </div>
+        <div class="stat-card" style="text-align: center;">
+          <div style="font-size: 24px; font-weight: 700; color: #fb923c;" id="stat-contributors">38</div>
+          <div style="font-size: 12px; color: #64748b; margin-top: 2px;">Contributors</div>
+        </div>
+      </div>
+
+      <!-- Search + Filter -->
+      <div style="display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; align-items: center;">
+        <div class="search-wrap" style="flex: 1; min-width: 240px;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          <input class="field-input search-input" id="search-input" type="text" placeholder="Search skills..." oninput="filterSkills()" />
+        </div>
+        <select class="field-input" id="sort-select" onchange="filterSkills()" style="width: auto; padding-right: 32px; cursor: pointer;">
+          <option value="installs">Most Installed</option>
+          <option value="rating">Top Rated</option>
+          <option value="newest">Newest</option>
+        </select>
+      </div>
+
+      <!-- Category pills -->
+      <div style="display: flex; gap: 8px; margin-bottom: 28px; flex-wrap: wrap;">
+        <div class="cat-pill active" data-cat="all" onclick="setCat(this, 'all')">All</div>
+        <div class="cat-pill" data-cat="代码执行" onclick="setCat(this, '代码执行')">&#128187; Code Exec</div>
+        <div class="cat-pill" data-cat="文件管理" onclick="setCat(this, '文件管理')">&#128193; File Mgmt</div>
+        <div class="cat-pill" data-cat="Git" onclick="setCat(this, 'Git')">&#127968; Git</div>
+        <div class="cat-pill" data-cat="数据库" onclick="setCat(this, '数据库')">&#128200; Database</div>
+        <div class="cat-pill" data-cat="监控" onclick="setCat(this, '监控')">&#128269; Monitor</div>
+        <div class="cat-pill" data-cat="AI辅助" onclick="setCat(this, 'AI辅助')">&#129302; AI Assist</div>
+        <div class="cat-pill" data-cat="通信" onclick="setCat(this, '通信')">&#128172; Comms</div>
+        <div class="cat-pill" data-cat="容器" onclick="setCat(this, '容器')">&#128260; Container</div>
+      </div>
+
+      <!-- Skills grid -->
+      <div id="skills-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px;">
+        <!-- Populated by JS -->
+      </div>
+
+      <!-- Empty state -->
+      <div id="empty-state" style="display: none; text-align: center; padding: 60px 0; color: #475569;">
+        <div style="font-size: 48px; margin-bottom: 16px;">&#128269;</div>
+        <div style="font-size: 16px; font-weight: 500; color: #64748b;">No skills found</div>
+        <div style="font-size: 14px; margin-top: 4px;">Try a different search or category</div>
+      </div>
+
+    </div>
+
+    <!-- ===================== SUBMIT PAGE ===================== -->
+    <div class="page" id="page-submit">
+
+      <div style="max-width: 680px; margin: 0 auto;">
+
+        <!-- Header -->
+        <div style="margin-bottom: 32px;">
+          <div style="font-size: 11px; letter-spacing: 0.2em; color: #38bdf8; font-weight: 600; margin-bottom: 8px; text-transform: uppercase;">Contribute to the Ecosystem</div>
+          <h2 style="font-size: 28px; font-weight: 700; color: #e2e8f0; margin-bottom: 8px;">Submit a Skill</h2>
+          <p style="color: #64748b; font-size: 14px;">Share your skill with the Nexus AI-Team community. All submissions are reviewed before publishing.</p>
+        </div>
+
+        <!-- Form card -->
+        <div style="background: linear-gradient(135deg, rgba(13,25,41,0.9) 0%, rgba(9,15,26,0.95) 100%); border: 1px solid rgba(56,189,248,0.15); border-radius: 14px; padding: 28px; display: flex; flex-direction: column; gap: 20px;">
+
+          <!-- Skill Name -->
+          <div>
+            <label style="font-size: 13px; font-weight: 500; color: #94a3b8; display: block; margin-bottom: 6px;">Skill Name <span style="color: #ef4444;">*</span></label>
+            <input class="field-input" id="f-name" type="text" placeholder="e.g. GitHub MCP Server" />
+          </div>
+
+          <!-- GitHub URL -->
+          <div>
+            <label style="font-size: 13px; font-weight: 500; color: #94a3b8; display: block; margin-bottom: 6px;">GitHub Repository URL <span style="color: #ef4444;">*</span></label>
+            <input class="field-input" id="f-github" type="url" placeholder="https://github.com/username/repo" />
+          </div>
+
+          <!-- Row: Category + Icon -->
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+            <div>
+              <label style="font-size: 13px; font-weight: 500; color: #94a3b8; display: block; margin-bottom: 6px;">Category <span style="color: #ef4444;">*</span></label>
+              <select class="field-input" id="f-category" style="cursor: pointer;">
+                <option value="">Select category...</option>
+                <option value="代码执行">Code Execution</option>
+                <option value="文件管理">File Management</option>
+                <option value="Git">Git</option>
+                <option value="数据库">Database</option>
+                <option value="监控">Monitoring</option>
+                <option value="AI辅助">AI Assist</option>
+                <option value="通信">Communications</option>
+                <option value="容器">Container</option>
+              </select>
+            </div>
+            <div>
+              <label style="font-size: 13px; font-weight: 500; color: #94a3b8; display: block; margin-bottom: 6px;">Emoji Icon</label>
+              <input class="field-input" id="f-icon" type="text" placeholder="e.g. 🔧" maxlength="4" style="font-size: 20px;" />
+            </div>
+          </div>
+
+          <!-- Description -->
+          <div>
+            <label style="font-size: 13px; font-weight: 500; color: #94a3b8; display: block; margin-bottom: 6px;">Description <span style="color: #ef4444;">*</span></label>
+            <textarea class="field-input" id="f-desc" placeholder="Describe what this skill does, its main features, and use cases..."></textarea>
+          </div>
+
+          <!-- Usage Example -->
+          <div>
+            <label style="font-size: 13px; font-weight: 500; color: #94a3b8; display: block; margin-bottom: 6px;">Usage Example</label>
+            <textarea class="field-input" id="f-example" placeholder="# Example&#10;nexus install github-mcp&#10;nexus run github-mcp --repo my-repo" style="font-family: 'JetBrains Mono', monospace; font-size: 13px; min-height: 80px;"></textarea>
+          </div>
+
+          <!-- Screenshot upload -->
+          <div>
+            <label style="font-size: 13px; font-weight: 500; color: #94a3b8; display: block; margin-bottom: 6px;">Screenshot (optional)</label>
+            <div class="upload-zone" id="upload-zone" onclick="document.getElementById('f-screenshot').click()">
+              <input type="file" id="f-screenshot" accept="image/*" style="display:none;" onchange="previewImage(this)" />
+              <div id="upload-placeholder">
+                <div style="font-size: 32px; margin-bottom: 8px;">&#128247;</div>
+                <div style="font-size: 13px; color: #64748b;">Click to upload screenshot</div>
+                <div style="font-size: 11px; color: #475569; margin-top: 4px;">PNG, JPG, GIF up to 5MB</div>
+              </div>
+              <img id="upload-preview" style="display:none; max-width: 100%; max-height: 200px; border-radius: 6px; margin: 0 auto;" />
+            </div>
+          </div>
+
+          <!-- Submit button -->
+          <div style="display: flex; align-items: center; gap: 12px; padding-top: 4px;">
+            <button class="btn-primary" onclick="submitSkill()" style="flex: 1; padding: 12px;">
+              Submit for Review
+            </button>
+          </div>
+
+          <!-- Note -->
+          <div style="font-size: 12px; color: #475569; text-align: center; border-top: 1px solid rgba(56,189,248,0.08); padding-top: 16px; margin-top: -4px;">
+            Submissions are reviewed within 24-48 hours. You'll be notified once approved.
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- ===================== ADMIN PAGE ===================== -->
+    <div class="page" id="page-admin">
+
+      <div style="max-width: 800px; margin: 0 auto;">
+
+        <!-- Header -->
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px; flex-wrap: wrap; gap: 12px;">
+          <div>
+            <div style="font-size: 11px; letter-spacing: 0.2em; color: #f59e0b; font-weight: 600; margin-bottom: 6px; text-transform: uppercase;">Admin Panel</div>
+            <h2 style="font-size: 28px; font-weight: 700; color: #e2e8f0; margin: 0;">Review Queue</h2>
+          </div>
+          <div style="display: flex; gap: 8px;">
+            <div style="background: rgba(251,191,36,0.1); border: 1px solid rgba(251,191,36,0.25); border-radius: 8px; padding: 8px 16px; text-align: center;">
+              <div style="font-size: 20px; font-weight: 700; color: #fbbf24;" id="admin-pending-count">0</div>
+              <div style="font-size: 11px; color: #92400e;">Pending</div>
+            </div>
+            <div style="background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.25); border-radius: 8px; padding: 8px 16px; text-align: center;">
+              <div style="font-size: 20px; font-weight: 700; color: #10b981;" id="admin-approved-count">10</div>
+              <div style="font-size: 11px; color: #065f46;">Published</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tabs -->
+        <div style="display: flex; gap: 4px; margin-bottom: 20px; background: rgba(10,16,26,0.6); border: 1px solid rgba(56,189,248,0.1); border-radius: 10px; padding: 4px;">
+          <div id="admin-tab-pending" onclick="switchAdminTab('pending')" style="flex:1; text-align:center; padding: 8px; border-radius: 7px; cursor:pointer; font-size:13px; font-weight:500; background: rgba(56,189,248,0.1); color: #38bdf8;">
+            Pending Review
+          </div>
+          <div id="admin-tab-approved" onclick="switchAdminTab('approved')" style="flex:1; text-align:center; padding: 8px; border-radius: 7px; cursor:pointer; font-size:13px; font-weight:500; color: #64748b;">
+            Published
+          </div>
+          <div id="admin-tab-rejected" onclick="switchAdminTab('rejected')" style="flex:1; text-align:center; padding: 8px; border-radius: 7px; cursor:pointer; font-size:13px; font-weight:500; color: #64748b;">
+            Rejected
+          </div>
+        </div>
+
+        <!-- Review list -->
+        <div id="admin-pending-list" style="display: flex; flex-direction: column; gap: 12px;"></div>
+        <div id="admin-approved-list" style="display: none; flex-direction: column; gap: 12px;"></div>
+        <div id="admin-rejected-list" style="display: none; flex-direction: column; gap: 12px;"></div>
+
+        <!-- Admin empty state -->
+        <div id="admin-empty" style="text-align: center; padding: 60px 0; color: #475569;">
+          <div style="font-size: 48px; margin-bottom: 16px;">&#9989;</div>
+          <div style="font-size: 16px; font-weight: 500; color: #64748b;">Queue is empty</div>
+          <div style="font-size: 14px; margin-top: 4px;">No submissions awaiting review</div>
+        </div>
+
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ===================== SKILL DETAIL MODAL ===================== -->
+  <div class="modal-overlay" id="skill-modal" style="display: none;" onclick="closeModalOnOverlay(event)">
+    <div class="modal-box" id="modal-content">
+      <!-- Populated by JS -->
+    </div>
+  </div>
+
+  <!-- Toast notification -->
+  <div class="toast" id="toast">
+    <span id="toast-icon">&#10003;</span>
+    <div>
+      <div id="toast-title" style="font-size: 14px; font-weight: 600; color: #e2e8f0;"></div>
+      <div id="toast-msg" style="font-size: 12px; color: #64748b; margin-top: 2px;"></div>
+    </div>
+  </div>
+
+  <script>
+  // ─────────────────────────────────────────────
+  //  DATA
+  // ─────────────────────────────────────────────
+
+  const CAT_COLORS = {
+    'Git':    { bg: 'rgba(239,68,68,0.12)',  color: '#f87171',  border: 'rgba(239,68,68,0.25)' },
+    '代码执行': { bg: 'rgba(99,102,241,0.12)', color: '#818cf8',  border: 'rgba(99,102,241,0.25)' },
+    '文件管理': { bg: 'rgba(14,165,233,0.12)', color: '#38bdf8',  border: 'rgba(14,165,233,0.25)' },
+    '数据库':   { bg: 'rgba(16,185,129,0.12)', color: '#34d399',  border: 'rgba(16,185,129,0.25)' },
+    '监控':     { bg: 'rgba(251,191,36,0.12)', color: '#fbbf24',  border: 'rgba(251,191,36,0.25)' },
+    'AI辅助':   { bg: 'rgba(168,85,247,0.12)', color: '#c084fc',  border: 'rgba(168,85,247,0.25)' },
+    '通信':     { bg: 'rgba(249,115,22,0.12)', color: '#fb923c',  border: 'rgba(249,115,22,0.25)' },
+    '容器':     { bg: 'rgba(6,182,212,0.12)',  color: '#22d3ee',  border: 'rgba(6,182,212,0.25)' },
+  };
+
+  const CAT_LABELS = {
+    'Git': 'Git', '代码执行': 'Code Exec', '文件管理': 'File Mgmt',
+    '数据库': 'Database', '监控': 'Monitor', 'AI辅助': 'AI Assist',
+    '通信': 'Comms', '容器': 'Container',
+  };
+
+  const MOCK_SKILLS = [
+    {
+      id: 1, name: 'GitHub MCP Server', icon: '🐙', category: 'Git',
+      desc: 'Full Git workflow automation — commits, PRs, issues, branches via natural language.',
+      rating: 4.9, installs: 8420, status: 'published',
+      author: 'nexus-core', github: 'https://github.com/nexus-ai/github-mcp',
+      tags: ['mcp', 'git', 'automation'],
+      fullDesc: 'GitHub MCP Server provides seamless integration with the GitHub API through the Model Context Protocol. Supports creating and merging PRs, managing issues, browsing code, triggering Actions, and more — all via natural language commands to your AI agent.',
+      example: 'nexus install github-mcp\nnexus run github-mcp --create-pr "fix: memory leak in worker"',
+      added: '2025-11-01',
+    },
+    {
+      id: 2, name: 'Puppeteer Browser', icon: '🌐', category: '代码执行',
+      desc: 'Headless browser automation — scraping, screenshots, form filling, and E2E testing.',
+      rating: 4.7, installs: 6230, status: 'published',
+      author: 'web-crew', github: 'https://github.com/web-crew/puppeteer-skill',
+      tags: ['browser', 'scraping', 'e2e'],
+      fullDesc: 'Puppeteer Browser Skill wraps Google\'s Puppeteer library with an agent-friendly interface. Automate web interactions, capture screenshots, extract structured data, fill forms, and run visual regression tests — all orchestrated by your AI agent.',
+      example: 'nexus install puppeteer-browser\nnexus run puppeteer-browser --url https://example.com --action screenshot',
+      added: '2025-11-15',
+    },
+    {
+      id: 3, name: 'PostgreSQL Manager', icon: '🐘', category: '数据库',
+      desc: 'Query, migrate, and inspect PostgreSQL databases with schema-aware AI assistance.',
+      rating: 4.8, installs: 5890, status: 'published',
+      author: 'db-tools', github: 'https://github.com/db-tools/pg-manager',
+      tags: ['postgres', 'sql', 'database'],
+      fullDesc: 'PostgreSQL Manager connects your AI agent directly to Postgres databases. Execute queries, inspect schemas, run migrations, analyze query performance, and generate ERDs — with built-in safety guards to prevent destructive operations.',
+      example: 'nexus install pg-manager\nnexus run pg-manager --query "show me all users created this week"',
+      added: '2025-12-01',
+    },
+    {
+      id: 4, name: 'Telegram Bot Bridge', icon: '✈️', category: '通信',
+      desc: 'Send messages, alerts, and rich media to Telegram channels and groups from your agent.',
+      rating: 4.5, installs: 4120, status: 'published',
+      author: 'comm-kit', github: 'https://github.com/comm-kit/telegram-bridge',
+      tags: ['telegram', 'messaging', 'alerts'],
+      fullDesc: 'Telegram Bot Bridge lets your Nexus agent communicate through Telegram — send text, Markdown, inline keyboards, images, and files. Ideal for deployment notifications, monitoring alerts, and interactive workflows with human-in-the-loop approval.',
+      example: 'nexus install telegram-bridge\nnexus run telegram-bridge --chat @devteam --msg "Deploy complete ✓"',
+      added: '2025-12-10',
+    },
+    {
+      id: 5, name: 'Docker Controller', icon: '🐳', category: '容器',
+      desc: 'Manage Docker containers, images, volumes, and networks with full lifecycle control.',
+      rating: 4.6, installs: 5340, status: 'published',
+      author: 'infra-ops', github: 'https://github.com/infra-ops/docker-ctrl',
+      tags: ['docker', 'devops', 'containers'],
+      fullDesc: 'Docker Controller gives your AI agent full control over the Docker daemon. List and manage containers, pull images, inspect logs, create networks, manage volumes, and orchestrate multi-container deployments — with composable operations for complex workflows.',
+      example: 'nexus install docker-ctrl\nnexus run docker-ctrl --action restart --container my-api',
+      added: '2025-12-20',
+    },
+    {
+      id: 6, name: 'Code Executor Sandbox', icon: '⚡', category: '代码执行',
+      desc: 'Safely execute Python, JS, Go, and Bash code in isolated sandboxed environments.',
+      rating: 4.8, installs: 7650, status: 'published',
+      author: 'nexus-core', github: 'https://github.com/nexus-ai/code-sandbox',
+      tags: ['execution', 'sandbox', 'python', 'js'],
+      fullDesc: 'Code Executor Sandbox provides a secure, isolated runtime for executing arbitrary code snippets. Supports Python, JavaScript/TypeScript, Go, Bash, and Ruby with configurable timeouts, memory limits, and network isolation. Perfect for code generation and verification workflows.',
+      example: 'nexus install code-sandbox\nnexus run code-sandbox --lang python --code "print(sum(range(100)))"',
+      added: '2026-01-05',
+    },
+    {
+      id: 7, name: 'File System Watcher', icon: '👁️', category: '文件管理',
+      desc: 'Monitor directories for changes and trigger agent workflows on file events in real time.',
+      rating: 4.3, installs: 2870, status: 'published',
+      author: 'fs-utils', github: 'https://github.com/fs-utils/watcher',
+      tags: ['files', 'watch', 'events', 'monitor'],
+      fullDesc: 'File System Watcher integrates with the OS inotify/FSEvents API to monitor directories and files for creation, modification, deletion, and move events. Configure event filters, debounce intervals, and agent callbacks — enabling reactive AI workflows triggered by file changes.',
+      example: 'nexus install fs-watcher\nnexus run fs-watcher --dir ./src --on-change "run lint"',
+      added: '2026-01-12',
+    },
+    {
+      id: 8, name: 'LLM Router', icon: '🔀', category: 'AI辅助',
+      desc: 'Intelligent multi-model routing — pick the right LLM for each task based on complexity.',
+      rating: 4.7, installs: 4590, status: 'published',
+      author: 'ai-infra', github: 'https://github.com/ai-infra/llm-router',
+      tags: ['llm', 'routing', 'openai', 'anthropic'],
+      fullDesc: 'LLM Router brings intelligent model selection to your Nexus agent workflows. Analyzes task complexity, required capabilities, and cost constraints to route requests to the optimal model — whether Claude, GPT-4, Gemini, or a local model. Includes caching and fallback chains.',
+      example: 'nexus install llm-router\nnexus run llm-router --strategy cost-optimized --task "summarize this doc"',
+      added: '2026-01-20',
+    },
+    {
+      id: 9, name: 'Redis Cache Layer', icon: '🗄️', category: '数据库',
+      desc: 'High-performance Redis integration for caching, pub/sub messaging, and session storage.',
+      rating: 4.4, installs: 3210, status: 'published',
+      author: 'cache-squad', github: 'https://github.com/cache-squad/redis-skill',
+      tags: ['redis', 'cache', 'pubsub'],
+      fullDesc: 'Redis Cache Layer provides a rich interface to Redis for your AI agents. Set/get keys with TTL, publish and subscribe to channels, use Redis Streams for event sourcing, and leverage sorted sets for leaderboards and rate limiting — all through a simple agent API.',
+      example: 'nexus install redis-skill\nnexus run redis-skill --set "session:u123" --value "active" --ttl 3600',
+      added: '2026-01-28',
+    },
+    {
+      id: 10, name: 'Prometheus Monitor', icon: '📊', category: '监控',
+      desc: 'Query Prometheus metrics, set smart alerts, and visualize system health from your agent.',
+      rating: 4.6, installs: 2980, status: 'published',
+      author: 'obs-team', github: 'https://github.com/obs-team/prometheus-skill',
+      tags: ['prometheus', 'metrics', 'alerting'],
+      fullDesc: 'Prometheus Monitor skill lets your Nexus agent query and analyze Prometheus metrics using PromQL. Detect anomalies, summarize system health, set alert thresholds, and generate natural-language incident reports — bridging observability data with AI reasoning.',
+      example: 'nexus install prometheus-skill\nnexus run prometheus-skill --query "rate(http_requests_total[5m])"',
+      added: '2026-02-01',
+    },
+  ];
+
+  // ─────────────────────────────────────────────
+  //  STATE
+  // ─────────────────────────────────────────────
+
+  let currentCat = 'all';
+  let currentAdminTab = 'pending';
+
+  function getPublished() {
+    const stored = localStorage.getItem('nexus_published');
+    return stored ? JSON.parse(stored) : MOCK_SKILLS;
+  }
+  function getPending() {
+    const stored = localStorage.getItem('nexus_pending');
+    return stored ? JSON.parse(stored) : [];
+  }
+  function getRejected() {
+    const stored = localStorage.getItem('nexus_rejected');
+    return stored ? JSON.parse(stored) : [];
+  }
+  function savePublished(data) { localStorage.setItem('nexus_published', JSON.stringify(data)); }
+  function savePending(data)   { localStorage.setItem('nexus_pending',   JSON.stringify(data)); }
+  function saveRejected(data)  { localStorage.setItem('nexus_rejected',  JSON.stringify(data)); }
+
+  // Init published if not yet seeded
+  if (!localStorage.getItem('nexus_published')) {
+    savePublished(MOCK_SKILLS);
+  }
+
+  // ─────────────────────────────────────────────
+  //  NAVIGATION
+  // ─────────────────────────────────────────────
+
+  function showPage(name) {
+    ['browse', 'submit', 'admin'].forEach(p => {
+      document.getElementById('page-' + p).classList.toggle('active', p === name);
+      document.getElementById('nav-' + p).classList.toggle('active', p === name);
+    });
+    if (name === 'browse') renderGrid();
+    if (name === 'admin') renderAdmin();
+    updateNavCount();
+  }
+
+  // ─────────────────────────────────────────────
+  //  BROWSE / GRID
+  // ─────────────────────────────────────────────
+
+  function setCat(el, cat) {
+    document.querySelectorAll('.cat-pill').forEach(p => p.classList.remove('active'));
+    el.classList.add('active');
+    currentCat = cat;
+    filterSkills();
+  }
+
+  function renderStars(rating) {
+    const full = Math.floor(rating);
+    const half = rating - full >= 0.5;
+    let html = '';
+    for (let i = 0; i < 5; i++) {
+      if (i < full) html += '<span class="star">★</span>';
+      else if (i === full && half) html += '<span class="star" style="opacity:0.6;">★</span>';
+      else html += '<span class="star-empty">★</span>';
+    }
+    return html;
+  }
+
+  function formatNumber(n) {
+    if (n >= 1000) return (n / 1000).toFixed(1) + 'K';
+    return n;
+  }
+
+  function getCatStyle(cat) {
+    return CAT_COLORS[cat] || { bg: 'rgba(100,116,139,0.12)', color: '#94a3b8', border: 'rgba(100,116,139,0.25)' };
+  }
+
+  function filterSkills() {
+    const q = (document.getElementById('search-input').value || '').toLowerCase();
+    const sort = document.getElementById('sort-select').value;
+    let skills = getPublished().filter(s => {
+      const matchCat = currentCat === 'all' || s.category === currentCat;
+      const matchQ = !q || s.name.toLowerCase().includes(q) || s.desc.toLowerCase().includes(q) || (s.tags||[]).some(t => t.includes(q));
+      return matchCat && matchQ;
+    });
+    if (sort === 'installs') skills.sort((a, b) => b.installs - a.installs);
+    else if (sort === 'rating') skills.sort((a, b) => b.rating - a.rating);
+    else skills.sort((a, b) => new Date(b.added) - new Date(a.added));
+
+    renderGrid(skills);
+  }
+
+  function renderGrid(skills) {
+    if (!skills) skills = getPublished();
+    const grid = document.getElementById('skills-grid');
+    const empty = document.getElementById('empty-state');
+
+    if (skills.length === 0) {
+      grid.style.display = 'none';
+      empty.style.display = 'block';
+      return;
+    }
+    grid.style.display = 'grid';
+    empty.style.display = 'none';
+
+    grid.innerHTML = skills.map(s => {
+      const cs = getCatStyle(s.category);
+      return `
+        <div class="skill-card" onclick="openModal(${s.id})" style="padding: 20px;">
+          <div style="display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 14px;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <div style="width: 44px; height: 44px; background: rgba(56,189,248,0.06); border: 1px solid rgba(56,189,248,0.12); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0;">${s.icon}</div>
+              <div>
+                <div style="font-size: 15px; font-weight: 600; color: #e2e8f0; line-height: 1.2;">${s.name}</div>
+                <div style="font-size: 11px; color: #475569; margin-top: 2px;">by ${s.author}</div>
+              </div>
+            </div>
+            <div class="tag" style="background: ${cs.bg}; color: ${cs.color}; border: 1px solid ${cs.border}; font-size: 10px; flex-shrink: 0;">
+              ${CAT_LABELS[s.category] || s.category}
+            </div>
+          </div>
+
+          <p style="font-size: 13px; color: #64748b; line-height: 1.5; margin-bottom: 14px; min-height: 40px;">${s.desc}</p>
+
+          <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px;">
+            ${(s.tags||[]).map(t => `<span style="background: rgba(30,41,59,0.8); border: 1px solid rgba(51,65,85,0.6); color: #64748b; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-family: 'JetBrains Mono', monospace;">#${t}</span>`).join('')}
+          </div>
+
+          <div style="display: flex; align-items: center; justify-content: space-between; border-top: 1px solid rgba(56,189,248,0.08); padding-top: 12px;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <div style="font-size: 13px;">${renderStars(s.rating)} <span style="color: #94a3b8; font-size: 12px; margin-left: 2px;">${s.rating}</span></div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <span style="font-size: 12px; color: #475569;">⬇ ${formatNumber(s.installs)}</span>
+              <button class="install-btn" onclick="event.stopPropagation(); installSkill(${s.id})">Install</button>
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  // ─────────────────────────────────────────────
+  //  MODAL
+  // ─────────────────────────────────────────────
+
+  function openModal(id) {
+    const skills = getPublished();
+    const s = skills.find(x => x.id === id);
+    if (!s) return;
+    const cs = getCatStyle(s.category);
+
+    document.getElementById('modal-content').innerHTML = `
+      <div style="padding: 28px;">
+        <!-- Modal header -->
+        <div style="display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 20px;">
+          <div style="display: flex; align-items: center; gap: 14px;">
+            <div style="width: 52px; height: 52px; background: rgba(56,189,248,0.08); border: 1px solid rgba(56,189,248,0.15); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 26px;">${s.icon}</div>
+            <div>
+              <h3 style="font-size: 20px; font-weight: 700; color: #e2e8f0; margin: 0 0 4px;">${s.name}</h3>
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="font-size: 12px; color: #475569;">by ${s.author}</span>
+                <div class="tag" style="background: ${cs.bg}; color: ${cs.color}; border: 1px solid ${cs.border};">${CAT_LABELS[s.category] || s.category}</div>
+              </div>
+            </div>
+          </div>
+          <button onclick="closeModal()" style="background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.2); color: #ef4444; width: 32px; height: 32px; border-radius: 6px; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">✕</button>
+        </div>
+
+        <!-- Stats -->
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px;">
+          <div style="background: rgba(10,16,26,0.7); border: 1px solid rgba(56,189,248,0.1); border-radius: 8px; padding: 12px; text-align: center;">
+            <div style="font-size: 18px; font-weight: 700; color: #38bdf8;">${s.rating}</div>
+            <div style="font-size: 11px; color: #475569; margin-top: 2px;">${renderStars(s.rating)}</div>
+          </div>
+          <div style="background: rgba(10,16,26,0.7); border: 1px solid rgba(56,189,248,0.1); border-radius: 8px; padding: 12px; text-align: center;">
+            <div style="font-size: 18px; font-weight: 700; color: #34d399;">${formatNumber(s.installs)}</div>
+            <div style="font-size: 11px; color: #475569; margin-top: 2px;">Installs</div>
+          </div>
+          <div style="background: rgba(10,16,26,0.7); border: 1px solid rgba(56,189,248,0.1); border-radius: 8px; padding: 12px; text-align: center;">
+            <div style="font-size: 14px; font-weight: 600; color: #e2e8f0;">${s.added}</div>
+            <div style="font-size: 11px; color: #475569; margin-top: 2px;">Published</div>
+          </div>
+        </div>
+
+        <!-- Description -->
+        <div style="margin-bottom: 18px;">
+          <div style="font-size: 12px; font-weight: 600; color: #475569; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px;">About</div>
+          <p style="font-size: 14px; color: #94a3b8; line-height: 1.6;">${s.fullDesc}</p>
+        </div>
+
+        <!-- Tags -->
+        <div style="margin-bottom: 18px;">
+          <div style="font-size: 12px; font-weight: 600; color: #475569; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px;">Tags</div>
+          <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+            ${(s.tags||[]).map(t => `<span style="background: rgba(30,41,59,0.8); border: 1px solid rgba(51,65,85,0.6); color: #64748b; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-family: 'JetBrains Mono', monospace;">#${t}</span>`).join('')}
+          </div>
+        </div>
+
+        <!-- Example -->
+        ${s.example ? `
+        <div style="margin-bottom: 20px;">
+          <div style="font-size: 12px; font-weight: 600; color: #475569; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px;">Usage Example</div>
+          <div class="code-block"><pre style="margin:0; white-space: pre-wrap;">${s.example}</pre></div>
+        </div>` : ''}
+
+        <!-- Actions -->
+        <div style="display: flex; gap: 10px;">
+          <button class="btn-primary" onclick="installSkill(${s.id})" style="flex: 1; padding: 11px;">
+            ⬇ Install Skill
+          </button>
+          <a href="${s.github}" target="_blank" style="background: rgba(30,41,59,0.8); border: 1px solid rgba(51,65,85,0.6); color: #94a3b8; padding: 11px 18px; border-radius: 8px; font-size: 14px; font-weight: 500; text-decoration: none; display: flex; align-items: center; gap: 6px; transition: all 0.2s;"
+             onmouseover="this.style.borderColor='rgba(56,189,248,0.3)'; this.style.color='#38bdf8';"
+             onmouseout="this.style.borderColor='rgba(51,65,85,0.6)'; this.style.color='#94a3b8';">
+            GitHub ↗
+          </a>
+        </div>
+      </div>
+    `;
+    document.getElementById('skill-modal').style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeModal() {
+    document.getElementById('skill-modal').style.display = 'none';
+    document.body.style.overflow = '';
+  }
+
+  function closeModalOnOverlay(e) {
+    if (e.target === document.getElementById('skill-modal')) closeModal();
+  }
+
+  // ─────────────────────────────────────────────
+  //  INSTALL
+  // ─────────────────────────────────────────────
+
+  function installSkill(id) {
+    const skills = getPublished();
+    const s = skills.find(x => x.id === id);
+    if (!s) return;
+    s.installs++;
+    savePublished(skills);
+    showToast('Installed!', s.name + ' has been added to your agent.', '#10b981', '✓');
+    filterSkills();
+    updateNavCount();
+  }
+
+  // ─────────────────────────────────────────────
+  //  SUBMIT
+  // ─────────────────────────────────────────────
+
+  function previewImage(input) {
+    if (input.files && input.files[0]) {
+      const reader = new FileReader();
+      reader.onload = e => {
+        document.getElementById('upload-placeholder').style.display = 'none';
+        const img = document.getElementById('upload-preview');
+        img.src = e.target.result;
+        img.style.display = 'block';
+      };
+      reader.readAsDataURL(input.files[0]);
+    }
+  }
+
+  function submitSkill() {
+    const name = document.getElementById('f-name').value.trim();
+    const github = document.getElementById('f-github').value.trim();
+    const category = document.getElementById('f-category').value;
+    const desc = document.getElementById('f-desc').value.trim();
+
+    if (!name || !github || !category || !desc) {
+      showToast('Missing Fields', 'Please fill in all required fields.', '#ef4444', '!');
+      return;
+    }
+    if (!github.startsWith('https://github.com/')) {
+      showToast('Invalid URL', 'Please enter a valid GitHub repository URL.', '#ef4444', '!');
+      return;
+    }
+
+    const icon = document.getElementById('f-icon').value.trim() || '🔧';
+    const example = document.getElementById('f-example').value.trim();
+    const pending = getPending();
+
+    const newSkill = {
+      id: Date.now(),
+      name, github, category, desc, icon, example,
+      rating: 0, installs: 0, status: 'pending',
+      author: 'community', tags: [],
+      fullDesc: desc,
+      added: new Date().toISOString().split('T')[0],
+    };
+
+    pending.push(newSkill);
+    savePending(pending);
+
+    // Clear form
+    ['f-name','f-github','f-desc','f-icon','f-example'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('f-category').value = '';
+    document.getElementById('upload-placeholder').style.display = 'block';
+    document.getElementById('upload-preview').style.display = 'none';
+    document.getElementById('f-screenshot').value = '';
+
+    updateNavCount();
+    showToast('Submitted!', name + ' is pending review. Thank you!', '#10b981', '✓');
+  }
+
+  // ─────────────────────────────────────────────
+  //  ADMIN
+  // ─────────────────────────────────────────────
+
+  function switchAdminTab(tab) {
+    currentAdminTab = tab;
+    ['pending','approved','rejected'].forEach(t => {
+      const tabEl = document.getElementById('admin-tab-' + t);
+      const listEl = document.getElementById('admin-' + t + '-list');
+      const isActive = t === tab;
+      tabEl.style.background = isActive ? 'rgba(56,189,248,0.1)' : 'transparent';
+      tabEl.style.color = isActive ? '#38bdf8' : '#64748b';
+      listEl.style.display = isActive ? 'flex' : 'none';
+    });
+    renderAdmin();
+  }
+
+  function renderAdmin() {
+    const pending  = getPending();
+    const published = getPublished();
+    const rejected = getRejected();
+
+    document.getElementById('admin-pending-count').textContent = pending.length;
+    document.getElementById('admin-approved-count').textContent = published.length;
+    document.getElementById('stat-pending').textContent = pending.length;
+    document.getElementById('stat-published').textContent = published.length;
+
+    renderAdminList('admin-pending-list', pending, 'pending');
+    renderAdminList('admin-approved-list', published, 'published');
+    renderAdminList('admin-rejected-list', rejected, 'rejected');
+
+    const activeList = currentAdminTab === 'pending' ? pending
+                     : currentAdminTab === 'approved' ? published : rejected;
+    document.getElementById('admin-empty').style.display = activeList.length === 0 ? 'block' : 'none';
+  }
+
+  function renderAdminList(containerId, skills, type) {
+    const el = document.getElementById(containerId);
+    if (skills.length === 0) {
+      el.innerHTML = '';
+      return;
+    }
+    const cs_map = skills.map(s => getCatStyle(s.category));
+    el.innerHTML = skills.map((s, i) => {
+      const cs = cs_map[i];
+      const badge = type === 'pending'
+        ? '<span class="badge-pending">PENDING</span>'
+        : type === 'published'
+          ? '<span class="badge-approved">PUBLISHED</span>'
+          : '<span class="badge-rejected">REJECTED</span>';
+
+      const actions = type === 'pending' ? `
+        <div style="display: flex; gap: 8px; flex-shrink: 0;">
+          <button class="btn-approve" onclick="approveSkill(${s.id})">✓ Approve</button>
+          <button class="btn-reject" onclick="rejectSkill(${s.id})">✕ Reject</button>
+        </div>` : '';
+
+      return `
+        <div class="review-row">
+          <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;">
+            <div style="display: flex; align-items: center; gap: 12px; flex: 1; min-width: 0;">
+              <div style="width: 40px; height: 40px; background: rgba(56,189,248,0.06); border: 1px solid rgba(56,189,248,0.12); border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0;">${s.icon}</div>
+              <div style="min-width: 0;">
+                <div style="font-size: 14px; font-weight: 600; color: #e2e8f0;">${s.name}</div>
+                <div style="font-size: 12px; color: #475569; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                  <a href="${s.github}" target="_blank" style="color: #38bdf8; text-decoration: none;">${s.github}</a>
+                </div>
+              </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 10px; flex-shrink: 0;">
+              <div class="tag" style="background: ${cs.bg}; color: ${cs.color}; border: 1px solid ${cs.border};">${CAT_LABELS[s.category] || s.category}</div>
+              ${badge}
+              ${actions}
+            </div>
+          </div>
+          ${s.desc ? `<p style="font-size: 13px; color: #64748b; margin: 10px 0 0; padding-top: 10px; border-top: 1px solid rgba(56,189,248,0.06);">${s.desc}</p>` : ''}
+        </div>
+      `;
+    }).join('');
+  }
+
+  function approveSkill(id) {
+    let pending  = getPending();
+    let published = getPublished();
+    const idx = pending.findIndex(s => s.id === id);
+    if (idx === -1) return;
+    const skill = { ...pending[idx], status: 'published' };
+    skill.rating = (Math.random() * 1.5 + 3.5).toFixed(1) * 1;
+    skill.installs = Math.floor(Math.random() * 300 + 50);
+    pending.splice(idx, 1);
+    published.push(skill);
+    savePending(pending);
+    savePublished(published);
+    showToast('Approved!', skill.name + ' is now live in the marketplace.', '#10b981', '✓');
+    renderAdmin();
+    updateNavCount();
+  }
+
+  function rejectSkill(id) {
+    let pending  = getPending();
+    let rejected = getRejected();
+    const idx = pending.findIndex(s => s.id === id);
+    if (idx === -1) return;
+    const skill = { ...pending[idx], status: 'rejected' };
+    pending.splice(idx, 1);
+    rejected.push(skill);
+    savePending(pending);
+    saveRejected(rejected);
+    showToast('Rejected', skill.name + ' has been removed from the queue.', '#ef4444', '!');
+    renderAdmin();
+    updateNavCount();
+  }
+
+  // ─────────────────────────────────────────────
+  //  TOAST
+  // ─────────────────────────────────────────────
+
+  let toastTimer = null;
+  function showToast(title, msg, color, icon) {
+    const t = document.getElementById('toast');
+    document.getElementById('toast-title').textContent = title;
+    document.getElementById('toast-msg').textContent = msg;
+    document.getElementById('toast-icon').textContent = icon;
+    t.style.borderColor = color + '66';
+    t.style.boxShadow = `0 8px 32px rgba(0,0,0,0.5), 0 0 20px ${color}1a`;
+    document.getElementById('toast-icon').style.color = color;
+    t.classList.add('show');
+    if (toastTimer) clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove('show'), 3200);
+  }
+
+  // ─────────────────────────────────────────────
+  //  UTILITY
+  // ─────────────────────────────────────────────
+
+  function updateNavCount() {
+    const published = getPublished();
+    document.getElementById('nav-count').textContent = published.length + ' skills live';
+    const total = published.reduce((sum, s) => sum + s.installs, 0);
+    const k = (total / 1000).toFixed(1) + 'K';
+    document.getElementById('stat-installs').textContent = k;
+  }
+
+  // Keyboard ESC closes modal
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeModal();
+  });
+
+  // ─────────────────────────────────────────────
+  //  INIT
+  // ─────────────────────────────────────────────
+
+  renderGrid();
+  updateNavCount();
+
+  </script>
+</body>
+</html>
