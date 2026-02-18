@@ -1,0 +1,749 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="light dark" />
+  <meta name="description" content="Singapore property listings map — for sale and for rent, powered by PropertyGuru data." />
+  <title>SG Property Map | Leonard.work</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400..700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20128%20128%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%230ea5e9%22/%3E%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%2322c55e%22/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width%3D%22128%22%20height%3D%22128%22%20rx%3D%2226%22%20fill%3D%22url(%23g)%22/%3E%3Cpath%20d%3D%22M64%2024%20C54%2024%2044%2034%2044%2048%20C44%2060%2064%2082%2064%2082%20C64%2082%2084%2060%2084%2048%20C84%2034%2074%2024%2064%2024Z%22%20fill%3D%22white%22/%3E%3Ccircle%20cx%3D%2264%22%20cy%3D%2248%22%20r%3D%228%22%20fill%3D%22url(%23g)%22/%3E%3C/svg%3E" />
+
+  <script>
+    (() => {
+      try {
+        const t = localStorage.getItem("leonard_theme_v1");
+        if (t === "light" || t === "dark") document.documentElement.dataset.theme = t;
+      } catch {}
+    })();
+  </script>
+
+  <style>
+    :root {
+      --bg: #f6f4ef;
+      --surface: rgba(255,255,255,0.88);
+      --surfaceHover: rgba(255,255,255,0.96);
+      --ink: #12131a;
+      --muted: rgba(18,19,26,0.58);
+      --line: rgba(18,19,26,0.12);
+      --lineSoft: rgba(18,19,26,0.08);
+      --lineStrong: rgba(18,19,26,0.22);
+      --ring: rgba(18,19,26,0.06);
+      --stripe: rgba(18,19,26,0.045);
+      --headerA: rgba(255,255,255,0.82);
+      --headerB: rgba(255,255,255,0.58);
+      --shadow: 0 14px 40px rgba(9,10,14,0.12);
+      --shadow2: 0 4px 16px rgba(9,10,14,0.10);
+      --radius: 18px;
+      --radius2: 14px;
+      --accent: #0ea5e9;
+      --accent2: #22c55e;
+      --accent3: #e11d48;
+      --rent-color: #0ea5e9;
+      --sale-color: #22c55e;
+      --font: "IBM Plex Sans","Segoe UI","Microsoft YaHei",system-ui,-apple-system,sans-serif;
+      --fontDisplay: "Fraunces","Times New Roman",serif;
+    }
+    html { color-scheme: light dark; }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #0b1224;
+        --surface: rgba(15,23,42,0.82);
+        --surfaceHover: rgba(15,23,42,0.96);
+        --ink: #e5e7eb;
+        --muted: rgba(229,231,235,0.58);
+        --line: rgba(229,231,235,0.14);
+        --lineSoft: rgba(229,231,235,0.09);
+        --lineStrong: rgba(229,231,235,0.24);
+        --ring: rgba(229,231,235,0.08);
+        --stripe: rgba(229,231,235,0.05);
+        --headerA: rgba(15,23,42,0.86);
+        --headerB: rgba(15,23,42,0.60);
+        --shadow: 0 14px 40px rgba(0,0,0,0.40);
+        --shadow2: 0 4px 16px rgba(0,0,0,0.32);
+      }
+    }
+    html[data-theme="light"] {
+      color-scheme: light;
+      --bg: #f6f4ef; --surface: rgba(255,255,255,0.88); --surfaceHover: rgba(255,255,255,0.96);
+      --ink: #12131a; --muted: rgba(18,19,26,0.58);
+      --line: rgba(18,19,26,0.12); --lineSoft: rgba(18,19,26,0.08); --lineStrong: rgba(18,19,26,0.22);
+      --ring: rgba(18,19,26,0.06); --stripe: rgba(18,19,26,0.045);
+      --headerA: rgba(255,255,255,0.82); --headerB: rgba(255,255,255,0.58);
+      --shadow: 0 14px 40px rgba(9,10,14,0.12); --shadow2: 0 4px 16px rgba(9,10,14,0.10);
+    }
+    html[data-theme="dark"] {
+      color-scheme: dark;
+      --bg: #0b1224; --surface: rgba(15,23,42,0.82); --surfaceHover: rgba(15,23,42,0.96);
+      --ink: #e5e7eb; --muted: rgba(229,231,235,0.58);
+      --line: rgba(229,231,235,0.14); --lineSoft: rgba(229,231,235,0.09); --lineStrong: rgba(229,231,235,0.24);
+      --ring: rgba(229,231,235,0.08); --stripe: rgba(229,231,235,0.05);
+      --headerA: rgba(15,23,42,0.86); --headerB: rgba(15,23,42,0.60);
+      --shadow: 0 14px 40px rgba(0,0,0,0.40); --shadow2: 0 4px 16px rgba(0,0,0,0.32);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { margin: 0; height: 100%; overflow: hidden; }
+    body {
+      color: var(--ink);
+      font-family: var(--font);
+      background:
+        radial-gradient(800px 500px at 10% 5%, rgba(14,165,233,0.12), transparent 60%),
+        radial-gradient(700px 450px at 85% 15%, rgba(34,197,94,0.12), transparent 60%),
+        repeating-linear-gradient(45deg, var(--stripe) 0px, var(--stripe) 2px, transparent 2px, transparent 10px),
+        var(--bg);
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Header ── */
+    .header {
+      flex: none;
+      padding: 12px 20px;
+      background: linear-gradient(135deg, var(--headerA), var(--headerB));
+      border-bottom: 1px solid var(--line);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .header-brand {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+    }
+    .header-brand h1 {
+      margin: 0;
+      font-family: var(--fontDisplay);
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: 0.2px;
+    }
+    .header-brand a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 13px;
+    }
+    .header-brand a:hover { text-decoration: underline; }
+
+    /* ── Filters ── */
+    .filters {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      flex: 1;
+    }
+    .filter-group {
+      display: flex;
+      gap: 4px;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 12px;
+      border-radius: 99px;
+      border: 1px solid var(--line);
+      background: var(--surface);
+      color: var(--muted);
+      font-size: 12px;
+      font-family: var(--font);
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s;
+      white-space: nowrap;
+      outline: none;
+      user-select: none;
+    }
+    .pill:hover { background: var(--surfaceHover); color: var(--ink); }
+    .pill.active-sale { background: var(--sale-color); border-color: var(--sale-color); color: #fff; }
+    .pill.active-rent { background: var(--rent-color); border-color: var(--rent-color); color: #fff; }
+    .pill.active-all { background: var(--ink); border-color: var(--ink); color: var(--bg); }
+    .dot-sale { width: 8px; height: 8px; border-radius: 50%; background: var(--sale-color); }
+    .dot-rent { width: 8px; height: 8px; border-radius: 50%; background: var(--rent-color); }
+
+    select.filter-select {
+      padding: 5px 10px;
+      border-radius: 99px;
+      border: 1px solid var(--line);
+      background: var(--surface);
+      color: var(--ink);
+      font-size: 12px;
+      font-family: var(--font);
+      font-weight: 500;
+      cursor: pointer;
+      outline: none;
+      appearance: none;
+      -webkit-appearance: none;
+      padding-right: 26px;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23888' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+    }
+
+    .count-badge {
+      margin-left: auto;
+      font-size: 12px;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    /* ── Main layout ── */
+    .main {
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+      min-height: 0;
+    }
+
+    /* ── Map ── */
+    #map {
+      flex: 1;
+      min-width: 0;
+    }
+
+    /* ── List panel ── */
+    .list-panel {
+      width: 360px;
+      flex: none;
+      display: flex;
+      flex-direction: column;
+      background: var(--surface);
+      border-left: 1px solid var(--line);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      overflow: hidden;
+    }
+
+    .list-search {
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--lineSoft);
+    }
+    .list-search input {
+      width: 100%;
+      padding: 7px 12px;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      background: var(--bg);
+      color: var(--ink);
+      font-size: 13px;
+      font-family: var(--font);
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .list-search input:focus { border-color: var(--accent); }
+
+    .list-scroll {
+      flex: 1;
+      overflow-y: auto;
+      padding: 8px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .list-scroll::-webkit-scrollbar { width: 5px; }
+    .list-scroll::-webkit-scrollbar-track { background: transparent; }
+    .list-scroll::-webkit-scrollbar-thumb { background: var(--line); border-radius: 99px; }
+
+    .card {
+      display: flex;
+      gap: 10px;
+      padding: 10px;
+      border-radius: var(--radius2);
+      border: 1px solid var(--lineSoft);
+      background: var(--surface);
+      cursor: pointer;
+      transition: all 0.15s;
+      position: relative;
+      overflow: hidden;
+    }
+    .card:hover { background: var(--surfaceHover); border-color: var(--line); box-shadow: var(--shadow2); }
+    .card.active { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(14,165,233,0.20); }
+    .card-thumb {
+      width: 72px;
+      height: 72px;
+      border-radius: 10px;
+      object-fit: cover;
+      flex: none;
+      background: var(--ring);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+    }
+    .card-thumb img { width: 100%; height: 100%; object-fit: cover; border-radius: 10px; }
+    .card-body { flex: 1; min-width: 0; }
+    .card-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--ink);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-bottom: 2px;
+    }
+    .card-addr {
+      font-size: 11px;
+      color: var(--muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-bottom: 5px;
+    }
+    .card-meta {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .card-price {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--ink);
+    }
+    .card-tag {
+      font-size: 10px;
+      font-weight: 600;
+      padding: 2px 7px;
+      border-radius: 99px;
+      letter-spacing: 0.3px;
+    }
+    .tag-sale { background: rgba(34,197,94,0.15); color: #16a34a; }
+    .tag-rent { background: rgba(14,165,233,0.15); color: #0284c7; }
+    html[data-theme="dark"] .tag-sale { background: rgba(34,197,94,0.20); color: #4ade80; }
+    html[data-theme="dark"] .tag-rent { background: rgba(14,165,233,0.20); color: #38bdf8; }
+    @media (prefers-color-scheme: dark) {
+      .tag-sale { background: rgba(34,197,94,0.20); color: #4ade80; }
+      .tag-rent { background: rgba(14,165,233,0.20); color: #38bdf8; }
+    }
+    .card-chips {
+      display: flex;
+      gap: 4px;
+      flex-wrap: wrap;
+    }
+    .chip {
+      font-size: 10px;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 2px;
+    }
+    .chip::before { content: "·"; margin-right: 2px; }
+    .chip:first-child::before { display: none; }
+
+    /* ── Leaflet popup custom style ── */
+    .leaflet-popup-content-wrapper {
+      border-radius: 14px !important;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.18) !important;
+      padding: 0 !important;
+      overflow: hidden;
+    }
+    .leaflet-popup-content {
+      margin: 0 !important;
+      width: auto !important;
+    }
+    .leaflet-popup-tip { display: none; }
+    .popup-inner {
+      padding: 14px 16px;
+      min-width: 220px;
+      max-width: 280px;
+      font-family: var(--font);
+    }
+    .popup-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #12131a;
+      margin-bottom: 3px;
+    }
+    .popup-addr {
+      font-size: 12px;
+      color: #666;
+      margin-bottom: 8px;
+    }
+    .popup-price {
+      font-size: 15px;
+      font-weight: 700;
+      color: #12131a;
+      margin-bottom: 6px;
+    }
+    .popup-chips {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+    .popup-chip {
+      font-size: 11px;
+      color: #555;
+      background: #f0f0f0;
+      padding: 2px 8px;
+      border-radius: 99px;
+    }
+    .popup-link {
+      display: inline-block;
+      font-size: 12px;
+      color: #0ea5e9;
+      text-decoration: none;
+      font-weight: 500;
+    }
+    .popup-link:hover { text-decoration: underline; }
+
+    /* ── Theme toggle ── */
+    .theme-btn {
+      width: 32px; height: 32px;
+      border-radius: 99px;
+      border: 1px solid var(--line);
+      background: var(--surface);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
+      flex: none;
+      outline: none;
+      transition: background 0.15s;
+    }
+    .theme-btn:hover { background: var(--surfaceHover); }
+
+    /* ── No results ── */
+    .no-results {
+      padding: 32px 16px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    /* ── Mobile ── */
+    @media (max-width: 700px) {
+      body { overflow: auto; }
+      .main { flex-direction: column; height: auto; }
+      #map { height: 55vmax; min-height: 300px; flex: none; }
+      .list-panel { width: 100%; border-left: none; border-top: 1px solid var(--line); height: 45vmax; min-height: 260px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <div class="header">
+    <div class="header-brand">
+      <h1>SG Property Map</h1>
+      <a href="/">← Leonard.work</a>
+    </div>
+
+    <div class="filters">
+      <div class="filter-group" id="type-filters">
+        <button class="pill active-all" data-type="all">All</button>
+        <button class="pill" data-type="SALE"><span class="dot-sale"></span>For Sale</button>
+        <button class="pill" data-type="RENT"><span class="dot-rent"></span>For Rent</button>
+      </div>
+
+      <select class="filter-select" id="price-filter">
+        <option value="">Any Price</option>
+        <option value="0-500000">≤ S$500K</option>
+        <option value="500000-1000000">S$500K – 1M</option>
+        <option value="1000000-2000000">S$1M – 2M</option>
+        <option value="2000000-5000000">S$2M – 5M</option>
+        <option value="5000000-">S$5M+</option>
+        <option value="rent-0-3000">Rent ≤ $3K/mo</option>
+        <option value="rent-3000-6000">Rent $3K–6K/mo</option>
+        <option value="rent-6000-10000">Rent $6K–10K/mo</option>
+        <option value="rent-10000-">Rent $10K+/mo</option>
+      </select>
+
+      <select class="filter-select" id="type2-filter">
+        <option value="">All Types</option>
+        <option value="Condominium">Condo</option>
+        <option value="HDB Flat">HDB</option>
+        <option value="Apartment">Apartment</option>
+        <option value="Semi-Detached House">Semi-D</option>
+        <option value="Terraced House">Terrace</option>
+        <option value="Detached House">Bungalow</option>
+      </select>
+
+      <span class="count-badge" id="count-badge">— listings</span>
+    </div>
+
+    <button class="theme-btn" id="theme-btn" title="Toggle theme">☀</button>
+  </div>
+
+  <!-- Main -->
+  <div class="main">
+    <div id="map"></div>
+    <div class="list-panel">
+      <div class="list-search">
+        <input type="search" id="search-input" placeholder="Search by name or address…" autocomplete="off" />
+      </div>
+      <div class="list-scroll" id="list-scroll"></div>
+    </div>
+  </div>
+
+<script>
+// ── Theme toggle ──
+const themeBtn = document.getElementById('theme-btn');
+function getTheme() {
+  return document.documentElement.dataset.theme || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+}
+function applyTheme(t) {
+  document.documentElement.dataset.theme = t;
+  themeBtn.textContent = t === 'dark' ? '☀' : '☾';
+  localStorage.setItem('leonard_theme_v1', t);
+}
+applyTheme(getTheme());
+themeBtn.addEventListener('click', () => applyTheme(getTheme() === 'dark' ? 'light' : 'dark'));
+
+// ── Map init ──
+const map = L.map('map', { center: [1.3521, 103.8198], zoom: 12, zoomControl: true });
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+  maxZoom: 19
+}).addTo(map);
+
+// ── Custom markers ──
+function makeIcon(type) {
+  const color = type === 'RENT' ? '#0ea5e9' : '#22c55e';
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="22" height="30" viewBox="0 0 22 30">
+    <path d="M11 0 C5 0 0 5 0 11 C0 20 11 30 11 30 C11 30 22 20 22 11 C22 5 17 0 11 0Z" fill="${color}" opacity="0.92"/>
+    <circle cx="11" cy="11" r="5" fill="white" opacity="0.9"/>
+  </svg>`;
+  return L.divIcon({
+    html: svg,
+    className: '',
+    iconSize: [22, 30],
+    iconAnchor: [11, 30],
+    popupAnchor: [0, -32],
+  });
+}
+const iconSale = makeIcon('SALE');
+const iconRent = makeIcon('RENT');
+
+// ── State ──
+let allData = [];
+let filteredData = [];
+let markers = [];        // L.Marker[]
+let activeCardIdx = -1;
+let filterType = 'all';
+let filterPrice = '';
+let filterPropType = '';
+let searchQ = '';
+
+// ── Format price ──
+function fmtPrice(p) {
+  if (!p) return '—';
+  if (p >= 1_000_000) return 'S$' + (p / 1_000_000).toFixed(2).replace(/\.?0+$/, '') + 'M';
+  if (p >= 1_000) return 'S$' + Math.round(p / 1_000) + 'K';
+  return 'S$' + p;
+}
+
+// ── Popup HTML ──
+function popupHtml(d) {
+  const chips = [];
+  if (d.beds) chips.push(d.beds + ' Beds');
+  if (d.baths) chips.push(d.baths + ' Baths');
+  if (d.sqft) chips.push(Math.round(d.sqft).toLocaleString() + ' sqft');
+  if (d.propertyType) chips.push(d.propertyType);
+  return `<div class="popup-inner">
+    <div class="popup-title">${esc(d.title || d.address)}</div>
+    <div class="popup-addr">${esc(d.address)}</div>
+    <div class="popup-price">${esc(d.pricePretty || fmtPrice(d.price))}</div>
+    ${chips.length ? `<div class="popup-chips">${chips.map(c => `<span class="popup-chip">${esc(c)}</span>`).join('')}</div>` : ''}
+    ${d.url ? `<a class="popup-link" href="${esc(d.url)}" target="_blank" rel="noopener">View on PropertyGuru →</a>` : ''}
+  </div>`;
+}
+
+function esc(s) {
+  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── Render list ──
+function renderList() {
+  const scroll = document.getElementById('list-scroll');
+  const badge = document.getElementById('count-badge');
+  badge.textContent = filteredData.length + ' listings';
+
+  if (filteredData.length === 0) {
+    scroll.innerHTML = '<div class="no-results">No listings match your filters.</div>';
+    return;
+  }
+
+  // Render up to 200 cards for performance
+  const show = filteredData.slice(0, 200);
+  scroll.innerHTML = show.map((d, i) => {
+    const isActive = i === activeCardIdx;
+    const tag = d.listingType === 'RENT'
+      ? '<span class="card-tag tag-rent">Rent</span>'
+      : '<span class="card-tag tag-sale">Sale</span>';
+    const chips = [];
+    if (d.beds) chips.push(d.beds + ' bd');
+    if (d.baths) chips.push(d.baths + ' ba');
+    if (d.sqft) chips.push(Math.round(d.sqft).toLocaleString() + ' sqft');
+
+    const thumb = d.image
+      ? `<div class="card-thumb"><img src="${esc(d.image)}" alt="" loading="lazy" onerror="this.parentElement.textContent='🏠'"/></div>`
+      : `<div class="card-thumb">🏠</div>`;
+
+    return `<div class="card${isActive ? ' active' : ''}" data-idx="${i}">
+      ${thumb}
+      <div class="card-body">
+        <div class="card-title">${esc(d.title || d.address)}</div>
+        <div class="card-addr">${esc(d.address)}</div>
+        <div class="card-meta">
+          <span class="card-price">${esc(d.pricePretty || fmtPrice(d.price))}</span>
+          ${tag}
+        </div>
+        ${chips.length ? `<div class="card-chips">${chips.map(c => `<span class="chip">${esc(c)}</span>`).join('')}</div>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+
+  // Click handlers
+  scroll.querySelectorAll('.card').forEach(el => {
+    el.addEventListener('click', () => {
+      const i = parseInt(el.dataset.idx);
+      selectListing(i);
+    });
+  });
+}
+
+// ── Select a listing ──
+function selectListing(idx) {
+  activeCardIdx = idx;
+  const d = filteredData[idx];
+  if (!d) return;
+
+  // Highlight card
+  document.querySelectorAll('.card').forEach(el => el.classList.remove('active'));
+  const card = document.querySelector(`.card[data-idx="${idx}"]`);
+  if (card) card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  if (card) card.classList.add('active');
+
+  // Pan map and open popup
+  const marker = markers[idx];
+  if (marker) {
+    map.setView([d.lat, d.lng], Math.max(map.getZoom(), 15), { animate: true });
+    marker.openPopup();
+  }
+}
+
+// ── Build markers ──
+function buildMarkers() {
+  // Remove old
+  markers.forEach(m => m.remove());
+  markers = [];
+
+  filteredData.forEach((d, i) => {
+    const icon = d.listingType === 'RENT' ? iconRent : iconSale;
+    const m = L.marker([d.lat, d.lng], { icon })
+      .bindPopup(popupHtml(d), { maxWidth: 300 })
+      .addTo(map);
+
+    m.on('click', () => {
+      activeCardIdx = i;
+      renderList();
+      // scroll card into view
+      setTimeout(() => {
+        const card = document.querySelector(`.card[data-idx="${i}"]`);
+        if (card) card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }, 50);
+    });
+
+    markers.push(m);
+  });
+}
+
+// ── Apply filters ──
+function applyFilters() {
+  const q = searchQ.toLowerCase().trim();
+
+  filteredData = allData.filter(d => {
+    // Type filter
+    if (filterType !== 'all' && d.listingType !== filterType) return false;
+
+    // Property type
+    if (filterPropType && d.propertyType !== filterPropType) return false;
+
+    // Price filter
+    if (filterPrice) {
+      if (filterPrice.startsWith('rent-')) {
+        if (d.listingType !== 'RENT') return false;
+        const [, lo, hi] = filterPrice.split('-');
+        if (lo && d.price < +lo) return false;
+        if (hi && d.price > +hi) return false;
+      } else {
+        if (d.listingType !== 'SALE') return false;
+        const [lo, hi] = filterPrice.split('-');
+        if (lo && d.price < +lo) return false;
+        if (hi && d.price > +hi) return false;
+      }
+    }
+
+    // Search
+    if (q) {
+      const hay = ((d.title || '') + ' ' + (d.address || '')).toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
+
+    return true;
+  });
+
+  activeCardIdx = -1;
+  buildMarkers();
+  renderList();
+}
+
+// ── Filter UI ──
+document.getElementById('type-filters').addEventListener('click', e => {
+  const btn = e.target.closest('[data-type]');
+  if (!btn) return;
+  filterType = btn.dataset.type;
+  document.querySelectorAll('[data-type]').forEach(b => {
+    b.className = 'pill';
+    if (b.dataset.type === filterType) {
+      if (filterType === 'SALE') b.classList.add('active-sale');
+      else if (filterType === 'RENT') b.classList.add('active-rent');
+      else b.classList.add('active-all');
+    }
+  });
+  applyFilters();
+});
+
+document.getElementById('price-filter').addEventListener('change', e => {
+  filterPrice = e.target.value;
+  applyFilters();
+});
+
+document.getElementById('type2-filter').addEventListener('change', e => {
+  filterPropType = e.target.value;
+  applyFilters();
+});
+
+let searchTimer;
+document.getElementById('search-input').addEventListener('input', e => {
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(() => { searchQ = e.target.value; applyFilters(); }, 200);
+});
+
+// ── Load data ──
+fetch('assets/property-data.json')
+  .then(r => r.json())
+  .then(data => {
+    allData = data;
+    applyFilters();
+  })
+  .catch(err => {
+    document.getElementById('list-scroll').innerHTML =
+      '<div class="no-results">Failed to load data.<br>' + err.message + '</div>';
+  });
+</script>
+</body>
+</html>

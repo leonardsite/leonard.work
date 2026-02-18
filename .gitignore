@@ -29,6 +29,11 @@
 !nexus-jd.html
 !nexus-skills.html
 
+# SG Property Map
+!property-map.html
+!assets/
+!assets/property-data.json
+
 # Automation scripts
 !automation/
 !automation/sgx-tritech/
