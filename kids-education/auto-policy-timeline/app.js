@@ -86,6 +86,8 @@
     eventList: document.getElementById("eventList")
   };
 
+  const initialProjection = new URLSearchParams(window.location.search).get("projection") === "mercator" ? "mercator" : "globe";
+
   const state = {
     events: [],
     nodes: [],
@@ -93,7 +95,7 @@
     windowSize: Number(el.windowSlider.value || 3),
     showAuto: true,
     showPolicy: true,
-    projection: "globe",
+    projection: initialProjection,
     selectedId: null,
     playing: false,
     timer: null,
@@ -369,13 +371,61 @@
     el.projectionBtn.textContent = isGlobe ? "切换到平面地图" : "切换到地球仪";
   }
 
+  function syncProjectionQuery() {
+    try {
+      const url = new URL(window.location.href);
+      if (state.projection === "mercator") {
+        url.searchParams.set("projection", "mercator");
+      } else {
+        url.searchParams.delete("projection");
+      }
+      window.history.replaceState(null, "", `${url.pathname}${url.search}${url.hash}`);
+    } catch (_) {
+      // ignore
+    }
+  }
+
   function setMapProjection() {
-    if (!state.map) return;
+    if (!state.map) return false;
+    if (typeof state.map.setProjection !== "function") return false;
+
+    let switched = false;
     try {
       state.map.setProjection(state.projection);
-    } catch (_) {
-      state.map.setProjection({ type: state.projection });
+      switched = true;
+    } catch (error) {
+      try {
+        state.map.setProjection({ type: state.projection });
+        switched = true;
+      } catch (_) {
+        switched = false;
+      }
     }
+    return switched;
+  }
+
+  function mapCenterFallback() {
+    const selected = state.events.find((evt) => evt.id === state.selectedId);
+    if (selected) return [selected.lng, selected.lat];
+    return [12, 24];
+  }
+
+  function remountMap() {
+    const keepCenter = state.map && typeof state.map.getCenter === "function"
+      ? [state.map.getCenter().lng, state.map.getCenter().lat]
+      : mapCenterFallback();
+
+    if (state.popup) {
+      state.popup.remove();
+      state.popup = null;
+    }
+
+    if (state.map) {
+      state.map.remove();
+      state.map = null;
+    }
+
+    initMap(keepCenter);
   }
 
   function eventPoint(evt, selected) {
@@ -402,14 +452,19 @@
     const points = items.map((evt) => eventPoint(evt, selected && evt.id === selected.id));
     const policyRings = points.filter((feature) => feature.properties.type === "policy");
 
-    state.map.getSource("auto-events").setData({ type: "FeatureCollection", features: points });
-    state.map.getSource("policy-rings").setData({ type: "FeatureCollection", features: policyRings });
+    const eventsSource = state.map.getSource("auto-events");
+    const ringsSource = state.map.getSource("policy-rings");
+    if (!eventsSource || !ringsSource) return;
+
+    eventsSource.setData({ type: "FeatureCollection", features: points });
+    ringsSource.setData({ type: "FeatureCollection", features: policyRings });
 
     if (selected) {
       state.map.easeTo({
         center: [selected.lng, selected.lat],
-        zoom: state.projection === "globe" ? 1.9 : 2.4,
-        duration: 700,
+        zoom: state.projection === "globe" ? 0.95 : 1.35,
+        pitch: state.projection === "globe" ? 18 : 0,
+        duration: 760,
         essential: true
       });
     }
@@ -511,7 +566,9 @@
     el.projectionBtn.addEventListener("click", () => {
       state.projection = state.projection === "globe" ? "mercator" : "globe";
       setProjectionLabel();
-      setMapProjection();
+      syncProjectionQuery();
+      if (!setMapProjection()) remountMap();
+      render();
     });
 
     el.eventList.addEventListener("click", (event) => {
@@ -521,14 +578,17 @@
     });
   }
 
-  function initMap() {
+  function initMap(centerHint) {
+    const center = Array.isArray(centerHint) && centerHint.length === 2 ? centerHint : mapCenterFallback();
+
     state.map = new maplibregl.Map({
       container: el.mapCanvas,
       style: "https://demotiles.maplibre.org/style.json",
-      projection: "globe",
-      center: [12, 24],
-      zoom: 1.2,
-      minZoom: 0.7,
+      projection: state.projection,
+      center,
+      zoom: state.projection === "globe" ? 0.95 : 1.35,
+      pitch: state.projection === "globe" ? 18 : 0,
+      minZoom: 0.45,
       maxZoom: 7
     });
 

@@ -51,6 +51,24 @@
     }
   ];
 
+  const MODERN_SNAPSHOT = PLATE_SNAPSHOTS.find((snap) => snap.key === "modern") || PLATE_SNAPSHOTS[PLATE_SNAPSHOTS.length - 1];
+  const DRIFT_LINKS = {
+    pangaea: [
+      ["盘古主体", "北美"],
+      ["盘古主体", "南美"],
+      ["盘古主体", "欧亚"],
+      ["盘古主体", "非洲"],
+      ["盘古主体", "澳洲"]
+    ],
+    breakup: [
+      ["劳亚大陆", "北美"],
+      ["劳亚大陆", "欧亚"],
+      ["冈瓦纳大陆", "南美"],
+      ["冈瓦纳大陆", "非洲"],
+      ["冈瓦纳大陆", "澳洲"]
+    ]
+  };
+
   const el = {
     nodeSlider: document.getElementById("nodeSlider"),
     prevBtn: document.getElementById("prevBtn"),
@@ -71,12 +89,14 @@
     meteorFlash: document.getElementById("meteorFlash")
   };
 
+  const initialProjection = new URLSearchParams(window.location.search).get("projection") === "mercator" ? "mercator" : "globe";
+
   const state = {
     events: [],
     nodes: [],
     nodeIndex: 0,
     windowSize: Number(el.windowSlider.value || 2),
-    projection: "globe",
+    projection: initialProjection,
     showDrift: true,
     showPlates: true,
     selectedId: null,
@@ -92,6 +112,62 @@
       properties: { name, color },
       geometry: { type: "Polygon", coordinates: [coords] }
     };
+  }
+
+  function plateMap(snapshot) {
+    return new Map((snapshot.features || []).map((feature) => [feature.properties && feature.properties.name, feature]));
+  }
+
+  function centroidOf(feature) {
+    if (!feature || !feature.geometry || !Array.isArray(feature.geometry.coordinates)) return null;
+    const ring = feature.geometry.coordinates[0];
+    if (!Array.isArray(ring) || ring.length < 3) return null;
+    const points = ring[0][0] === ring[ring.length - 1][0] && ring[0][1] === ring[ring.length - 1][1]
+      ? ring.slice(0, -1)
+      : ring.slice();
+    if (!points.length) return null;
+    const sum = points.reduce((acc, point) => {
+      acc[0] += Number(point[0]) || 0;
+      acc[1] += Number(point[1]) || 0;
+      return acc;
+    }, [0, 0]);
+    return [sum[0] / points.length, sum[1] / points.length];
+  }
+
+  function driftFeaturesForSnapshot(snapshot) {
+    if (!snapshot || snapshot.key === MODERN_SNAPSHOT.key) return [];
+    const currentPlates = plateMap(snapshot);
+    const modernPlates = plateMap(MODERN_SNAPSHOT);
+
+    const links = Array.isArray(DRIFT_LINKS[snapshot.key])
+      ? DRIFT_LINKS[snapshot.key]
+      : (snapshot.features || []).map((feature) => [feature.properties && feature.properties.name, feature.properties && feature.properties.name]);
+
+    return links
+      .map(([fromName, toName], idx) => {
+        const fromFeature = currentPlates.get(fromName);
+        const toFeature = modernPlates.get(toName);
+        const from = centroidOf(fromFeature);
+        const to = centroidOf(toFeature);
+        if (!from || !to) return null;
+        const dx = from[0] - to[0];
+        const dy = from[1] - to[1];
+        const shift = Math.hypot(dx, dy);
+        if (!Number.isFinite(shift) || shift < 4) return null;
+        return {
+          type: "Feature",
+          properties: {
+            id: `${snapshot.key}-${idx + 1}`,
+            from: fromName,
+            to: toName
+          },
+          geometry: {
+            type: "LineString",
+            coordinates: [from, to]
+          }
+        };
+      })
+      .filter(Boolean);
   }
 
   function clamp(value, min, max) {
@@ -157,7 +233,7 @@
   }
 
   function setupLegend() {
-    el.legendGrid.innerHTML = Object.entries(DOMAIN_META)
+    const domainLegend = Object.entries(DOMAIN_META)
       .map(([key, meta]) => (`
         <span class="legend-item" data-domain="${key}">
           <i class="legend-dot" style="background:${meta.color}"></i>
@@ -165,6 +241,14 @@
         </span>
       `))
       .join("");
+
+    const plateLegend = `
+      <span class="legend-item"><i class="legend-dot" style="background:rgba(245,201,122,0.86)"></i><span>当年大陆</span></span>
+      <span class="legend-item"><i class="legend-dot" style="background:transparent;border:1px dashed rgba(141,184,224,0.95)"></i><span>现代大陆对照</span></span>
+      <span class="legend-item"><i class="legend-dot" style="background:rgba(111,211,180,0.86)"></i><span>漂移连线</span></span>
+    `;
+
+    el.legendGrid.innerHTML = domainLegend + plateLegend;
   }
 
   function currentYear() {
@@ -188,6 +272,17 @@
 
   function plateSnapshotByYear(year) {
     return PLATE_SNAPSHOTS.find((snap) => year <= snap.maxYear) || PLATE_SNAPSHOTS[PLATE_SNAPSHOTS.length - 1];
+  }
+
+  function snapshotCenter(snapshot) {
+    const centers = (snapshot.features || []).map((feature) => centroidOf(feature)).filter(Boolean);
+    if (!centers.length) return [12, 20];
+    const total = centers.reduce((acc, center) => {
+      acc[0] += center[0];
+      acc[1] += center[1];
+      return acc;
+    }, [0, 0]);
+    return [total[0] / centers.length, total[1] / centers.length];
   }
 
   function geoJson(features) {
@@ -336,13 +431,62 @@
     el.projectionBtn.textContent = isGlobe ? "切换到平面地图" : "切换到地球仪";
   }
 
+  function syncProjectionQuery() {
+    try {
+      const url = new URL(window.location.href);
+      if (state.projection === "mercator") {
+        url.searchParams.set("projection", "mercator");
+      } else {
+        url.searchParams.delete("projection");
+      }
+      window.history.replaceState(null, "", `${url.pathname}${url.search}${url.hash}`);
+    } catch (_) {
+      // ignore
+    }
+  }
+
   function setMapProjection() {
-    if (!state.map) return;
+    if (!state.map) return false;
+    if (typeof state.map.setProjection !== "function") return false;
+
+    let switched = false;
     try {
       state.map.setProjection(state.projection);
-    } catch (_) {
-      state.map.setProjection({ type: state.projection });
+      switched = true;
+    } catch (error) {
+      try {
+        state.map.setProjection({ type: state.projection });
+        switched = true;
+      } catch (_) {
+        switched = false;
+      }
     }
+
+    return switched;
+  }
+
+  function mapCenterFallback() {
+    const selected = state.events.find((evt) => evt.id === state.selectedId);
+    if (selected) return [selected.lng, selected.lat];
+    return [12, 20];
+  }
+
+  function remountMap() {
+    const keepCenter = state.map && typeof state.map.getCenter === "function"
+      ? [state.map.getCenter().lng, state.map.getCenter().lat]
+      : mapCenterFallback();
+
+    if (state.popup) {
+      state.popup.remove();
+      state.popup = null;
+    }
+
+    if (state.map) {
+      state.map.remove();
+      state.map = null;
+    }
+
+    initMap(keepCenter);
   }
 
   function updateMap(items, snapshot) {
@@ -359,22 +503,45 @@
     const paleoFeatures = driftItems.map(paleoPointFeature);
 
     const plateFeatures = state.showPlates ? snapshot.features : [];
+    const modernPlateFeatures = state.showPlates ? MODERN_SNAPSHOT.features : [];
+    const shiftFeatures = state.showPlates ? driftFeaturesForSnapshot(snapshot) : [];
 
     const meteor = items.find((evt) => evt.id.includes("chicxulub") || evt.titleEn.toLowerCase().includes("chicxulub"));
     const ringFeatures = meteor ? [meteorRingFeature(meteor)] : [];
     setMeteorFlash(Boolean(meteor));
 
-    state.map.getSource("bio-events").setData(geoJson(pointFeatures));
-    state.map.getSource("bio-drift").setData(geoJson(driftFeatures));
-    state.map.getSource("bio-paleo").setData(geoJson(paleoFeatures));
-    state.map.getSource("bio-plates").setData(geoJson(plateFeatures));
-    state.map.getSource("bio-meteor").setData(geoJson(ringFeatures));
+    const eventsSource = state.map.getSource("bio-events");
+    const driftSource = state.map.getSource("bio-drift");
+    const paleoSource = state.map.getSource("bio-paleo");
+    const plateSource = state.map.getSource("bio-plates");
+    const modernSource = state.map.getSource("bio-plates-modern");
+    const shiftSource = state.map.getSource("bio-plate-shift");
+    const meteorSource = state.map.getSource("bio-meteor");
+
+    if (!eventsSource || !driftSource || !paleoSource || !plateSource || !modernSource || !shiftSource || !meteorSource) return;
+
+    eventsSource.setData(geoJson(pointFeatures));
+    driftSource.setData(geoJson(driftFeatures));
+    paleoSource.setData(geoJson(paleoFeatures));
+    plateSource.setData(geoJson(plateFeatures));
+    modernSource.setData(geoJson(modernPlateFeatures));
+    shiftSource.setData(geoJson(shiftFeatures));
+    meteorSource.setData(geoJson(ringFeatures));
 
     if (selected) {
+      const snapshotCenterPoint = snapshotCenter(snapshot);
+      const center = state.showPlates
+        ? [
+            Number((selected.lng * 0.42 + snapshotCenterPoint[0] * 0.58).toFixed(3)),
+            Number((selected.lat * 0.42 + snapshotCenterPoint[1] * 0.58).toFixed(3))
+          ]
+        : [selected.lng, selected.lat];
+
       state.map.easeTo({
-        center: [selected.lng, selected.lat],
-        zoom: state.projection === "globe" ? 1.8 : 2.2,
-        duration: 700,
+        center,
+        zoom: state.projection === "globe" ? 0.95 : 1.35,
+        pitch: state.projection === "globe" ? 18 : 0,
+        duration: 760,
         essential: true
       });
     }
@@ -478,7 +645,9 @@
     el.projectionBtn.addEventListener("click", () => {
       state.projection = state.projection === "globe" ? "mercator" : "globe";
       setProjectionLabel();
-      setMapProjection();
+      syncProjectionQuery();
+      if (!setMapProjection()) remountMap();
+      render();
     });
 
     el.eventList.addEventListener("click", (event) => {
@@ -488,14 +657,17 @@
     });
   }
 
-  function initMap() {
+  function initMap(centerHint) {
+    const center = Array.isArray(centerHint) && centerHint.length === 2 ? centerHint : mapCenterFallback();
+
     state.map = new maplibregl.Map({
       container: el.mapCanvas,
       style: "https://demotiles.maplibre.org/style.json",
-      projection: "globe",
-      center: [12, 20],
-      zoom: 1.25,
-      minZoom: 0.7,
+      projection: state.projection,
+      center,
+      zoom: state.projection === "globe" ? 0.95 : 1.35,
+      pitch: state.projection === "globe" ? 18 : 0,
+      minZoom: 0.45,
       maxZoom: 6.5
     });
 
@@ -504,11 +676,11 @@
     state.map.on("style.load", () => {
       try {
         state.map.setFog({
-          range: [0.6, 8],
-          color: "rgba(186,218,255,0.42)",
-          "horizon-blend": 0.15,
-          "space-color": "rgba(2,9,18,0.88)",
-          "star-intensity": 0.2
+          range: [0.55, 8],
+          color: "rgba(186,218,255,0.48)",
+          "horizon-blend": 0.2,
+          "space-color": "rgba(2,9,18,0.9)",
+          "star-intensity": 0.26
         });
       } catch (_) {
         // ignore
@@ -518,15 +690,39 @@
       state.map.addSource("bio-drift", { type: "geojson", data: geoJson([]) });
       state.map.addSource("bio-paleo", { type: "geojson", data: geoJson([]) });
       state.map.addSource("bio-plates", { type: "geojson", data: geoJson([]) });
+      state.map.addSource("bio-plates-modern", { type: "geojson", data: geoJson([]) });
+      state.map.addSource("bio-plate-shift", { type: "geojson", data: geoJson([]) });
       state.map.addSource("bio-meteor", { type: "geojson", data: geoJson([]) });
+
+      state.map.addLayer({
+        id: "bio-plates-modern-line",
+        type: "line",
+        source: "bio-plates-modern",
+        paint: {
+          "line-color": "rgba(141, 184, 224, 0.9)",
+          "line-width": 1.5,
+          "line-dasharray": [2, 1]
+        }
+      });
+
+      state.map.addLayer({
+        id: "bio-plate-shift-line",
+        type: "line",
+        source: "bio-plate-shift",
+        paint: {
+          "line-color": "rgba(111, 211, 180, 0.78)",
+          "line-width": 1.8,
+          "line-dasharray": [1.2, 1.6]
+        }
+      });
 
       state.map.addLayer({
         id: "bio-plates-fill",
         type: "fill",
         source: "bio-plates",
         paint: {
-          "fill-color": ["coalesce", ["get", "color"], "#8db7d8"],
-          "fill-opacity": 0.28
+          "fill-color": ["coalesce", ["get", "color"], "#f4c67c"],
+          "fill-opacity": 0.42
         }
       });
 
@@ -535,9 +731,24 @@
         type: "line",
         source: "bio-plates",
         paint: {
-          "line-color": "rgba(198, 233, 255, 0.55)",
-          "line-width": 1.2,
-          "line-dasharray": [2, 1]
+          "line-color": "rgba(255, 233, 194, 0.85)",
+          "line-width": 2.1
+        }
+      });
+
+      state.map.addLayer({
+        id: "bio-plates-label",
+        type: "symbol",
+        source: "bio-plates",
+        layout: {
+          "text-field": ["coalesce", ["get", "name"], ""],
+          "text-size": 11,
+          "text-allow-overlap": true
+        },
+        paint: {
+          "text-color": "rgba(255, 239, 208, 0.95)",
+          "text-halo-color": "rgba(4, 10, 18, 0.9)",
+          "text-halo-width": 1.2
         }
       });
 
@@ -546,9 +757,9 @@
         type: "line",
         source: "bio-drift",
         paint: {
-          "line-color": "rgba(111, 211, 180, 0.7)",
-          "line-width": 1.4,
-          "line-dasharray": [1.5, 1.5]
+          "line-color": "rgba(111, 211, 180, 0.74)",
+          "line-width": 1.6,
+          "line-dasharray": [1.4, 1.4]
         }
       });
 
@@ -557,9 +768,9 @@
         type: "circle",
         source: "bio-paleo",
         paint: {
-          "circle-radius": 4,
-          "circle-color": "rgba(53,192,166,0.2)",
-          "circle-stroke-color": "rgba(53,192,166,0.9)",
+          "circle-radius": 4.2,
+          "circle-color": "rgba(53,192,166,0.22)",
+          "circle-stroke-color": "rgba(53,192,166,0.95)",
           "circle-stroke-width": 1.2
         }
       });
