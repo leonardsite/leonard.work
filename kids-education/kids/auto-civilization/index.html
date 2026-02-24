@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>汽车文明图片时间轴 | Kid Auto Timeline</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div id="rotateHint" aria-live="polite">
+      <div class="rotate-card">
+        <h2>请横屏投放 / Rotate to Landscape</h2>
+        <p>iPhone 17 Pro Max 投屏 Apple TV 4K 推荐横屏，可获得更大图片视野。</p>
+      </div>
+    </div>
+
+    <main class="app">
+      <header class="hero">
+        <p class="eyebrow">Kids Visual Learning · Big Images · CN/EN Voice</p>
+        <h1>汽车文明图片时间轴</h1>
+        <h2>From Wheel to EV: Learn by Images</h2>
+        <p class="hero-note">
+          先看图，再看条形图。拖动进度条会自动跳到“有内容”的年份，不会卡在空年份。
+        </p>
+      </header>
+
+      <section class="guide panel">
+        <h3>课堂模式 / Class Mode</h3>
+        <div class="guide-grid">
+          <article>
+            <b>图片优先</b>
+            <p>卡片以大图为主，帮助儿童快速建立车型记忆。</p>
+          </article>
+          <article>
+            <b>条形信息</b>
+            <p>销量、产量、政策影响都用 Bar 展示，减少文字负担。</p>
+          </article>
+          <article>
+            <b>时间自动跳转</b>
+            <p>拖动年份时会吸附到下一个有数据的年份，避免“拖半天没变化”。</p>
+          </article>
+          <article>
+            <b>政策解释</b>
+            <p>用关税、补贴、油耗法规解释为什么有些车型卖得多或少。</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="controls panel">
+        <div class="timeline-controls">
+          <label for="nodeSlider">知识点进度条 / Learning Progress</label>
+          <input type="range" id="nodeSlider" min="0" max="0" step="1" value="0" />
+
+          <div class="line-row">
+            <button id="prevNodeBtn" class="action-btn ghost">上一知识点</button>
+            <strong id="yearValue"></strong>
+            <button id="nextNodeBtn" class="action-btn ghost">下一知识点</button>
+          </div>
+
+          <div class="line-row">
+            <span id="nodeValue"></span>
+            <button id="playBtn" class="action-btn">自动播放</button>
+          </div>
+
+          <label for="yearSlider">自由拖动年份（自动吸附）</label>
+          <input type="range" id="yearSlider" step="1" />
+          <span id="snapHint" class="hint"></span>
+
+          <label for="windowSlider">同屏年份范围 / Nearby Year Range</label>
+          <input type="range" id="windowSlider" min="0" max="120" step="1" value="8" />
+          <span id="windowValue" class="hint"></span>
+        </div>
+
+        <div class="filters">
+          <label for="countryFilter">国家 / Country</label>
+          <select id="countryFilter"></select>
+
+          <label for="brandFilter">品牌 / Brand</label>
+          <select id="brandFilter"></select>
+
+          <label for="kindFilter">类型 / Type</label>
+          <select id="kindFilter"></select>
+
+          <label for="searchInput">关键词 / Search</label>
+          <input id="searchInput" type="search" placeholder="例如：Toyota / SUV / 电动车 / 关税" />
+
+          <button id="narrateVisibleBtn" class="action-btn alt">朗读当前卡片（中英）</button>
+        </div>
+
+        <div class="media-actions">
+          <button id="engineBtn" class="action-btn">启动引擎声</button>
+          <button id="fullscreenBtn" class="action-btn">全屏展示</button>
+          <button id="stopVoiceBtn" class="action-btn">停止发音</button>
+          <p class="fine-print">
+            数据来源：维基公开条目与品牌销量榜；部分历史价格/黄金/政策影响为教学估算。
+          </p>
+        </div>
+      </section>
+
+      <section class="stats panel" id="stats"></section>
+
+      <section class="policy panel">
+        <h3>关税与政策风向 / Tariff & Policy Wind</h3>
+        <div id="policyPanel" class="policy-list"></div>
+      </section>
+
+      <section id="timelineList" class="timeline-list" aria-live="polite"></section>
+    </main>
+
+    <script src="data.js?v=20260224a"></script>
+    <script src="brand-models.js?v=20260224b"></script>
+    <script src="app.js?v=20260224a"></script>
+  </body>
+</html>

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>生物演化地球仪时间轴 | Bio Timeline</title>
+  <meta name="description" content="生物演化独立时间轴：支持地球/平面切换、大陆板块漂移快照、恐龙灭绝陨石事件。" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link href="https://unpkg.com/maplibre-gl@5.9.0/dist/maplibre-gl.css" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="bg-orb orb-a"></div>
+  <div class="bg-orb orb-b"></div>
+
+  <main class="shell app">
+    <header class="hero panel">
+      <div>
+        <p class="eyebrow">BIO ONLY · Independent Timeline</p>
+        <h1>生物演化地球仪时间轴</h1>
+        <p class="hero-note">只展示生物演化与灭绝事件。拖动时间轴时，大陆板块快照和生物坐标会变化；支持地球仪与平面世界地图切换。</p>
+      </div>
+      <div class="hero-links">
+        <a href="../earth-timeline/">返回总入口</a>
+        <a href="../auto-policy-timeline/">去汽车与政策线</a>
+        <a href="../animals/">动物课堂</a>
+      </div>
+    </header>
+
+    <section class="panel controls">
+      <div class="control-grid">
+        <div class="control-block">
+          <label for="nodeSlider">时间节点（自动吸附到有数据年份）</label>
+          <input id="nodeSlider" type="range" min="0" max="0" step="1" value="0" />
+          <div class="line-row">
+            <button id="prevBtn" class="btn ghost" type="button">上一节点</button>
+            <strong id="yearValue">--</strong>
+            <button id="nextBtn" class="btn ghost" type="button">下一节点</button>
+          </div>
+          <div class="line-row">
+            <span id="nodeValue" class="muted">--</span>
+            <button id="playBtn" class="btn" type="button">自动播放</button>
+          </div>
+        </div>
+
+        <div class="control-block">
+          <label for="windowSlider">同屏邻近节点</label>
+          <input id="windowSlider" type="range" min="0" max="6" step="1" value="2" />
+          <span id="windowValue" class="muted">--</span>
+          <div class="check-line">
+            <input type="checkbox" id="driftToggle" checked />
+            <span>显示古坐标到现代坐标漂移线</span>
+          </div>
+          <div class="check-line">
+            <input type="checkbox" id="platesToggle" checked />
+            <span>显示大陆板块快照</span>
+          </div>
+        </div>
+
+        <div class="control-block">
+          <label>地图模式</label>
+          <div class="mode-row">
+            <button id="projectionBtn" class="btn" type="button">切换到平面地图</button>
+            <span id="projectionLabel" class="muted">当前：地球仪 Globe</span>
+          </div>
+          <div class="legend-grid" id="legendGrid"></div>
+          <p class="source-note">地图引擎：<a href="https://github.com/maplibre/maplibre-gl-js" target="_blank" rel="noopener">MapLibre GL JS (GitHub)</a></p>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel stats" id="stats"></section>
+
+    <section class="panel map-panel">
+      <div class="map-canvas" id="mapCanvas"></div>
+      <aside class="event-side">
+        <h3>当前节点事件</h3>
+        <div id="eventList" class="event-list"></div>
+      </aside>
+      <div id="meteorFlash" class="meteor-flash" aria-hidden="true">
+        <div class="meteor-card">☄️ 尤卡坦撞击（约 6,600 万年前）触发恐龙时代终结</div>
+      </div>
+    </section>
+  </main>
+
+  <script src="https://unpkg.com/maplibre-gl@5.9.0/dist/maplibre-gl.js"></script>
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

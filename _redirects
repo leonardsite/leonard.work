@@ -1,0 +1,18 @@
+# Kids modules moved under independent kids-education root
+/animals               /kids-education/animals/ 301
+/animals/*             /kids-education/animals/:splat 301
+
+/kids                  /kids-education/kids/ 301
+/kids/*                /kids-education/kids/:splat 301
+
+/kidspedia             /kids-education/kidspedia/ 301
+/kidspedia/*           /kids-education/kidspedia/:splat 301
+
+/earth-timeline        /kids-education/earth-timeline/ 301
+/earth-timeline/*      /kids-education/earth-timeline/:splat 301
+
+/bio-timeline          /kids-education/bio-timeline/ 301
+/bio-timeline/*        /kids-education/bio-timeline/:splat 301
+
+/auto-policy-timeline      /kids-education/auto-policy-timeline/ 301
+/auto-policy-timeline/*    /kids-education/auto-policy-timeline/:splat 301

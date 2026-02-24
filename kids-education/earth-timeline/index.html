@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>地球时间轴总入口 | Timeline Hub</title>
+  <meta name="description" content="总入口：生物演化线与汽车政策线完全分离，均支持地球仪与平面地图切换。" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #06121d;
+      --bg2: #0d2537;
+      --panel: rgba(7, 24, 38, 0.88);
+      --line: rgba(150, 210, 250, 0.24);
+      --text: #ebf7ff;
+      --muted: #a6c9dd;
+      --bio: #35c0a6;
+      --auto: #f4b24b;
+      --policy: #69a8ff;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 12% 18%, rgba(53,192,166,0.22), transparent 35%),
+        radial-gradient(circle at 88% 84%, rgba(244,178,75,0.22), transparent 38%),
+        linear-gradient(150deg, var(--bg), var(--bg2));
+    }
+
+    .shell {
+      width: min(1180px, 94vw);
+      margin: 0 auto;
+      padding: 22px 0 26px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: var(--panel);
+      padding: 16px;
+    }
+
+    .eyebrow {
+      margin: 0;
+      font-size: 12px;
+      color: #94c8eb;
+      letter-spacing: 0.08em;
+    }
+
+    h1 {
+      margin: 4px 0 0;
+      font-family: "Baloo 2", "Noto Sans SC", sans-serif;
+      font-size: clamp(1.8rem, 2.7vw, 2.35rem);
+    }
+
+    .lead {
+      margin: 8px 0 0;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    .top-links {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .top-links a {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 4px 12px;
+      text-decoration: none;
+      color: var(--text);
+      font-size: 13px;
+      background: rgba(255,255,255,0.06);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      text-decoration: none;
+      color: inherit;
+      display: block;
+      overflow: hidden;
+      background: rgba(255,255,255,0.04);
+      transition: transform .18s ease, border-color .18s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(160, 220, 255, 0.52);
+    }
+
+    .media {
+      height: 160px;
+    }
+
+    .media.bio {
+      background: radial-gradient(circle at 22% 28%, rgba(53,192,166,0.45), transparent 45%), linear-gradient(140deg, #0e3b46, #1d6a5e);
+    }
+
+    .media.auto {
+      background: radial-gradient(circle at 72% 28%, rgba(244,178,75,0.45), transparent 45%), linear-gradient(140deg, #2a3047, #4f4562);
+    }
+
+    .body {
+      padding: 12px;
+    }
+
+    .k {
+      color: #9ac8e3;
+      font-size: 12px;
+      letter-spacing: 0.06em;
+    }
+
+    h2 {
+      margin: 6px 0 0;
+      font-size: 1.28rem;
+    }
+
+    .desc {
+      margin: 8px 0 0;
+      color: var(--muted);
+      line-height: 1.65;
+      font-size: 14px;
+    }
+
+    .pills {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .pill {
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      padding: 3px 8px;
+      font-size: 12px;
+      background: rgba(255,255,255,0.07);
+    }
+
+    .pill.bio { border-color: rgba(53,192,166,0.5); color: #caf7ed; }
+    .pill.auto { border-color: rgba(244,178,75,0.5); color: #ffebc7; }
+    .pill.policy { border-color: rgba(105,168,255,0.5); color: #d7e8ff; }
+
+    .note {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.65;
+    }
+
+    .note a { color: #b5ddff; }
+
+    @media (max-width: 860px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <section class="panel">
+      <p class="eyebrow">Timeline Hub · Split Tracks</p>
+      <h1>地球时间轴总入口（已分离）</h1>
+      <p class="lead">按你的要求，生物演化线与汽车政策线完全拆开，不再共享同一条时间轴。两个页面都支持 <b>地球仪 / 平面世界地图</b> 切换。</p>
+      <div class="top-links">
+        <a href="../">返回首页</a>
+        <a href="../kids/">儿童分类</a>
+        <a href="../animals/">动物地球仪</a>
+      </div>
+    </section>
+
+    <section class="grid">
+      <a class="card" href="../bio-timeline/">
+        <div class="media bio"></div>
+        <div class="body">
+          <div class="k">BIO TRACK</div>
+          <h2>生物演化地球仪时间轴</h2>
+          <p class="desc">从寒武纪到现代，含恐龙、昆虫、海洋生物、灭绝事件。增加大陆板块快照与古今坐标漂移线，拖动更直观。</p>
+          <div class="pills">
+            <span class="pill bio">生物独立</span>
+            <span class="pill bio">板块漂移</span>
+            <span class="pill policy">地球/平面切换</span>
+          </div>
+        </div>
+      </a>
+
+      <a class="card" href="../auto-policy-timeline/">
+        <div class="media auto"></div>
+        <div class="body">
+          <div class="k">AUTO + POLICY TRACK</div>
+          <h2>汽车与政策地球仪时间轴</h2>
+          <p class="desc">只展示汽车品牌/车型/市场扩散与关税法规，不混入生物年代。节点自动吸附到有数据年份，避免空拖动。</p>
+          <div class="pills">
+            <span class="pill auto">汽车独立</span>
+            <span class="pill policy">政策法案</span>
+            <span class="pill policy">地球/平面切换</span>
+          </div>
+        </div>
+      </a>
+    </section>
+
+    <section class="panel">
+      <p class="note">地图引擎来自 GitHub：<a href="https://github.com/maplibre/maplibre-gl-js" target="_blank" rel="noopener">MapLibre GL JS</a>。如果你后续要更真实的板块重建（按地质年代连续动画），下一步可以接入 GPlates 输出的多时段 GeoJSON 数据。</p>
+    </section>
+  </main>
+</body>
+</html>

@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kids Category | 儿童分类</title>
+    <meta name="description" content="儿童教育项目分类页：生物演化线与汽车政策线分离，支持地球/平面切换、双语和课堂投屏。">
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        .kids-hero {
+            min-height: 48vh;
+            display: flex;
+            align-items: center;
+            padding-top: 96px;
+            padding-bottom: 24px;
+        }
+
+        .kids-title {
+            text-align: center;
+            max-width: 860px;
+            margin: 0 auto;
+        }
+
+        .kids-title p {
+            color: var(--gray);
+            margin-top: 12px;
+            font-size: 1.08rem;
+        }
+
+        .kids-section {
+            padding-top: 24px;
+            padding-bottom: 90px;
+        }
+
+        .sample-card p {
+            padding: 0 16px 16px;
+            color: var(--gray);
+            font-size: 0.9rem;
+            text-align: center;
+        }
+
+        .nav-menu {
+            gap: 20px;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="bg-canvas"></canvas>
+
+    <nav class="nav">
+        <div class="container nav-inner">
+            <a href="../" class="logo"><span class="logo-ruby">Ruby</span>Media</a>
+            <div class="nav-menu">
+                <a href="../">首页 Home</a>
+                <a href="../earth-timeline/">地球时间轴入口</a>
+                <a href="../bio-timeline/">生物演化线</a>
+                <a href="../auto-policy-timeline/">汽车政策线</a>
+                <a href="../kidspedia/">KidsPedia</a>
+                <a href="auto-civilization/">汽车时间轴</a>
+                <a href="https://wa.me/6582376302" class="nav-cta" target="_blank">Contact</a>
+            </div>
+        </div>
+    </nav>
+
+    <header class="kids-hero">
+        <div class="container kids-title">
+            <span class="badge">Kids Learning Zone</span>
+            <h1>儿童分类</h1>
+            <p>这里汇总适合课堂和家庭投屏的儿童内容。全部项目保持轻量网页风格，手机、平板、电视都可以直接访问。</p>
+        </div>
+    </header>
+
+    <section class="section kids-section">
+        <div class="container">
+            <h2 class="section-title">Kids Projects</h2>
+            <div class="grid-4">
+                <a href="../earth-timeline/" class="sample-card">
+                    <div class="sample-img" style="background: linear-gradient(135deg, #06203b, #128b6f, #f7a53a);"></div>
+                    <span>地球时间轴总入口</span>
+                    <p>生物演化线和汽车政策线已完全分离，从这里分流进入。</p>
+                </a>
+
+                <a href="../bio-timeline/" class="sample-card">
+                    <div class="sample-img" style="background: linear-gradient(135deg, #0e3e4a, #21957f);"></div>
+                    <span>生物演化地球仪时间轴</span>
+                    <p>恐龙、昆虫、海洋生物、灭绝事件独立时间轴，支持地球与平面切换、板块漂移快照。</p>
+                </a>
+
+                <a href="../auto-policy-timeline/" class="sample-card">
+                    <div class="sample-img" style="background: linear-gradient(135deg, #2b3347, #5f4771, #d78a37);"></div>
+                    <span>汽车与政策地球仪时间轴</span>
+                    <p>汽车品牌/车型与政策法规单独时间轴，不混入生物年代，自动吸附有数据节点。</p>
+                </a>
+
+                <a href="../kidspedia/" class="sample-card">
+                    <div class="sample-img" style="background: linear-gradient(135deg, #114a7a, #21a884);"></div>
+                    <span>KidsPedia</span>
+                    <p>12 个儿童百科模块，支持搜索、卡片、时间轴、关系图与地球仪。</p>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container footer-inner">
+            <span class="logo"><span class="logo-ruby">Ruby</span>Media</span>
+            <span>© 2024 RubyMedia</span>
+        </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="../js/main.js"></script>
+</body>
+</html>

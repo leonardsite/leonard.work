@@ -6,6 +6,7 @@
 
 # Docs
 !README.md
+!_redirects
 
 
 # Core matchboard pages
@@ -46,6 +47,8 @@
 !bio-timeline/**
 !auto-policy-timeline/
 !auto-policy-timeline/**
+!kids-education/
+!kids-education/**
 !css/
 !css/**
 !js/
