@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>汽车与政策地球仪时间轴 | Auto & Policy Timeline</title>
+  <meta name="description" content="汽车文明与政策法案独立时间轴：支持地球/平面切换，显示品牌发布、市场扩散与关税法规事件。" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link href="https://unpkg.com/maplibre-gl@5.9.0/dist/maplibre-gl.css" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="bg-orb orb-a"></div>
+  <div class="bg-orb orb-b"></div>
+
+  <main class="shell app">
+    <header class="hero panel">
+      <div>
+        <p class="eyebrow">AUTO + POLICY ONLY · Independent Timeline</p>
+        <h1>汽车与政策地球仪时间轴</h1>
+        <p class="hero-note">这一页只展示人类汽车发展与政策法案，不混入生物时间轴。支持地球仪/平面切换，点年份自动吸附到有数据节点。</p>
+      </div>
+      <div class="hero-links">
+        <a href="../earth-timeline/">返回总入口</a>
+        <a href="../bio-timeline/">去生物演化线</a>
+        <a href="../kids/auto-civilization/">经典汽车课堂版</a>
+      </div>
+    </header>
+
+    <section class="panel controls">
+      <div class="control-grid">
+        <div class="control-block">
+          <label for="nodeSlider">时间节点（只停在有事件年份）</label>
+          <input id="nodeSlider" type="range" min="0" max="0" step="1" value="0" />
+          <div class="line-row">
+            <button id="prevBtn" class="btn ghost" type="button">上一节点</button>
+            <strong id="yearValue">--</strong>
+            <button id="nextBtn" class="btn ghost" type="button">下一节点</button>
+          </div>
+          <div class="line-row">
+            <span id="nodeValue" class="muted">--</span>
+            <button id="playBtn" class="btn" type="button">自动播放</button>
+          </div>
+        </div>
+
+        <div class="control-block">
+          <label for="windowSlider">同屏邻近节点</label>
+          <input id="windowSlider" type="range" min="0" max="8" step="1" value="3" />
+          <span id="windowValue" class="muted">--</span>
+          <div class="check-line">
+            <input type="checkbox" id="showAuto" checked />
+            <span>显示汽车事件</span>
+          </div>
+          <div class="check-line">
+            <input type="checkbox" id="showPolicy" checked />
+            <span>显示政策法案</span>
+          </div>
+        </div>
+
+        <div class="control-block">
+          <label>地图模式</label>
+          <div class="mode-row">
+            <button id="projectionBtn" class="btn" type="button">切换到平面地图</button>
+            <span id="projectionLabel" class="muted">当前：地球仪 Globe</span>
+          </div>
+          <div class="legend-grid" id="legendGrid"></div>
+          <p class="source-note">地图引擎：<a href="https://github.com/maplibre/maplibre-gl-js" target="_blank" rel="noopener">MapLibre GL JS (GitHub)</a></p>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel stats" id="stats"></section>
+
+    <section class="panel map-panel">
+      <div class="map-canvas" id="mapCanvas"></div>
+      <aside class="event-side">
+        <h3>当前节点事件</h3>
+        <div id="eventList" class="event-list"></div>
+      </aside>
+    </section>
+  </main>
+
+  <script src="https://unpkg.com/maplibre-gl@5.9.0/dist/maplibre-gl.js"></script>
+  <script src="../kids/auto-civilization/data.js"></script>
+  <script src="../kids/auto-civilization/brand-models.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

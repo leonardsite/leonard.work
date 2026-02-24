@@ -42,6 +42,10 @@
 !kidspedia/**
 !earth-timeline/
 !earth-timeline/**
+!bio-timeline/
+!bio-timeline/**
+!auto-policy-timeline/
+!auto-policy-timeline/**
 !css/
 !css/**
 !js/
