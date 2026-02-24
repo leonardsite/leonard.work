@@ -29,6 +29,10 @@
 !nexus-jd.html
 !nexus-skills.html
 
+# Animal Globe interactive app
+!animal-globe/
+!animal-globe/**
+
 # SG Property Map
 !property-map.html
 !assets/
