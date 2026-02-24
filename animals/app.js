@@ -126,6 +126,10 @@
         animalMap: new Map(),
         filtered: [],
         foodEdges: [],
+        allFoodEdges: [],
+        foodFocusId: null,
+        detailAnimalId: null,
+        lastNonDetailView: "cards",
         query: "",
         filters: {
             group: "all",
@@ -146,8 +150,12 @@
         globeResizeObserver: null,
         audioCtx: null,
         noiseBuffer: null,
-        speechAudio: null
+        speechAudio: null,
+        isRoutingByHash: false
     };
+
+    const ROUTABLE_VIEWS = new Set(["cards", "list", "food", "globe"]);
+    const ALL_VIEWS = new Set([...ROUTABLE_VIEWS, "detail"]);
 
     function parseCatalog(raw) {
         const lines = raw.trim().split("\n");
@@ -313,6 +321,9 @@
 
         next.sort((a, b) => b.score - a.score || a.animal.zh.localeCompare(b.animal.zh, "zh-CN"));
         state.filtered = next.map((x) => x.animal);
+        if (!state.filtered.some((x) => x.id === state.foodFocusId)) {
+            state.foodFocusId = state.filtered.length ? state.filtered[0].id : null;
+        }
 
         updateCountChip();
         renderCards();
@@ -335,7 +346,7 @@
             const emoji = GROUP_ICON[animal.group] || "🐾";
 
             return `
-            <article class="animal-card" data-id="${escapeHtml(animal.id)}">
+            <article class="animal-card" data-id="${escapeHtml(animal.id)}" data-open-animal="${escapeHtml(animal.id)}">
                 <div class="card-media">
                     <img data-image-id="${escapeHtml(animal.id)}" alt="${escapeHtml(animal.en)} photo" loading="lazy">
                     <div class="img-fallback" data-fallback-id="${escapeHtml(animal.id)}">${emoji}</div>
@@ -351,6 +362,7 @@
                         <span class="badge ${levelClass}">${escapeHtml(LEVEL_LABEL[animal.level] || animal.level)}</span>
                     </div>
                     <p class="meta">${escapeHtml(animal.region)} · ${escapeHtml(formatHabitats(animal))}</p>
+                    <p class="meta">点击卡片可进入详情页（双向链接）</p>
                     <div class="card-actions">
                         <button class="action-btn" data-action="speak-zh" data-id="${escapeHtml(animal.id)}">中文</button>
                         <button class="action-btn" data-action="speak-en" data-id="${escapeHtml(animal.id)}">English</button>
@@ -375,7 +387,7 @@
         body.innerHTML = state.filtered.map((animal) => {
             const emoji = GROUP_ICON[animal.group] || "🐾";
             return `
-            <tr data-id="${escapeHtml(animal.id)}">
+            <tr data-id="${escapeHtml(animal.id)}" data-open-animal="${escapeHtml(animal.id)}" class="list-row-clickable">
                 <td>
                     <div class="list-animal">
                         <div class="list-thumb-wrap">
@@ -956,17 +968,57 @@
         }).join("");
     }
 
-    function describeAnimalInFood(animal) {
-        const predators = state.foodEdges.filter((e) => e.to === animal.id).map((e) => state.animalMap.get(e.from)).filter(Boolean);
-        const prey = state.foodEdges.filter((e) => e.from === animal.id).map((e) => state.animalMap.get(e.to)).filter(Boolean);
+    function foodAnimalCardHtml(animal, relationLabel) {
+        const emoji = GROUP_ICON[animal.group] || "🐾";
+        return `
+            <article class="food-animal-card" data-open-animal="${escapeHtml(animal.id)}">
+                <div class="food-animal-media">
+                    <img data-image-id="${escapeHtml(animal.id)}" alt="${escapeHtml(animal.en)} photo" loading="lazy">
+                    <div class="food-animal-fallback" data-fallback-id="${escapeHtml(animal.id)}">${emoji}</div>
+                </div>
+                <div class="food-animal-body">
+                    <strong>${escapeHtml(animal.zh)}</strong>
+                    <p>${escapeHtml(animal.en)}</p>
+                    <span class="food-animal-chip">${escapeHtml(relationLabel)}</span>
+                    <button class="food-mini-btn" type="button" data-food-id="${escapeHtml(animal.id)}">看关系图</button>
+                </div>
+            </article>
+        `;
+    }
+
+    function describeAnimalInFood(animal, predatorsArg, preyArg) {
+        const predators = Array.isArray(predatorsArg)
+            ? predatorsArg
+            : state.foodEdges.filter((e) => e.to === animal.id).map((e) => state.animalMap.get(e.from)).filter(Boolean);
+        const prey = Array.isArray(preyArg)
+            ? preyArg
+            : state.foodEdges.filter((e) => e.from === animal.id).map((e) => state.animalMap.get(e.to)).filter(Boolean);
 
         const preyText = prey.length ? prey.slice(0, 8).map((x) => x.zh).join("、") : "暂无明显捕食对象";
         const predatorText = predators.length ? predators.slice(0, 8).map((x) => x.zh).join("、") : "几乎没有天敌或当前筛选中未显示";
 
         const side = document.getElementById("food-side");
+        const pressure = predators.length ? Math.min(100, predators.length * 22) : 5;
+        const hunting = prey.length ? Math.min(100, prey.length * 20) : 8;
+        const habitat = Math.min(100, animal.habitats.length * 24);
+
         side.innerHTML = `
             <h3>${escapeHtml(animal.zh)} · ${escapeHtml(animal.en)}</h3>
             <p>${escapeHtml(GROUP_LABEL[animal.group])} / ${escapeHtml(DIET_LABEL[animal.diet])} / ${escapeHtml(LEVEL_LABEL[animal.level])}</p>
+            <div class="food-bars">
+                <div class="food-bar-row">
+                    <span>捕食能力</span>
+                    <div class="food-bar-track"><i style="width:${hunting}%"></i></div>
+                </div>
+                <div class="food-bar-row">
+                    <span>生存压力</span>
+                    <div class="food-bar-track"><i style="width:${pressure}%"></i></div>
+                </div>
+                <div class="food-bar-row">
+                    <span>栖息适应</span>
+                    <div class="food-bar-track"><i style="width:${habitat}%"></i></div>
+                </div>
+            </div>
             <p>它会吃：<strong>${escapeHtml(preyText)}</strong></p>
             <p>可能被：<strong>${escapeHtml(predatorText)}</strong> 捕食</p>
             <p>分布：${escapeHtml(animal.region)}（${escapeHtml(formatHabitats(animal))}）</p>
@@ -981,77 +1033,282 @@
 
         if (!state.filtered.length) {
             canvas.innerHTML = "<p style='padding:12px'>没有匹配结果。</p>";
+            const side = document.getElementById("food-side");
+            side.innerHTML = `<h3>食物链图片版</h3><p>当前筛选没有可展示的动物。</p><div class="legend" id="food-legend"></div>`;
+            renderFoodLegend();
             return;
         }
 
-        const rows = FOOD_ROWS.map((row) => {
-            const nodes = state.filtered
-                .filter((animal) => row.levels.includes(animal.level))
-                .sort((a, b) => b.size - a.size || a.zh.localeCompare(b.zh, "zh-CN"));
-            return { ...row, nodes };
-        });
+        state.foodEdges = buildFoodEdges(state.filtered);
+        const focus = state.animalMap.get(state.foodFocusId) || state.filtered[0];
+        state.foodFocusId = focus.id;
 
-        const maxInRow = Math.max(...rows.map((x) => x.nodes.length), 1);
-        const minWidth = canvas.clientWidth > 0 ? canvas.clientWidth : 820;
-        const width = Math.max(minWidth - 20, maxInRow * 145 + 140);
-        const rowGap = 165;
-        const topPad = 70;
-        const leftPad = 80;
-        const rightPad = 60;
-        const height = topPad + rows.length * rowGap + 70;
+        const predators = state.foodEdges
+            .filter((e) => e.to === focus.id)
+            .map((e) => state.animalMap.get(e.from))
+            .filter((x) => x && state.filtered.some((y) => y.id === x.id))
+            .slice(0, 10);
 
-        const nodePos = new Map();
-        const rowLabelHtml = [];
+        const prey = state.foodEdges
+            .filter((e) => e.from === focus.id)
+            .map((e) => state.animalMap.get(e.to))
+            .filter((x) => x && state.filtered.some((y) => y.id === x.id))
+            .slice(0, 12);
 
-        rows.forEach((row, rowIndex) => {
-            const y = topPad + rowIndex * rowGap;
-            const nodes = row.nodes;
-            const usable = width - leftPad - rightPad;
+        const neighbors = state.filtered
+            .filter((x) => x.id !== focus.id && x.habitats.some((h) => focus.habitats.includes(h)))
+            .sort((a, b) => b.size - a.size)
+            .slice(0, 8);
 
-            rowLabelHtml.push(`<div class="food-row-label" style="top:${Math.round(y - 44)}px">${escapeHtml(row.label)}</div>`);
-
-            if (!nodes.length) return;
-
-            nodes.forEach((animal, idx) => {
-                const x = leftPad + ((idx + 1) / (nodes.length + 1)) * usable;
-                nodePos.set(animal.id, { x, y, animal });
-            });
-        });
-
-        state.foodEdges = buildFoodEdges(state.filtered).filter((edge) => nodePos.has(edge.from) && nodePos.has(edge.to));
-
-        const lines = state.foodEdges.map((edge) => {
-            const from = nodePos.get(edge.from);
-            const to = nodePos.get(edge.to);
-            return `<line x1="${Math.round(from.x)}" y1="${Math.round(from.y + 16)}" x2="${Math.round(to.x)}" y2="${Math.round(to.y - 16)}" marker-end="url(#food-arrow)" />`;
-        }).join("");
-
-        const nodesHtml = [...nodePos.values()].map(({ x, y, animal }) => {
-            const color = LEVEL_COLOR[animal.level] || "#6eb6e8";
-            return `
-                <button class="food-node" data-food-id="${escapeHtml(animal.id)}" style="left:${Math.round(x)}px; top:${Math.round(y)}px; border-color:${color}">
-                    <span>${escapeHtml(animal.zh)}</span>
-                    <small>${escapeHtml(animal.en)}</small>
-                </button>
-            `;
-        }).join("");
-
+        const focusEmoji = GROUP_ICON[focus.group] || "🐾";
         canvas.innerHTML = `
-            <div class="food-map" style="width:${Math.round(width)}px; height:${Math.round(height)}px;">
-                <svg class="food-svg" viewBox="0 0 ${Math.round(width)} ${Math.round(height)}" preserveAspectRatio="none" aria-hidden="true">
-                    <defs>
-                        <marker id="food-arrow" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto" markerUnits="strokeWidth">
-                            <path d="M0,0 L0,6 L7,3 z" fill="rgba(210,233,252,0.75)"></path>
-                        </marker>
-                    </defs>
-                    ${lines}
-                </svg>
-                ${rowLabelHtml.join("")}
-                ${nodesHtml}
+            <div class="food-gallery">
+                <section class="food-focus-card">
+                    <div class="food-focus-media">
+                        <img data-image-id="${escapeHtml(focus.id)}" alt="${escapeHtml(focus.en)} photo" loading="lazy">
+                        <div class="food-animal-fallback food-focus-fallback" data-fallback-id="${escapeHtml(focus.id)}">${focusEmoji}</div>
+                    </div>
+                    <div class="food-focus-body">
+                        <h3>${escapeHtml(focus.zh)} <small>${escapeHtml(focus.en)}</small></h3>
+                        <p>${escapeHtml(GROUP_LABEL[focus.group])} · ${escapeHtml(DIET_LABEL[focus.diet])} · ${escapeHtml(LEVEL_LABEL[focus.level])}</p>
+                        <p>${escapeHtml(focus.region)} · ${escapeHtml(formatHabitats(focus))}</p>
+                        <div class="food-focus-actions">
+                            <button class="food-mini-btn" type="button" data-open-animal="${escapeHtml(focus.id)}">打开详情页</button>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="food-group">
+                    <h4>它的天敌（谁可能吃它）</h4>
+                    <div class="food-card-grid">
+                        ${predators.length ? predators.map((x) => foodAnimalCardHtml(x, "天敌")).join("") : '<div class="food-empty">当前筛选下暂无明显天敌</div>'}
+                    </div>
+                </section>
+
+                <section class="food-group">
+                    <h4>它的猎物（它可能吃谁）</h4>
+                    <div class="food-card-grid">
+                        ${prey.length ? prey.map((x) => foodAnimalCardHtml(x, "猎物")).join("") : '<div class="food-empty">当前筛选下暂无明显猎物</div>'}
+                    </div>
+                </section>
+
+                <section class="food-group">
+                    <h4>同生态位邻居（共享栖息地）</h4>
+                    <div class="food-card-grid">
+                        ${neighbors.length ? neighbors.map((x) => foodAnimalCardHtml(x, "邻居")).join("") : '<div class="food-empty">当前筛选下暂无同生态位邻居</div>'}
+                    </div>
+                </section>
             </div>
         `;
 
+        observeLazyImages();
+        describeAnimalInFood(focus, predators, prey);
         renderFoodLegend();
+    }
+
+    function uniqueAnimals(items) {
+        const seen = new Set();
+        return items.filter((animal) => {
+            if (!animal || seen.has(animal.id)) return false;
+            seen.add(animal.id);
+            return true;
+        });
+    }
+
+    function getAnimalPredators(animalId) {
+        return uniqueAnimals(
+            state.allFoodEdges
+                .filter((edge) => edge.to === animalId)
+                .map((edge) => state.animalMap.get(edge.from))
+        );
+    }
+
+    function getAnimalPrey(animalId) {
+        return uniqueAnimals(
+            state.allFoodEdges
+                .filter((edge) => edge.from === animalId)
+                .map((edge) => state.animalMap.get(edge.to))
+        );
+    }
+
+    function getAnimalHabitatPeers(animal, limit = 12) {
+        return state.animals
+            .filter((candidate) => candidate.id !== animal.id)
+            .map((candidate) => {
+                const overlap = overlapCount(animal.habitats, candidate.habitats);
+                if (!overlap) return null;
+                const score = overlap * 3 + Math.max(0, 3 - Math.abs(animal.size - candidate.size));
+                return { animal: candidate, score };
+            })
+            .filter(Boolean)
+            .sort((a, b) => b.score - a.score || b.animal.size - a.animal.size)
+            .slice(0, limit)
+            .map((item) => item.animal);
+    }
+
+    function obsidianAnimalLinksHtml(animals, emptyText) {
+        if (!animals.length) {
+            return `<span class="wiki-empty">${escapeHtml(emptyText)}</span>`;
+        }
+
+        return animals.map((animal) => (
+            `<button type="button" class="wiki-link" data-open-animal="${escapeHtml(animal.id)}" title="${escapeHtml(animal.en)}">[[${escapeHtml(animal.zh)}]]</button>`
+        )).join("");
+    }
+
+    function habitatTagLinksHtml(habitats) {
+        if (!habitats.length) return `<span class="wiki-empty">暂无栖息地数据</span>`;
+
+        return habitats.map((habitat) => (
+            `<button type="button" class="wiki-link wiki-tag" data-open-habitat="${escapeHtml(habitat)}">#${escapeHtml(HABITAT_LABEL[habitat] || habitat)}</button>`
+        )).join("");
+    }
+
+    function renderAnimalDetail(animalId) {
+        const container = document.getElementById("detail-body");
+        if (!container) return;
+
+        const animal = state.animalMap.get(animalId);
+        if (!animal) {
+            container.innerHTML = "<p>未找到该动物信息。</p>";
+            return;
+        }
+
+        state.detailAnimalId = animal.id;
+
+        const predators = getAnimalPredators(animal.id).slice(0, 16);
+        const prey = getAnimalPrey(animal.id).slice(0, 16);
+        const peers = getAnimalHabitatPeers(animal, 16);
+
+        const pressure = predators.length ? Math.min(100, predators.length * 16) : 4;
+        const hunting = prey.length ? Math.min(100, prey.length * 14) : 6;
+        const habitat = Math.min(100, Math.max(8, animal.habitats.length * 26));
+        const emoji = GROUP_ICON[animal.group] || "🐾";
+
+        container.innerHTML = `
+            <article class="detail-card">
+                <header class="detail-header">
+                    <div class="detail-media">
+                        <img data-image-id="${escapeHtml(animal.id)}" alt="${escapeHtml(animal.en)} photo" loading="lazy">
+                        <div class="food-animal-fallback detail-fallback" data-fallback-id="${escapeHtml(animal.id)}">${emoji}</div>
+                    </div>
+                    <div class="detail-summary">
+                        <h2>${escapeHtml(animal.zh)} <small>${escapeHtml(animal.en)}</small></h2>
+                        <p>${escapeHtml(GROUP_LABEL[animal.group])} · ${escapeHtml(DIET_LABEL[animal.diet])} · ${escapeHtml(LEVEL_LABEL[animal.level])}</p>
+                        <p>地区：${escapeHtml(animal.region)}</p>
+                        <div class="detail-actions">
+                            <button class="action-btn" data-action="speak-zh" data-id="${escapeHtml(animal.id)}">中文发音</button>
+                            <button class="action-btn" data-action="speak-en" data-id="${escapeHtml(animal.id)}">English</button>
+                            <button class="action-btn" data-action="speak-call" data-id="${escapeHtml(animal.id)}">叫声</button>
+                            <button class="action-btn" data-action="locate" data-id="${escapeHtml(animal.id)}">地球定位</button>
+                            <button class="food-mini-btn" type="button" data-food-id="${escapeHtml(animal.id)}">在食物链中查看</button>
+                        </div>
+                        <div class="food-bars detail-bars">
+                            <div class="food-bar-row">
+                                <span>捕食能力</span>
+                                <div class="food-bar-track"><i style="width:${hunting}%"></i></div>
+                            </div>
+                            <div class="food-bar-row">
+                                <span>生存压力</span>
+                                <div class="food-bar-track"><i style="width:${pressure}%"></i></div>
+                            </div>
+                            <div class="food-bar-row">
+                                <span>栖息适应</span>
+                                <div class="food-bar-track"><i style="width:${habitat}%"></i></div>
+                            </div>
+                        </div>
+                    </div>
+                </header>
+
+                <section class="detail-section">
+                    <h3>栖息地标签</h3>
+                    <div class="wiki-links">${habitatTagLinksHtml(animal.habitats)}</div>
+                </section>
+
+                <section class="detail-section">
+                    <h3>它会捕食谁（出链）</h3>
+                    <div class="wiki-links">${obsidianAnimalLinksHtml(prey, "当前暂无明显猎物")}</div>
+                </section>
+
+                <section class="detail-section">
+                    <h3>谁会捕食它（反向链接）</h3>
+                    <div class="wiki-links">${obsidianAnimalLinksHtml(predators, "当前暂无明显天敌")}</div>
+                </section>
+
+                <section class="detail-section">
+                    <h3>同栖息地邻居（双向关联）</h3>
+                    <div class="wiki-links">${obsidianAnimalLinksHtml(peers, "当前暂无共享栖息地邻居")}</div>
+                </section>
+            </article>
+        `;
+
+        observeLazyImages();
+    }
+
+    function openAnimalDetail(animalId, options = {}) {
+        const animal = state.animalMap.get(animalId);
+        if (!animal) return;
+
+        if (state.activeView !== "detail" && ROUTABLE_VIEWS.has(state.activeView)) {
+            state.lastNonDetailView = state.activeView;
+        }
+        if (options.preferredView && ROUTABLE_VIEWS.has(options.preferredView)) {
+            state.lastNonDetailView = options.preferredView;
+        }
+
+        renderAnimalDetail(animal.id);
+        setView("detail", { syncHash: false });
+
+        if (options.syncHash !== false) {
+            syncHashRoute(`animal/${encodeURIComponent(animal.id)}`);
+        }
+    }
+
+    function backFromDetail() {
+        const target = ROUTABLE_VIEWS.has(state.lastNonDetailView) ? state.lastNonDetailView : "cards";
+        setView(target);
+    }
+
+    function syncHashRoute(route) {
+        const nextHash = `#${route}`;
+        if (window.location.hash === nextHash) return;
+        state.isRoutingByHash = true;
+        window.location.hash = nextHash;
+        setTimeout(() => {
+            state.isRoutingByHash = false;
+        }, 120);
+    }
+
+    function parseHashRoute() {
+        const raw = (window.location.hash || "").replace(/^#/, "").trim();
+        if (!raw) return null;
+
+        if (raw.startsWith("animal/")) {
+            return { type: "animal", value: decodeURIComponent(raw.slice("animal/".length)) };
+        }
+        if (raw.startsWith("view/")) {
+            return { type: "view", value: decodeURIComponent(raw.slice("view/".length)) };
+        }
+        return null;
+    }
+
+    function applyHashRoute() {
+        if (state.isRoutingByHash) {
+            state.isRoutingByHash = false;
+            return;
+        }
+
+        const route = parseHashRoute();
+        if (!route) return;
+
+        if (route.type === "animal") {
+            openAnimalDetail(route.value, { syncHash: false });
+            return;
+        }
+
+        if (route.type === "view" && ROUTABLE_VIEWS.has(route.value)) {
+            setView(route.value, { syncHash: false });
+        }
     }
 
     function setGlobeRotate(on) {
@@ -1305,30 +1562,44 @@
         state.globe.pointOfView(state.globePov, 700);
     }
 
-    function setView(view) {
-        state.activeView = view;
+    function setView(view, options = {}) {
+        let nextView = view;
+        if (!ALL_VIEWS.has(nextView)) nextView = "cards";
+
+        state.activeView = nextView;
+        if (ROUTABLE_VIEWS.has(nextView)) {
+            state.lastNonDetailView = nextView;
+        }
 
         document.querySelectorAll(".view-btn").forEach((btn) => {
-            btn.classList.toggle("active", btn.dataset.view === view);
+            btn.classList.toggle("active", btn.dataset.view === nextView);
         });
 
         document.querySelectorAll(".view").forEach((panel) => {
             panel.classList.remove("active");
         });
 
-        const panel = document.getElementById(`${view}-view`);
+        const panel = document.getElementById(`${nextView}-view`);
         if (panel) panel.classList.add("active");
 
-        if (view === "food") {
+        if (nextView === "food") {
             renderFoodWeb();
         }
 
-        if (view === "globe") {
+        if (nextView === "globe") {
             if (!state.globe) initGlobe();
             else {
                 resizeGlobeIfNeeded();
                 updateGlobePoints();
             }
+        }
+
+        if (nextView === "detail" && state.detailAnimalId) {
+            renderAnimalDetail(state.detailAnimalId);
+        }
+
+        if (options.syncHash !== false && ROUTABLE_VIEWS.has(nextView)) {
+            syncHashRoute(`view/${nextView}`);
         }
     }
 
@@ -1424,10 +1695,44 @@
                 }
             }
 
+            const detailControl = event.target.closest("[data-detail-action]");
+            if (detailControl) {
+                if (detailControl.dataset.detailAction === "back") {
+                    backFromDetail();
+                }
+                return;
+            }
+
             const foodNode = event.target.closest("[data-food-id]");
             if (foodNode) {
                 const animal = state.animalMap.get(foodNode.dataset.foodId || "");
-                if (animal) describeAnimalInFood(animal);
+                if (animal) {
+                    state.foodFocusId = animal.id;
+                    if (state.activeView !== "food") {
+                        setView("food");
+                    } else {
+                        renderFoodWeb();
+                    }
+                }
+                return;
+            }
+
+            const openAnimal = event.target.closest("[data-open-animal]");
+            if (openAnimal) {
+                const animalId = openAnimal.dataset.openAnimal || "";
+                openAnimalDetail(animalId);
+                return;
+            }
+
+            const habitatNode = event.target.closest("[data-open-habitat]");
+            if (habitatNode) {
+                const habitat = habitatNode.dataset.openHabitat || "";
+                if (!habitat) return;
+                state.filters.habitat = habitat;
+                document.getElementById("habitat-filter").value = habitat;
+                filterAnimals();
+                setView("cards");
+                showToast(`已筛选栖息地：${HABITAT_LABEL[habitat] || habitat}`);
                 return;
             }
 
@@ -1449,11 +1754,14 @@
                 resizeGlobeIfNeeded();
             }
         });
+
+        window.addEventListener("hashchange", applyHashRoute);
     }
 
     function init() {
         state.animals = parseCatalog(window.ANIMAL_CATALOG_RAW || "");
         state.animals.forEach((animal) => state.animalMap.set(animal.id, animal));
+        state.allFoodEdges = buildFoodEdges(state.animals);
 
         initImageCache();
         setupImageObserver();
@@ -1468,6 +1776,11 @@
 
         filterAnimals();
         renderFoodLegend();
+        if (window.location.hash) {
+            applyHashRoute();
+        } else {
+            syncHashRoute("view/cards");
+        }
         showToast("已加载 100 种动物");
     }
 

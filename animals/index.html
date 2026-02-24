@@ -18,7 +18,7 @@
         <div class="hero-content">
             <p class="eyebrow">Parent + Kid Learning</p>
             <h1>动物发音学习站</h1>
-            <p class="hero-desc">100 种动物，支持中文/英文 TTS 发音、动物叫声模拟、语义搜索、食物链脑图、3D 地球仪分布。</p>
+            <p class="hero-desc">100 种动物，支持中文/英文 TTS 发音、动物叫声模拟、语义搜索、食物链图片关系、3D 地球仪分布。</p>
             <div class="hero-actions">
                 <a class="chip-link" href="/">返回主站</a>
                 <span class="chip-link muted" id="count-chip">加载中...</span>
@@ -31,7 +31,7 @@
             <div class="view-switch" role="tablist" aria-label="视图切换">
                 <button class="view-btn active" data-view="cards" role="tab">卡片</button>
                 <button class="view-btn" data-view="list" role="tab">列表</button>
-                <button class="view-btn" data-view="food" role="tab">食物链脑图</button>
+                <button class="view-btn" data-view="food" role="tab">食物链图片版</button>
                 <button class="view-btn" data-view="globe" role="tab">3D地球仪</button>
             </div>
 
@@ -96,8 +96,8 @@
                 <div class="food-layout">
                     <div class="food-canvas" id="food-canvas"></div>
                     <aside class="food-side" id="food-side">
-                        <h3>食物链脑图说明</h3>
-                        <p>箭头方向为「谁吃谁」：从捕食者指向被捕食者。</p>
+                        <h3>食物链图片关系</h3>
+                        <p>以图片卡片展示「天敌 / 猎物 / 同生态位邻居」，更适合儿童课堂理解。</p>
                         <div class="legend" id="food-legend"></div>
                     </aside>
                 </div>
@@ -117,6 +117,18 @@
                         </div>
                         <div id="globe-detail" class="globe-detail">等待选择...</div>
                     </aside>
+                </div>
+            </div>
+
+            <div class="view detail-view" id="detail-view">
+                <div class="detail-layout">
+                    <div class="detail-topbar">
+                        <button class="action-btn" data-detail-action="back" type="button">返回上一视图</button>
+                        <span class="detail-tip">可点击 `[[双向链接]]` 跳转到其他动物</span>
+                    </div>
+                    <div id="detail-body" class="detail-body">
+                        <p>选择一个动物后，这里会显示详情。</p>
+                    </div>
                 </div>
             </div>
         </section>

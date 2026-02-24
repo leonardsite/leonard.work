@@ -261,6 +261,16 @@ select:focus {
     flex-direction: column;
 }
 
+.animal-card[data-open-animal] {
+    cursor: pointer;
+    transition: transform 0.18s ease, border-color 0.18s ease;
+}
+
+.animal-card[data-open-animal]:hover {
+    transform: translateY(-2px);
+    border-color: rgba(126, 208, 255, 0.5);
+}
+
 .card-media {
     height: 146px;
     background: linear-gradient(140deg, #1d3d5b, #1c755f);
@@ -381,6 +391,15 @@ tbody td {
     font-size: 14px;
 }
 
+.list-row-clickable {
+    cursor: pointer;
+    transition: background 0.18s ease;
+}
+
+.list-row-clickable:hover {
+    background: rgba(126, 208, 255, 0.08);
+}
+
 .table-name {
     font-weight: 600;
 }
@@ -448,6 +467,10 @@ tbody td {
 
 .food-canvas {
     overflow: auto;
+    height: auto;
+    min-height: 440px;
+    max-height: 700px;
+    padding: 4px;
 }
 
 .globe-canvas {
@@ -546,61 +569,187 @@ tbody td {
     border-radius: 50%;
 }
 
-.food-map {
-    position: relative;
+.food-gallery {
+    display: grid;
+    gap: 12px;
 }
 
-.food-svg {
-    position: absolute;
-    inset: 0;
+.food-focus-card {
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: rgba(7, 24, 38, 0.9);
+    display: grid;
+    grid-template-columns: 170px 1fr;
+    gap: 12px;
+    padding: 12px;
+}
+
+.food-focus-media {
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+    min-height: 130px;
+    background: linear-gradient(140deg, #1d3d5b, #1c755f);
+}
+
+.food-focus-media img {
     width: 100%;
     height: 100%;
+    object-fit: cover;
 }
 
-.food-svg line {
-    stroke: rgba(210, 233, 252, 0.48);
-    stroke-width: 1.5;
+.food-focus-body h3 {
+    margin: 0;
+    font-size: 1.18rem;
 }
 
-.food-row-label {
-    position: absolute;
-    left: 14px;
-    font-size: 12px;
-    color: #a7c4da;
-    letter-spacing: 0.02em;
-}
-
-.food-node {
-    position: absolute;
-    transform: translate(-50%, -50%);
-    min-width: 106px;
-    max-width: 124px;
-    border-radius: 12px;
-    border: 1px solid var(--line);
-    background: rgba(10, 28, 44, 0.92);
-    color: var(--text);
-    font-size: 13px;
-    line-height: 1.2;
-    cursor: pointer;
-    padding: 8px 8px 7px;
-    text-align: center;
-    box-shadow: 0 6px 14px rgba(3, 9, 17, 0.34);
-}
-
-.food-node span {
-    display: block;
-    font-weight: 600;
-}
-
-.food-node small {
-    display: block;
+.food-focus-body h3 small {
     color: var(--muted);
-    margin-top: 3px;
-    font-size: 11px;
+    font-size: 0.88rem;
+    font-weight: 500;
 }
 
-.food-node:hover {
-    transform: translate(-50%, -52%);
+.food-focus-body p {
+    margin: 8px 0 0;
+}
+
+.food-focus-actions {
+    margin-top: 10px;
+}
+
+.food-group {
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: rgba(7, 24, 38, 0.9);
+    padding: 10px;
+}
+
+.food-group h4 {
+    margin: 0 0 8px;
+    font-size: 0.98rem;
+    color: #d6e9fa;
+}
+
+.food-card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+    gap: 8px;
+}
+
+.food-animal-card {
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.03);
+    color: var(--text);
+    cursor: pointer;
+    padding: 0;
+    text-align: left;
+    overflow: hidden;
+}
+
+.food-animal-card:hover {
+    border-color: rgba(126, 208, 255, 0.55);
+}
+
+.food-animal-media {
+    position: relative;
+    height: 92px;
+    background: linear-gradient(140deg, #1d3d5b, #1c755f);
+}
+
+.food-animal-media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.food-animal-fallback {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    font-size: 1.7rem;
+}
+
+.food-focus-fallback {
+    font-size: 2.2rem;
+}
+
+.food-animal-body {
+    padding: 8px;
+}
+
+.food-animal-body strong {
+    display: block;
+    font-size: 0.94rem;
+    line-height: 1.2;
+}
+
+.food-animal-body p {
+    margin: 2px 0 0;
+    color: var(--muted);
+    font-size: 0.78rem;
+}
+
+.food-animal-chip {
+    display: inline-block;
+    margin-top: 6px;
+    border: 1px solid rgba(126, 208, 255, 0.42);
+    border-radius: 999px;
+    padding: 2px 7px;
+    font-size: 0.72rem;
+    color: #d6efff;
+}
+
+.food-mini-btn {
+    margin-top: 8px;
+    display: inline-block;
+    border: 1px solid rgba(126, 208, 255, 0.46);
+    border-radius: 9px;
+    background: rgba(126, 208, 255, 0.11);
+    color: #d6efff;
+    padding: 4px 8px;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.food-mini-btn:hover {
+    background: rgba(126, 208, 255, 0.2);
+}
+
+.food-empty {
+    color: var(--muted);
+    font-size: 0.88rem;
+    padding: 6px 2px;
+}
+
+.food-bars {
+    margin: 10px 0 8px;
+    display: grid;
+    gap: 6px;
+}
+
+.food-bar-row {
+    display: grid;
+    grid-template-columns: 56px 1fr;
+    gap: 8px;
+    align-items: center;
+    font-size: 0.76rem;
+    color: #d6e9fa;
+}
+
+.food-bar-track {
+    height: 8px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.1);
+    overflow: hidden;
+}
+
+.food-bar-track i {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, #2ac7b8, #7ed0ff);
 }
 
 .globe-controls {
@@ -661,6 +810,131 @@ tbody td {
     color: var(--text);
 }
 
+.detail-layout {
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    background: rgba(7, 24, 38, 0.9);
+    padding: 12px;
+}
+
+.detail-body {
+    min-height: 280px;
+}
+
+.detail-topbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.detail-tip {
+    color: var(--muted);
+    font-size: 12px;
+}
+
+.detail-card {
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: rgba(5, 17, 29, 0.8);
+    padding: 12px;
+}
+
+.detail-header {
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    gap: 12px;
+}
+
+.detail-media {
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+    min-height: 180px;
+    background: linear-gradient(140deg, #1d3d5b, #1c755f);
+}
+
+.detail-media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.detail-fallback {
+    font-size: 2.4rem;
+}
+
+.detail-summary h2 {
+    margin: 0;
+    font-size: 1.45rem;
+}
+
+.detail-summary h2 small {
+    color: var(--muted);
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.detail-summary p {
+    margin: 8px 0 0;
+    color: #d6e9fa;
+}
+
+.detail-actions {
+    margin-top: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+}
+
+.detail-bars {
+    margin-top: 10px;
+    max-width: 460px;
+}
+
+.detail-section {
+    margin-top: 12px;
+    border-top: 1px dashed rgba(126, 208, 255, 0.25);
+    padding-top: 10px;
+}
+
+.detail-section h3 {
+    margin: 0 0 8px;
+    font-size: 1rem;
+}
+
+.wiki-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.wiki-link {
+    border: 1px solid rgba(126, 208, 255, 0.42);
+    border-radius: 999px;
+    background: rgba(126, 208, 255, 0.12);
+    color: #e9f7ff;
+    padding: 4px 10px;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.wiki-link:hover {
+    background: rgba(126, 208, 255, 0.22);
+}
+
+.wiki-tag {
+    border-color: rgba(42, 199, 184, 0.45);
+    background: rgba(42, 199, 184, 0.12);
+}
+
+.wiki-empty {
+    color: var(--muted);
+    font-size: 13px;
+}
+
 .toast {
     position: fixed;
     left: 50%;
@@ -696,6 +970,12 @@ tbody td {
     .globe-canvas {
         height: 520px;
     }
+
+    .food-canvas {
+        height: auto;
+        min-height: 400px;
+        max-height: 620px;
+    }
 }
 
 @media (max-width: 760px) {
@@ -716,8 +996,26 @@ tbody td {
         grid-template-columns: 1fr;
     }
 
+    .food-focus-card {
+        grid-template-columns: 1fr;
+    }
+
+    .detail-header {
+        grid-template-columns: 1fr;
+    }
+
+    .food-card-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
     .food-canvas,
     .globe-canvas {
         height: 440px;
+    }
+
+    .food-canvas {
+        height: auto;
+        min-height: 340px;
+        max-height: 520px;
     }
 }

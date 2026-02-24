@@ -40,6 +40,8 @@
 !kids/**
 !kidspedia/
 !kidspedia/**
+!earth-timeline/
+!earth-timeline/**
 !css/
 !css/**
 !js/

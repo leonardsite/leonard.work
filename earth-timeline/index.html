@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>地球文明时间轴地球仪 | Earth Timeline Globe</title>
+  <meta name="description" content="统一入口：生物演化、恐龙灭绝、昆虫与海洋生物、汽车文明与政策法案，全部放进可拖动时间轴地球仪。" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="bg-orb orb-a"></div>
+  <div class="bg-orb orb-b"></div>
+
+  <main class="shell app">
+    <header class="hero panel">
+      <div>
+        <p class="eyebrow">Unified Kid Portal · Bio + Auto + Policy</p>
+        <h1>地球文明时间轴地球仪</h1>
+        <p class="hero-note">一个入口看完：恐龙、昆虫、海洋生物、灭绝事件、汽车品牌与法案市场扩散。拖动时间轴，地球上的点会按年代变化并展示大陆漂移近似轨迹。</p>
+      </div>
+      <div class="hero-links">
+        <a href="../">返回首页</a>
+        <a href="../animals/">动物课堂地球仪</a>
+        <a href="../kids/auto-civilization/">汽车时间轴</a>
+      </div>
+    </header>
+
+    <section class="panel controls">
+      <div class="control-grid">
+        <div class="control-block">
+          <label for="nodeSlider">时间节点 / Timeline Node</label>
+          <input id="nodeSlider" type="range" min="0" max="0" step="1" value="0" />
+          <div class="line-row">
+            <button id="prevBtn" class="btn ghost">上一节点</button>
+            <strong id="yearValue">--</strong>
+            <button id="nextBtn" class="btn ghost">下一节点</button>
+          </div>
+          <div class="line-row">
+            <span id="nodeValue" class="muted">--</span>
+            <button id="playBtn" class="btn">自动播放</button>
+          </div>
+        </div>
+
+        <div class="control-block">
+          <label for="domainFilter">内容层 / Layer</label>
+          <select id="domainFilter">
+            <option value="all">全部（生物 + 汽车 + 政策）</option>
+            <option value="bio">生物演化</option>
+            <option value="auto">汽车文明</option>
+            <option value="policy">政策法案</option>
+            <option value="extinction">灭绝事件</option>
+          </select>
+
+          <label for="windowSlider">同屏跨度 / Node Window</label>
+          <input id="windowSlider" type="range" min="0" max="18" step="1" value="4" />
+          <span id="windowValue" class="muted"></span>
+        </div>
+
+        <div class="control-block">
+          <label>图层开关 / Effects</label>
+          <div class="check-line">
+            <input type="checkbox" id="driftToggle" checked />
+            <span>显示大陆漂移近似轨迹</span>
+          </div>
+          <div class="check-line">
+            <input type="checkbox" id="ringsToggle" checked />
+            <span>显示事件脉冲圈（含陨石撞击）</span>
+          </div>
+          <div class="legend-grid" id="legendGrid"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel stats" id="stats"></section>
+
+    <section class="panel globe-panel">
+      <div class="globe-canvas" id="globeCanvas"></div>
+      <aside class="event-side">
+        <h3>当前节点事件</h3>
+        <div id="eventList" class="event-list"></div>
+      </aside>
+      <div id="meteorFlash" class="meteor-flash" aria-hidden="true">
+        <div class="meteor-card">☄️ 恐龙时代灭绝：小行星撞击尤卡坦（Chicxulub）</div>
+      </div>
+    </section>
+  </main>
+
+  <script src="../animals/vendor/globe.gl.min.js"></script>
+  <script src="../kids/auto-civilization/data.js"></script>
+  <script src="../kids/auto-civilization/brand-models.js"></script>
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
