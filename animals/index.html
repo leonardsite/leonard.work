@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>动物中英文发音学习 | Animal Explorer</title>
+    <meta name="description" content="100种动物中英文发音学习，支持语义搜索、食物链脑图和3D地球仪分布视图。">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="bg-orb orb-a"></div>
+    <div class="bg-orb orb-b"></div>
+
+    <header class="hero shell">
+        <div class="hero-content">
+            <p class="eyebrow">Parent + Kid Learning</p>
+            <h1>动物发音学习站</h1>
+            <p class="hero-desc">100 种动物，支持中文/英文 TTS 发音、动物叫声模拟、语义搜索、食物链脑图、3D 地球仪分布。</p>
+            <div class="hero-actions">
+                <a class="chip-link" href="/">返回主站</a>
+                <span class="chip-link muted" id="count-chip">加载中...</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="shell app-grid">
+        <section class="panel control-panel">
+            <div class="view-switch" role="tablist" aria-label="视图切换">
+                <button class="view-btn active" data-view="cards" role="tab">卡片</button>
+                <button class="view-btn" data-view="list" role="tab">列表</button>
+                <button class="view-btn" data-view="food" role="tab">食物链脑图</button>
+                <button class="view-btn" data-view="globe" role="tab">3D地球仪</button>
+            </div>
+
+            <div class="search-row">
+                <label for="search-input">搜索（支持中文/英文/语义）</label>
+                <input id="search-input" type="text" placeholder="例如：大猫、会飞、海洋、penguin、forest predator">
+            </div>
+
+            <div class="filters">
+                <div class="filter-item">
+                    <label for="group-filter">动物种类</label>
+                    <select id="group-filter"></select>
+                </div>
+                <div class="filter-item">
+                    <label for="diet-filter">食性</label>
+                    <select id="diet-filter"></select>
+                </div>
+                <div class="filter-item">
+                    <label for="level-filter">食物链分类</label>
+                    <select id="level-filter"></select>
+                </div>
+                <div class="filter-item">
+                    <label for="habitat-filter">栖息地</label>
+                    <select id="habitat-filter"></select>
+                </div>
+                <div class="filter-item">
+                    <label for="region-filter">区域</label>
+                    <select id="region-filter"></select>
+                </div>
+                <button id="reset-btn" class="ghost-btn" type="button">重置筛选</button>
+            </div>
+
+            <div class="hint-row" id="hint-row">
+                语义示例：<span>大猫</span><span>会飞</span><span>海洋捕食者</span><span>食草</span><span>极地</span>
+            </div>
+        </section>
+
+        <section class="panel content-panel">
+            <div class="view cards-view active" id="cards-view">
+                <div class="card-grid" id="card-grid"></div>
+            </div>
+
+            <div class="view list-view" id="list-view">
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>动物</th>
+                                <th>种类</th>
+                                <th>食性</th>
+                                <th>食物链</th>
+                                <th>栖息地</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="list-body"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="view food-view" id="food-view">
+                <div class="food-layout">
+                    <div class="food-canvas" id="food-canvas"></div>
+                    <aside class="food-side" id="food-side">
+                        <h3>食物链脑图说明</h3>
+                        <p>箭头方向为「谁吃谁」：从捕食者指向被捕食者。</p>
+                        <div class="legend" id="food-legend"></div>
+                    </aside>
+                </div>
+            </div>
+
+            <div class="view globe-view" id="globe-view">
+                <div class="globe-layout">
+                    <div class="globe-canvas" id="globe-canvas"></div>
+                    <aside class="globe-side" id="globe-side">
+                        <h3>3D 地球仪</h3>
+                        <p>点击地球上的点，查看动物和对应地区。</p>
+                        <div class="globe-controls">
+                            <button class="action-btn" data-globe-action="zoom-in" type="button">放大</button>
+                            <button class="action-btn" data-globe-action="zoom-out" type="button">缩小</button>
+                            <button class="action-btn" data-globe-action="toggle-rotate" type="button">自动旋转</button>
+                            <button class="action-btn" data-globe-action="reset" type="button">重置视角</button>
+                        </div>
+                        <div id="globe-detail" class="globe-detail">等待选择...</div>
+                    </aside>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <div class="toast" id="toast" aria-live="polite"></div>
+
+    <script>
+        window.__loadGlobeFallback = function () {
+            if (window.Globe) return;
+            var s = document.createElement("script");
+            s.src = "https://unpkg.com/globe.gl";
+            s.async = true;
+            s.crossOrigin = "anonymous";
+            document.head.appendChild(s);
+        };
+    </script>
+    <script src="vendor/globe.gl.min.js" onerror="window.__loadGlobeFallback && window.__loadGlobeFallback()"></script>
+    <script src="data.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

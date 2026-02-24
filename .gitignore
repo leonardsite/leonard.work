@@ -33,6 +33,18 @@
 !animal-globe/
 !animal-globe/**
 
+# Kids learning modules migrated from zhouruby.com
+!animals/
+!animals/**
+!kids/
+!kids/**
+!kidspedia/
+!kidspedia/**
+!css/
+!css/**
+!js/
+!js/**
+
 # SG Property Map
 !property-map.html
 !assets/

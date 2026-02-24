@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KidsPedia | 儿童百科全书</title>
+    <meta name="description" content="12 大儿童百科专题：恐龙、昆虫、海洋、太空、交通、工程车、人体、天气、植物、国家、职业、节日。支持中英发音、音效、搜索、多视图。">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="bg-shape bg-a"></div>
+    <div class="bg-shape bg-b"></div>
+
+    <header class="shell hero">
+        <div class="hero-card">
+            <p class="eyebrow">Kids Encyclopedia Hub</p>
+            <h1>12 合 1 儿童百科全书</h1>
+            <p class="subtitle" id="module-subtitle">加载中...</p>
+            <div class="hero-actions">
+                <a href="/" class="chip">返回主站</a>
+                <a href="/animals/" class="chip">动物百科</a>
+                <span class="chip muted" id="item-count">--</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="shell app">
+        <section class="panel control-panel">
+            <div class="module-tabs" id="module-tabs"></div>
+
+            <div class="control-grid">
+                <div class="field field-wide">
+                    <label for="search-input">搜索（支持中文/英文/语义）</label>
+                    <input id="search-input" type="text" placeholder="例如：会飞、救人、太空、dinosaur、festival">
+                </div>
+                <div class="field">
+                    <label for="type-filter">子分类</label>
+                    <select id="type-filter"></select>
+                </div>
+                <div class="field">
+                    <label for="region-filter">地区</label>
+                    <select id="region-filter"></select>
+                </div>
+                <div class="field">
+                    <label for="view-switch">视图</label>
+                    <div class="view-switch" id="view-switch">
+                        <button class="view-btn active" data-view="cards" type="button">卡片</button>
+                        <button class="view-btn" data-view="list" type="button">列表</button>
+                        <button class="view-btn" data-view="timeline" type="button">时间轴</button>
+                        <button class="view-btn" data-view="mind" type="button">关系图</button>
+                        <button class="view-btn" data-view="globe" type="button">地球仪</button>
+                    </div>
+                </div>
+                <div class="field action-row">
+                    <button class="ghost-btn" id="reset-btn" type="button">重置筛选</button>
+                </div>
+            </div>
+
+            <div class="semantic-hints" id="semantic-hints"></div>
+            <div class="source-note">可在 <code>kidspedia/data.js</code> 继续接入 GitHub 上的 JSON/CSV 百科仓库数据。</div>
+        </section>
+
+        <section class="panel content-panel">
+            <div class="view active" id="cards-view">
+                <div class="card-grid" id="card-grid"></div>
+            </div>
+
+            <div class="view" id="list-view">
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>条目</th>
+                                <th>分类</th>
+                                <th>简介</th>
+                                <th>区域</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="list-body"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="view" id="timeline-view">
+                <div class="timeline" id="timeline"></div>
+            </div>
+
+            <div class="view" id="mind-view">
+                <div class="split-layout">
+                    <div class="mind-canvas" id="mind-canvas"></div>
+                    <aside class="side" id="mind-side">
+                        <h3>关系图说明</h3>
+                        <p>点击节点查看该条目与其他内容的关系。</p>
+                    </aside>
+                </div>
+            </div>
+
+            <div class="view" id="globe-view">
+                <div class="split-layout">
+                    <div class="globe-canvas" id="globe-canvas"></div>
+                    <aside class="side">
+                        <h3>3D 地球仪</h3>
+                        <p>拖拽旋转、双指缩放，点击点位查看条目。</p>
+                        <div class="globe-controls">
+                            <button class="mini-btn" data-globe-action="zoom-in" type="button">放大</button>
+                            <button class="mini-btn" data-globe-action="zoom-out" type="button">缩小</button>
+                            <button class="mini-btn" data-globe-action="toggle-rotate" type="button">自动旋转</button>
+                            <button class="mini-btn" data-globe-action="reset" type="button">重置视角</button>
+                        </div>
+                        <div class="side-detail" id="globe-detail">等待选择...</div>
+                    </aside>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <div class="toast" id="toast" aria-live="polite"></div>
+
+    <script src="../animals/vendor/globe.gl.min.js"></script>
+    <script src="data.js"></script>
+    <script src="data.extra.js"></script>
+    <script src="data.real.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

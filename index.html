@@ -4,8 +4,8 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="color-scheme" content="light dark" />
-  <meta name="description" content="Leonard.work 工具导航入口：新加坡常用工具、PDF 工具箱、女佣工资表（A4 打印）、终端初始化命令。" />
-  <title>导航 | Leonard.work</title>
+  <meta name="description" content="LeonardChow.work 导航入口：儿童课堂项目、动物地球仪、新加坡常用工具、PDF 工具箱、女佣工资表与自动化面板。" />
+  <title>导航 | LeonardChow.work</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -224,6 +224,26 @@
 
     .lead{ margin: 6px 0 0; color: var(--muted); line-height: 1.5; font-size: 14px; }
 
+    .top-nav{
+      margin-top: 12px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .top-nav a{
+      border: 1px solid var(--line);
+      background: var(--pillBg);
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 12.5px;
+      color: var(--pillInk);
+      text-decoration: none;
+    }
+    .top-nav a:hover{
+      border-color: var(--lineStrong);
+      box-shadow: 0 0 0 4px var(--ring);
+    }
+
     .grid{
       display: grid;
       gap: 12px;
@@ -310,10 +330,60 @@
           <button class="theme" type="button" id="theme" title="切换主题：自动/浅色/深色">主题：自动</button>
         </div>
       </div>
-      <p class="lead">常用入口：新加坡工具、PDF、本地工资表（A4）、终端初始化命令、NEXUS AI-Team。</p>
+      <p class="lead">统一入口：儿童课堂模块、动物地球仪（居中优化版）、新加坡工具、PDF、本地工资表（A4）、终端初始化命令、NEXUS AI-Team。</p>
+      <div class="top-nav">
+        <a href="kids/">儿童分类</a>
+        <a href="kids/auto-civilization/">汽车时间轴</a>
+        <a href="animals/">动物地球仪（课堂）</a>
+        <a href="kidspedia/">KidsPedia</a>
+      </div>
     </header>
 
     <section class="grid" aria-label="导航入口">
+      <a class="card" href="kids/">
+        <div class="k">Kids Hub</div>
+        <h2>儿童分类入口</h2>
+        <p>儿童项目总入口：课堂投屏友好，集中进入汽车时间轴、动物学习与百科模块。</p>
+        <div class="pillrow">
+          <span class="pill green">投屏友好</span>
+          <span class="pill blue">双语发音</span>
+          <span class="pill red">课堂模式</span>
+        </div>
+      </a>
+
+      <a class="card" href="kids/auto-civilization/">
+        <div class="k">Kids Auto</div>
+        <h2>汽车文明图片时间轴</h2>
+        <p>图片优先 + 条形信息 + 自动吸附时间轴，支持中文/英文发音与引擎声。</p>
+        <div class="pillrow">
+          <span class="pill blue">大图卡片</span>
+          <span class="pill green">政策条形图</span>
+          <span class="pill red">自动跳点</span>
+        </div>
+      </a>
+
+      <a class="card" href="animals/">
+        <div class="k">Animals</div>
+        <h2>动物地球仪（课堂版）</h2>
+        <p>儿童友好动物地球仪，支持中英发音、动物叫声、食物链视图、3D地球分布。</p>
+        <div class="pillrow">
+          <span class="pill blue">3D 地球仪</span>
+          <span class="pill green">中英发音</span>
+          <span class="pill red">食物链</span>
+        </div>
+      </a>
+
+      <a class="card" href="kidspedia/">
+        <div class="k">KidsPedia</div>
+        <h2>儿童百科模块</h2>
+        <p>12 个儿童百科模块，支持搜索、时间轴、地球仪和多视图切换。</p>
+        <div class="pillrow">
+          <span class="pill blue">12 模块</span>
+          <span class="pill green">时间轴</span>
+          <span class="pill red">地球仪</span>
+        </div>
+      </a>
+
       <a class="card" href="sg.html">
         <div class="k">Singapore</div>
         <h2>新加坡常用工具目录</h2>

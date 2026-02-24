@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kids Category | 儿童分类</title>
+    <meta name="description" content="儿童教育项目分类页：KidsPedia 与汽车文明时间轴，支持中英双语、发音和课堂投屏。">
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        .kids-hero {
+            min-height: 48vh;
+            display: flex;
+            align-items: center;
+            padding-top: 96px;
+            padding-bottom: 24px;
+        }
+
+        .kids-title {
+            text-align: center;
+            max-width: 860px;
+            margin: 0 auto;
+        }
+
+        .kids-title p {
+            color: var(--gray);
+            margin-top: 12px;
+            font-size: 1.08rem;
+        }
+
+        .kids-section {
+            padding-top: 24px;
+            padding-bottom: 90px;
+        }
+
+        .sample-card p {
+            padding: 0 16px 16px;
+            color: var(--gray);
+            font-size: 0.9rem;
+            text-align: center;
+        }
+
+        .nav-menu {
+            gap: 20px;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="bg-canvas"></canvas>
+
+    <nav class="nav">
+        <div class="container nav-inner">
+            <a href="../" class="logo"><span class="logo-ruby">Ruby</span>Media</a>
+            <div class="nav-menu">
+                <a href="../">首页 Home</a>
+                <a href="../kidspedia/">KidsPedia</a>
+                <a href="auto-civilization/">汽车时间轴</a>
+                <a href="https://wa.me/6582376302" class="nav-cta" target="_blank">Contact</a>
+            </div>
+        </div>
+    </nav>
+
+    <header class="kids-hero">
+        <div class="container kids-title">
+            <span class="badge">Kids Learning Zone</span>
+            <h1>儿童分类</h1>
+            <p>这里汇总适合课堂和家庭投屏的儿童内容。全部项目保持轻量网页风格，手机、平板、电视都可以直接访问。</p>
+        </div>
+    </header>
+
+    <section class="section kids-section">
+        <div class="container">
+            <h2 class="section-title">Kids Projects</h2>
+            <div class="grid-4">
+                <a href="../kidspedia/" class="sample-card">
+                    <div class="sample-img" style="background: linear-gradient(135deg, #114a7a, #21a884);"></div>
+                    <span>KidsPedia</span>
+                    <p>12 个儿童百科模块，支持搜索、卡片、时间轴、关系图与地球仪。</p>
+                </a>
+
+                <a href="auto-civilization/" class="sample-card">
+                    <div class="sample-img" style="background: linear-gradient(135deg, #0f2f3f, #255f7a 54%, #d06b2d);"></div>
+                    <span>汽车文明时间轴</span>
+                    <p>从轮子到电动车，中英双语讲解，支持中文/英文发音与引擎声课堂氛围。</p>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container footer-inner">
+            <span class="logo"><span class="logo-ruby">Ruby</span>Media</span>
+            <span>© 2024 RubyMedia</span>
+        </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="../js/main.js"></script>
+</body>
+</html>
