@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="color-scheme" content="light dark" />
-  <meta name="description" content="新电脑初始化命令：Windows(WSL)/Ubuntu/macOS，一键安装 git、zsh、node/pnpm、python、java，以及 codex/claude/gemini 等 CLI。" />
+  <meta name="description" content="新电脑初始化命令：Windows(WSL)/Ubuntu/macOS，一键安装 git、zsh、node/pnpm、python、java、WezTerm，并写入统一的终端主题与快捷键。" />
   <title>终端初始化命令 | Leonard.work</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -290,7 +290,7 @@
         <h1>终端初始化命令</h1>
         <div class="hint"><a href="index.html">返回导航</a> · 一次性脚本，复制即可 <button class="theme" type="button" id="theme" title="切换主题：自动/浅色/深色">主题：自动</button></div>
       </div>
-      <p class="lead">目标：新电脑快速装好开发环境（git、zsh、node/pnpm、python、java、常用工具），并安装 codex/claude/gemini CLI。建议先读每段脚本的注释再执行。</p>
+      <p class="lead">目标：新电脑快速装好开发环境（git、zsh、node/pnpm、python、java、常用工具），并安装 codex/claude/gemini CLI 与 WezTerm（含统一配色/快捷键）。建议先读每段脚本的注释再执行。</p>
       <div class="toc" style="margin-top:10px;">
         <a class="chip" href="#windows">Windows (WSL)</a>
         <a class="chip" href="#ubuntu">Ubuntu/Debian</a>
@@ -306,7 +306,8 @@
       <div class="bd">
         <div class="note">
           1) 先在 Windows 装 WSL + Ubuntu。<br/>
-          2) 打开 Ubuntu 后，再执行下面的“Ubuntu/Debian”脚本。
+          2) 建议安装 WezTerm，并写入统一配置（颜色 + 快捷键 + WSL 默认启动）。<br/>
+          3) 打开 Ubuntu 后，再执行下面的“Ubuntu/Debian”脚本。
         </div>
 
         <div class="blocks">
@@ -325,6 +326,107 @@ wsl --set-default-version 2
 # 安装完成后，打开“Ubuntu”应用并创建 Linux 用户
 # 然后在 Ubuntu 里执行本页的“Ubuntu/Debian”脚本</code></pre>
           </div>
+
+          <div class="block">
+            <div class="bh">
+              <div>
+                <div class="t">安装 + 配置 WezTerm（Windows）</div>
+                <div class="s">PowerShell：写入你当前这套配色/快捷键/WSL 启动配置</div>
+              </div>
+              <button class="btn" type="button" data-copy="#ps-wezterm">复制</button>
+            </div>
+            <pre id="ps-wezterm"><code># 1) install WezTerm
+winget install --id Wez.WezTerm -e --source winget
+
+# 2) set your WSL distro name (check with: wsl -l -q)
+$WslDistro = "Ubuntu-24.04"
+
+# 3) write WezTerm config
+$cfgDir = Join-Path $HOME ".config\wezterm"
+New-Item -ItemType Directory -Force -Path $cfgDir | Out-Null
+
+@"
+local wezterm = require 'wezterm'
+local act = wezterm.action
+local config = wezterm.config_builder()
+
+config.default_domain = 'WSL:$WslDistro'
+
+config.front_end = 'WebGpu'
+config.webgpu_power_preference = 'HighPerformance'
+
+config.color_scheme = 'Tokyo Night'
+config.font = wezterm.font('JetBrains Mono', { weight = 'Regular' })
+config.font_size = 13.0
+config.line_height = 1.2
+
+config.initial_cols = 160
+config.initial_rows = 40
+config.window_padding = { left = 12, right = 12, top = 10, bottom = 10 }
+config.window_background_opacity = 1.0
+config.colors = { background = '#000000' }
+config.window_decorations = 'TITLE | RESIZE'
+config.adjust_window_size_when_changing_font_size = false
+
+config.use_fancy_tab_bar = false
+config.tab_bar_at_bottom = true
+config.hide_tab_bar_if_only_one_tab = true
+config.tab_max_width = 30
+config.scrollback_lines = 10000
+
+config.automatically_reload_config = true
+config.disable_default_key_bindings = true
+
+config.mouse_bindings = {
+  {
+    event = { Down = { streak = 1, button = 'Right' } },
+    mods = 'NONE',
+    action = act.PasteFrom 'Clipboard',
+  },
+}
+
+config.keys = {
+  { key = 'phys:C', mods = 'CTRL', action = act.CopyTo 'Clipboard' },
+  { key = 'phys:V', mods = 'CTRL', action = act.PasteFrom 'Clipboard' },
+  { key = 'phys:C', mods = 'CTRL|SHIFT', action = act.SendKey { key = 'c', mods = 'CTRL' } },
+  { key = 't', mods = 'CTRL|SHIFT', action = act.SpawnTab 'CurrentPaneDomain' },
+  { key = 'w', mods = 'CTRL|SHIFT', action = act.CloseCurrentTab { confirm = false } },
+  { key = '[', mods = 'CTRL|SHIFT', action = act.ActivateTabRelative(-1) },
+  { key = ']', mods = 'CTRL|SHIFT', action = act.ActivateTabRelative(1) },
+  { key = 'r', mods = 'CTRL|SHIFT', action = act.PromptInputLine {
+      description = 'Rename tab:',
+      action = wezterm.action_callback(function(window, _, line)
+        if line then window:active_tab():set_title(line) end
+      end),
+  }},
+  { key = 'd', mods = 'CTRL|SHIFT', action = act.SplitHorizontal { domain = 'CurrentPaneDomain' } },
+  { key = 'e', mods = 'CTRL|SHIFT', action = act.SplitVertical { domain = 'CurrentPaneDomain' } },
+  { key = 'h', mods = 'CTRL|SHIFT', action = act.ActivatePaneDirection 'Left' },
+  { key = 'l', mods = 'CTRL|SHIFT', action = act.ActivatePaneDirection 'Right' },
+  { key = 'k', mods = 'CTRL|SHIFT', action = act.ActivatePaneDirection 'Up' },
+  { key = 'j', mods = 'CTRL|SHIFT', action = act.ActivatePaneDirection 'Down' },
+  { key = 'f', mods = 'CTRL|SHIFT', action = act.Search 'CurrentSelectionOrEmptyString' },
+  { key = 'x', mods = 'CTRL|SHIFT', action = act.ActivateCopyMode },
+  { key = '=', mods = 'CTRL', action = act.IncreaseFontSize },
+  { key = '-', mods = 'CTRL', action = act.DecreaseFontSize },
+  { key = '0', mods = 'CTRL', action = act.ResetFontSize },
+  { key = 'n', mods = 'CTRL|SHIFT', action = act.SpawnWindow },
+  { key = 'p', mods = 'CTRL|SHIFT', action = act.ActivateCommandPalette },
+  { key = 'Enter', mods = 'ALT', action = act.ToggleFullScreen },
+}
+
+return config
+"@ | Set-Content -Path (Join-Path $cfgDir "wezterm.lua") -Encoding UTF8
+
+@"
+local wezterm = require 'wezterm'
+return dofile(wezterm.home_dir .. '/.config/wezterm/wezterm.lua')
+"@ | Set-Content -Path (Join-Path $HOME ".wezterm.lua") -Encoding UTF8
+
+# 4) restart WezTerm
+taskkill /F /IM wezterm-gui.exe 2>$null
+Start-Process wezterm-gui.exe</code></pre>
+          </div>
         </div>
 
         <p class="muted" style="margin:10px 0 0;">字体建议（在 Windows Terminal 设置里改）：JetBrainsMono Nerd Font 或 MesloLGS Nerd Font。</p>
@@ -338,7 +440,7 @@ wsl --set-default-version 2
       </div>
       <div class="bd">
         <div class="note">
-          这个脚本会安装：git、zsh、常用 CLI 工具、Node.js（nvm）、pnpm（corepack）、Python（系统 python3 + pipx）、Java（sdkman）。
+          这个脚本会安装：git、zsh、常用 CLI 工具、Node.js（nvm）、pnpm（corepack）、Python（系统 python3 + pipx）、Java（OpenJDK，sdkman 可选）。
           <br/>
           注意：npm 全局包不要用 sudo。
         </div>
@@ -361,10 +463,21 @@ sudo apt-get install -y \
   build-essential unzip zip \
   jq ripgrep fzf \
   zsh \
-  python3 python3-pip pipx \
-  openjdk-21-jdk-headless || true
+  python3 python3-pip python3-venv
 
-# 1) nvm (Node.js) - install latest LTS
+# pipx: apt first, fallback to user install
+if ! command -v pipx >/dev/null 2>&1; then
+  sudo apt-get install -y pipx || python3 -m pip install --user --break-system-packages pipx
+fi
+
+# Java: prefer OpenJDK 21, fallback to default-jdk
+if apt-cache show openjdk-21-jdk-headless >/dev/null 2>&1; then
+  sudo apt-get install -y openjdk-21-jdk-headless
+else
+  sudo apt-get install -y default-jdk-headless || true
+fi
+
+# 1) nvm (Node.js) - latest LTS
 if [ ! -d "$HOME/.nvm" ]; then
   curl -fsSL https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
 fi
@@ -388,8 +501,9 @@ fi
 
 # 4) pipx path
 python3 -m pipx ensurepath || true
+export PATH="$HOME/.local/bin:$PATH"
 
-# 5) CLIs (no sudo)
+# 5) CLIs (no sudo, under nvm-managed Node)
 # OpenAI Codex CLI
 npm i -g @openai/codex
 
@@ -440,6 +554,108 @@ echo "Optional: set your terminal font to a Nerd Font (JetBrainsMono Nerd Font /
           <div class="block">
             <div class="bh">
               <div>
+                <div class="t">在 WSL 里写入 WezTerm 配置（可选）</div>
+                <div class="s">从 Ubuntu 直接写到 Windows 的 WezTerm 配置目录</div>
+              </div>
+              <button class="btn" type="button" data-copy="#sh-wsl-wezterm">复制</button>
+            </div>
+            <pre id="sh-wsl-wezterm"><code>set -euo pipefail
+
+if ! grep -qiE "(microsoft|wsl)" /proc/version; then
+  echo "This block is for WSL only."
+  exit 1
+fi
+
+WIN_USER="${WIN_USER:-$(cmd.exe /c "echo %USERNAME%" | tr -d '\r')}"
+WSL_DISTRO="${WSL_DISTRO_NAME:-Ubuntu-24.04}"
+WIN_HOME="/mnt/c/Users/$WIN_USER"
+CFG_DIR="$WIN_HOME/.config/wezterm"
+mkdir -p "$CFG_DIR"
+
+cat > "$CFG_DIR/wezterm.lua" &lt;&lt;LUA
+local wezterm = require 'wezterm'
+local act = wezterm.action
+local config = wezterm.config_builder()
+
+config.default_domain = 'WSL:$WSL_DISTRO'
+
+config.front_end = 'WebGpu'
+config.webgpu_power_preference = 'HighPerformance'
+config.color_scheme = 'Tokyo Night'
+config.font = wezterm.font('JetBrains Mono', { weight = 'Regular' })
+config.font_size = 13.0
+config.line_height = 1.2
+
+config.initial_cols = 160
+config.initial_rows = 40
+config.window_padding = { left = 12, right = 12, top = 10, bottom = 10 }
+config.window_background_opacity = 1.0
+config.colors = { background = '#000000' }
+config.window_decorations = 'TITLE | RESIZE'
+config.adjust_window_size_when_changing_font_size = false
+
+config.use_fancy_tab_bar = false
+config.tab_bar_at_bottom = true
+config.hide_tab_bar_if_only_one_tab = true
+config.tab_max_width = 30
+config.scrollback_lines = 10000
+
+config.automatically_reload_config = true
+config.disable_default_key_bindings = true
+
+config.mouse_bindings = {
+  {
+    event = { Down = { streak = 1, button = 'Right' } },
+    mods = 'NONE',
+    action = act.PasteFrom 'Clipboard',
+  },
+}
+
+config.keys = {
+  { key = 'phys:C', mods = 'CTRL', action = act.CopyTo 'Clipboard' },
+  { key = 'phys:V', mods = 'CTRL', action = act.PasteFrom 'Clipboard' },
+  { key = 'phys:C', mods = 'CTRL|SHIFT', action = act.SendKey { key = 'c', mods = 'CTRL' } },
+  { key = 't', mods = 'CTRL|SHIFT', action = act.SpawnTab 'CurrentPaneDomain' },
+  { key = 'w', mods = 'CTRL|SHIFT', action = act.CloseCurrentTab { confirm = false } },
+  { key = '[', mods = 'CTRL|SHIFT', action = act.ActivateTabRelative(-1) },
+  { key = ']', mods = 'CTRL|SHIFT', action = act.ActivateTabRelative(1) },
+  { key = 'r', mods = 'CTRL|SHIFT', action = act.PromptInputLine {
+      description = 'Rename tab:',
+      action = wezterm.action_callback(function(window, _, line)
+        if line then window:active_tab():set_title(line) end
+      end),
+  }},
+  { key = 'd', mods = 'CTRL|SHIFT', action = act.SplitHorizontal { domain = 'CurrentPaneDomain' } },
+  { key = 'e', mods = 'CTRL|SHIFT', action = act.SplitVertical { domain = 'CurrentPaneDomain' } },
+  { key = 'h', mods = 'CTRL|SHIFT', action = act.ActivatePaneDirection 'Left' },
+  { key = 'l', mods = 'CTRL|SHIFT', action = act.ActivatePaneDirection 'Right' },
+  { key = 'k', mods = 'CTRL|SHIFT', action = act.ActivatePaneDirection 'Up' },
+  { key = 'j', mods = 'CTRL|SHIFT', action = act.ActivatePaneDirection 'Down' },
+  { key = 'f', mods = 'CTRL|SHIFT', action = act.Search 'CurrentSelectionOrEmptyString' },
+  { key = 'x', mods = 'CTRL|SHIFT', action = act.ActivateCopyMode },
+  { key = '=', mods = 'CTRL', action = act.IncreaseFontSize },
+  { key = '-', mods = 'CTRL', action = act.DecreaseFontSize },
+  { key = '0', mods = 'CTRL', action = act.ResetFontSize },
+  { key = 'n', mods = 'CTRL|SHIFT', action = act.SpawnWindow },
+  { key = 'p', mods = 'CTRL|SHIFT', action = act.ActivateCommandPalette },
+  { key = 'Enter', mods = 'ALT', action = act.ToggleFullScreen },
+}
+
+return config
+LUA
+
+cat > "$WIN_HOME/.wezterm.lua" &lt;&lt;'LUA'
+local wezterm = require 'wezterm'
+return dofile(wezterm.home_dir .. '/.config/wezterm/wezterm.lua')
+LUA
+
+echo "WezTerm config written to: $CFG_DIR/wezterm.lua"
+echo "Restart WezTerm on Windows to apply changes."</code></pre>
+          </div>
+
+          <div class="block">
+            <div class="bh">
+              <div>
                 <div class="t">登录/初始化（执行一次）</div>
                 <div class="s">各 CLI 的首次登录</div>
               </div>
@@ -466,7 +682,7 @@ gemini</code></pre>
       </div>
       <div class="bd">
         <div class="note">
-          macOS 建议用 Homebrew 装基础工具；Node 用 nvm；然后装 codex/claude/gemini CLI。
+          macOS 建议用 Homebrew 装基础工具；Node 用 nvm；然后装 codex/claude/gemini CLI。下面也提供 WezTerm 的统一配置脚本。
         </div>
 
         <div class="blocks">
@@ -488,8 +704,19 @@ if ! command -v brew >/dev/null 2>&1; then
   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 fi
 
+# ensure brew is in PATH for this shell session
+if [ -x /opt/homebrew/bin/brew ]; then
+  eval "$(/opt/homebrew/bin/brew shellenv)"
+elif [ -x /usr/local/bin/brew ]; then
+  eval "$(/usr/local/bin/brew shellenv)"
+fi
+
 brew update
-brew install git jq ripgrep fzf zsh starship
+brew install git jq ripgrep fzf zsh starship python pipx openjdk@21
+python3 -m pipx ensurepath || true
+export PATH="$HOME/.local/bin:$PATH"
+OPENJDK_PREFIX="$(brew --prefix openjdk@21 2>/dev/null || true)"
+[ -n "$OPENJDK_PREFIX" ] && export PATH="$OPENJDK_PREFIX/bin:$PATH"
 
 # Node via nvm
 if [ ! -d "$HOME/.nvm" ]; then
@@ -511,10 +738,106 @@ npm i -g @anthropic-ai/claude-code
 npm i -g @google/gemini-cli
 
 node -v
+npm -v
 pnpm -v
+python3 --version
+java -version
 codex --version || true
 claude --version || true
 gemini --version || true</code></pre>
+          </div>
+
+          <div class="block">
+            <div class="bh">
+              <div>
+                <div class="t">安装 + 配置 WezTerm（macOS）</div>
+                <div class="s">Homebrew 安装并写入统一配色/快捷键</div>
+              </div>
+              <button class="btn" type="button" data-copy="#sh-mac-wezterm">复制</button>
+            </div>
+            <pre id="sh-mac-wezterm"><code>set -euo pipefail
+
+if [ -x /opt/homebrew/bin/brew ]; then
+  eval "$(/opt/homebrew/bin/brew shellenv)"
+elif [ -x /usr/local/bin/brew ]; then
+  eval "$(/usr/local/bin/brew shellenv)"
+fi
+
+brew install --cask wezterm
+
+cat > "$HOME/.wezterm.lua" &lt;&lt;'LUA'
+local wezterm = require 'wezterm'
+local act = wezterm.action
+local config = wezterm.config_builder()
+
+config.front_end = 'WebGpu'
+config.webgpu_power_preference = 'HighPerformance'
+
+config.color_scheme = 'Tokyo Night'
+config.font = wezterm.font('JetBrains Mono', { weight = 'Regular' })
+config.font_size = 13.0
+config.line_height = 1.2
+
+config.initial_cols = 160
+config.initial_rows = 40
+config.window_padding = { left = 12, right = 12, top = 10, bottom = 10 }
+config.window_background_opacity = 1.0
+config.colors = { background = '#000000' }
+config.window_decorations = 'TITLE | RESIZE'
+config.adjust_window_size_when_changing_font_size = false
+
+config.use_fancy_tab_bar = false
+config.tab_bar_at_bottom = true
+config.hide_tab_bar_if_only_one_tab = true
+config.tab_max_width = 30
+config.scrollback_lines = 10000
+
+config.automatically_reload_config = true
+config.disable_default_key_bindings = true
+
+config.mouse_bindings = {
+  {
+    event = { Down = { streak = 1, button = 'Right' } },
+    mods = 'NONE',
+    action = act.PasteFrom 'Clipboard',
+  },
+}
+
+config.keys = {
+  { key = 'phys:C', mods = 'CTRL', action = act.CopyTo 'Clipboard' },
+  { key = 'phys:V', mods = 'CTRL', action = act.PasteFrom 'Clipboard' },
+  { key = 'phys:C', mods = 'CTRL|SHIFT', action = act.SendKey { key = 'c', mods = 'CTRL' } },
+  { key = 't', mods = 'CTRL|SHIFT', action = act.SpawnTab 'CurrentPaneDomain' },
+  { key = 'w', mods = 'CTRL|SHIFT', action = act.CloseCurrentTab { confirm = false } },
+  { key = '[', mods = 'CTRL|SHIFT', action = act.ActivateTabRelative(-1) },
+  { key = ']', mods = 'CTRL|SHIFT', action = act.ActivateTabRelative(1) },
+  { key = 'r', mods = 'CTRL|SHIFT', action = act.PromptInputLine {
+      description = 'Rename tab:',
+      action = wezterm.action_callback(function(window, _, line)
+        if line then window:active_tab():set_title(line) end
+      end),
+  }},
+  { key = 'd', mods = 'CTRL|SHIFT', action = act.SplitHorizontal { domain = 'CurrentPaneDomain' } },
+  { key = 'e', mods = 'CTRL|SHIFT', action = act.SplitVertical { domain = 'CurrentPaneDomain' } },
+  { key = 'h', mods = 'CTRL|SHIFT', action = act.ActivatePaneDirection 'Left' },
+  { key = 'l', mods = 'CTRL|SHIFT', action = act.ActivatePaneDirection 'Right' },
+  { key = 'k', mods = 'CTRL|SHIFT', action = act.ActivatePaneDirection 'Up' },
+  { key = 'j', mods = 'CTRL|SHIFT', action = act.ActivatePaneDirection 'Down' },
+  { key = 'f', mods = 'CTRL|SHIFT', action = act.Search 'CurrentSelectionOrEmptyString' },
+  { key = 'x', mods = 'CTRL|SHIFT', action = act.ActivateCopyMode },
+  { key = '=', mods = 'CTRL', action = act.IncreaseFontSize },
+  { key = '-', mods = 'CTRL', action = act.DecreaseFontSize },
+  { key = '0', mods = 'CTRL', action = act.ResetFontSize },
+  { key = 'n', mods = 'CTRL|SHIFT', action = act.SpawnWindow },
+  { key = 'p', mods = 'CTRL|SHIFT', action = act.ActivateCommandPalette },
+  { key = 'Enter', mods = 'ALT', action = act.ToggleFullScreen },
+}
+
+return config
+LUA
+
+echo "WezTerm configured at $HOME/.wezterm.lua"
+echo "Restart WezTerm to apply."</code></pre>
           </div>
 
           <div class="block">
