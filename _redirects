@@ -16,3 +16,8 @@
 
 /auto-policy-timeline      /kids-education/auto-policy-timeline/ 301
 /auto-policy-timeline/*    /kids-education/auto-policy-timeline/:splat 301
+
+# Property monitor pages (clean URLs)
+/villa                 /villa.html 200
+/fnb                   /fnb.html 200
+/shop                  /shop.html 200
