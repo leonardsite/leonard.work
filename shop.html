@@ -2,638 +2,410 @@
 <html lang="zh">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>零售商铺出租 - 2026-03-03</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Shop Rentals - 2026-03-03</title>
 <style>
-* { margin: 0; padding: 0; box-sizing: border-box; }
-body { font-family: -apple-system, system-ui, sans-serif; background: #f5f5f5; padding: 20px; }
-h1 { font-size: 1.3em; margin-bottom: 4px; }
-.meta { color: #666; margin-bottom: 16px; font-size: 0.9em; }
-table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-th { background: #1e40af; color: #fff; padding: 10px 8px; text-align: left; font-size: 0.85em; position: sticky; top: 0; }
-td { padding: 8px; border-bottom: 1px solid #eee; font-size: 0.85em; vertical-align: top; }
-tr:hover { background: #eff6ff; }
-a { color: #1e40af; text-decoration: none; }
-a:hover { text-decoration: underline; }
-small { font-size: 0.8em; }
-.source { margin-top: 12px; font-size: 0.8em; color: #999; }
-.legend { margin-bottom: 12px; font-size: 0.85em; }
-.legend span { display: inline-block; padding: 2px 8px; border-radius: 4px; margin-right: 8px; font-weight: bold; }
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#06060f;--card:rgba(14,14,36,0.7);--text:#e0e0ff;
+  --dim:#667;--border:rgba(255,255,255,0.06);
+  --glow-a:#00ff88;--glow-b:#00d4ff;--glow-c:#a855f7;--glow-d:#ff4d6a;
+}
+@font-face{font-family:'Inter';src:url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap')}
+body{
+  font-family:'Inter','SF Pro Display',-apple-system,system-ui,sans-serif;
+  background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;
+}
+
+/* ── Aurora WebGL canvas ── */
+canvas#aurora{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none}
+
+/* ── Floating orbs ── */
+.orb{position:fixed;border-radius:50%;filter:blur(80px);opacity:.15;pointer-events:none;z-index:0;animation:orbFloat 20s ease-in-out infinite alternate}
+.orb-1{width:500px;height:500px;background:var(--glow-c);top:-150px;left:-100px;animation-delay:0s}
+.orb-2{width:400px;height:400px;background:var(--glow-b);bottom:-100px;right:-80px;animation-delay:-7s}
+.orb-3{width:350px;height:350px;background:var(--glow-a);top:40%;left:60%;animation-delay:-14s}
+@keyframes orbFloat{
+  0%{transform:translate(0,0) scale(1)}
+  33%{transform:translate(60px,-40px) scale(1.1)}
+  66%{transform:translate(-30px,50px) scale(.95)}
+  100%{transform:translate(20px,-20px) scale(1.05)}
+}
+
+/* ── Layout ── */
+.container{position:relative;z-index:1;max-width:1400px;margin:0 auto;padding:40px 20px}
+
+/* ── Header ── */
+header{text-align:center;margin-bottom:48px;position:relative}
+h1{
+  font-size:clamp(2em,5vw,3.2em);font-weight:900;letter-spacing:-2px;
+  background:linear-gradient(135deg,var(--glow-a),var(--glow-b),var(--glow-c));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  animation:shimmerTitle 4s ease-in-out infinite;background-size:200% 200%;
+}
+@keyframes shimmerTitle{
+  0%,100%{background-position:0% 50%}
+  50%{background-position:100% 50%}
+}
+.subtitle{color:var(--dim);margin-top:8px;font-size:1.1em;letter-spacing:1px}
+
+/* ── Stats with rings ── */
+.stats{display:flex;justify-content:center;gap:48px;margin-top:28px;flex-wrap:wrap}
+.stat{text-align:center;position:relative}
+.stat-ring{width:80px;height:80px;margin:0 auto 6px}
+.stat-ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.stat-ring circle{fill:none;stroke-width:3}
+.stat-ring .track{stroke:rgba(255,255,255,0.06)}
+.stat-ring .fill{stroke-linecap:round;transition:stroke-dashoffset 1.5s cubic-bezier(.4,0,.2,1);animation:ringPulse 3s ease-in-out infinite alternate}
+@keyframes ringPulse{0%{filter:brightness(1)}100%{filter:brightness(1.3)}}
+.stat-num{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  font-size:1.8em;font-weight:900;
+  background:linear-gradient(135deg,var(--glow-a),var(--glow-b));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.stat-label{font-size:.75em;color:var(--dim);text-transform:uppercase;letter-spacing:2px}
+
+/* ── Nav ── */
+.nav{display:flex;justify-content:center;gap:12px;margin-top:24px}
+.nav a{
+  padding:10px 24px;border:1px solid var(--border);border-radius:24px;
+  color:var(--text);text-decoration:none;font-size:.9em;font-weight:600;
+  transition:all .4s cubic-bezier(.4,0,.2,1);position:relative;overflow:hidden;
+  backdrop-filter:blur(10px);background:rgba(255,255,255,0.03);
+}
+.nav a::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,var(--glow-c),var(--glow-b));
+  opacity:0;transition:opacity .4s;border-radius:24px;
+}
+.nav a:hover::before,.nav a.active::before{opacity:1}
+.nav a:hover,.nav a.active{border-color:transparent;color:#fff;transform:scale(1.05)}
+.nav a span{position:relative;z-index:1}
+
+/* ── Grid ── */
+.grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));
+  gap:24px;margin-top:40px;perspective:1200px;
+}
+
+/* ── Cards with glassmorphism + holographic shimmer ── */
+.card{
+  background:var(--card);
+  border:1px solid var(--border);border-radius:20px;padding:24px;
+  cursor:pointer;position:relative;overflow:hidden;
+  transition:all .4s cubic-bezier(.4,0,.2,1);
+  backdrop-filter:blur(20px);
+  transform-style:preserve-3d;
+}
+.card::before{
+  content:'';position:absolute;inset:0;border-radius:20px;
+  background:linear-gradient(135deg,
+    rgba(255,255,255,0) 0%,
+    rgba(255,255,255,.03) 40%,
+    rgba(255,255,255,.08) 50%,
+    rgba(255,255,255,.03) 60%,
+    rgba(255,255,255,0) 100%);
+  background-size:200% 200%;
+  animation:holographic 6s ease infinite;
+  pointer-events:none;
+}
+@keyframes holographic{
+  0%{background-position:200% 0%}
+  100%{background-position:-200% 0%}
+}
+.card::after{
+  content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.15),transparent);
+}
+.card.visible{animation:cardReveal .7s cubic-bezier(.4,0,.2,1) forwards;animation-delay:calc(var(--i) * 0.06s)}
+@keyframes cardReveal{
+  from{opacity:0;transform:translateY(60px) rotateX(8deg) scale(.95)}
+  to{opacity:1;transform:translateY(0) rotateX(0) scale(1)}
+}
+
+.card:hover{
+  border-color:var(--gc);
+  box-shadow:var(--gg),0 0 60px rgba(168,85,247,0.08),0 30px 60px rgba(0,0,0,0.4);
+  transform:translateY(-8px) scale(1.02);
+}
+
+/* ── Card content ── */
+.card-header{display:flex;align-items:center;gap:14px;margin-bottom:16px}
+
+.grade-ring{position:relative;width:56px;height:56px;flex-shrink:0}
+.grade-ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.grade-ring circle{fill:none}
+.grade-ring .track{stroke:rgba(255,255,255,0.06);stroke-width:3}
+.grade-ring .progress{
+  stroke-width:3;stroke-linecap:round;
+  transition:stroke-dashoffset 1.2s cubic-bezier(.4,0,.2,1) .3s;
+}
+.grade-letter{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  flex-direction:column;font-weight:900;font-size:1.2em;line-height:1;
+}
+.grade-letter .score-num{font-size:.5em;opacity:.6;font-weight:400;margin-top:2px}
+
+.title{font-size:1em;font-weight:600;line-height:1.4;flex:1;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+
+.price{font-size:1.5em;font-weight:800;color:#fff;margin-bottom:4px;letter-spacing:-0.5px}
+.psf{font-size:.85em;color:var(--dim);margin-bottom:12px}
+
+.meta-row{display:flex;gap:10px;font-size:.8em;color:var(--dim);margin-bottom:8px;flex-wrap:wrap}
+.meta-row span{
+  background:rgba(255,255,255,0.04);padding:4px 12px;border-radius:20px;
+  border:1px solid rgba(255,255,255,0.04);
+}
+
+.addr{font-size:.8em;color:var(--dim);margin:8px 0}
+
+/* ── MRT bar with scan effect ── */
+.mrt-bar{
+  position:relative;height:28px;
+  background:rgba(255,255,255,0.04);border-radius:14px;
+  overflow:hidden;margin-top:12px;
+}
+.mrt-fill{height:100%;border-radius:14px;position:relative}
+.mrt-fill::after{
+  content:'';position:absolute;top:0;right:0;width:30px;height:100%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,0.3));
+  animation:scanPulse 2s ease-in-out infinite;
+}
+@keyframes scanPulse{0%,100%{opacity:0}50%{opacity:1}}
+.mrt-label{
+  position:absolute;top:50%;left:12px;transform:translateY(-50%);
+  font-size:.75em;font-weight:700;color:#fff;
+  text-shadow:0 1px 4px rgba(0,0,0,.6);letter-spacing:.5px;
+}
+
+/* ── Tags ── */
+.tag{
+  display:inline-block;padding:3px 10px;border-radius:12px;
+  font-size:.75em;font-weight:700;margin-left:6px;
+  backdrop-filter:blur(4px);
+}
+.tag-hot{background:rgba(0,255,136,0.15);color:var(--glow-a);border:1px solid rgba(0,255,136,0.2)}
+.tag-good{background:rgba(0,212,255,0.15);color:var(--glow-b);border:1px solid rgba(0,212,255,0.2)}
+
+/* ── Footer ── */
+footer{
+  text-align:center;margin-top:64px;padding:32px;
+  color:var(--dim);font-size:.85em;
+  border-top:1px solid var(--border);
+}
+footer a{color:var(--glow-c);text-decoration:none;font-weight:600}
+footer a:hover{text-decoration:underline}
+.footer-links{display:flex;justify-content:center;gap:24px;margin-top:12px;flex-wrap:wrap}
+.footer-links a{
+  padding:6px 16px;border:1px solid var(--border);border-radius:16px;
+  font-size:.8em;transition:all .3s;
+}
+.footer-links a:hover{border-color:var(--glow-c);background:rgba(168,85,247,0.1)}
+
+/* ── Responsive ── */
+@media(max-width:480px){
+  .grid{grid-template-columns:1fr;gap:16px}
+  .stats{gap:24px}
+  h1{font-size:1.8em}
+  .stat-ring{width:64px;height:64px}
+  .stat-num{font-size:1.4em}
+}
 </style>
 </head>
 <body>
-<h1>CommercialGuru 零售商铺出租</h1>
-<p class="meta">更新: 2026-03-03 | 共 60 个新盘 | 按评分排序</p>
-<div class="legend">
-评分: <span style="background:#f0fdf4;color:#22c55e;border:1px solid #22c55e">A 优秀(80+)</span>
-<span style="background:#eff6ff;color:#3b82f6;border:1px solid #3b82f6">B 良好(60-79)</span>
-<span style="background:#f9fafb;color:#9ca3af;border:1px solid #9ca3af">C 一般(40-59)</span>
-<span style="background:#fef2f2;color:#ef4444;border:1px solid #ef4444">D 偏远(&lt;40)</span>
+
+<!-- Aurora canvas -->
+<canvas id="aurora"></canvas>
+
+<!-- Floating orbs -->
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+<div class="orb orb-3"></div>
+
+<div class="container">
+<header>
+<h1>SG Shop Rentals</h1>
+<p class="subtitle">Updated 2026-03-03</p>
+
+<div class="stats">
+  <div class="stat">
+    <div class="stat-ring">
+      <svg viewBox="0 0 36 36"><circle class="track" cx="18" cy="18" r="16"/><circle class="fill" cx="18" cy="18" r="16" stroke="url(#grad1)" stroke-dasharray="100" stroke-dashoffset="100" data-target="0"/></svg>
+      <defs><linearGradient id="grad1"><stop offset="0%" stop-color="var(--glow-a)"/><stop offset="100%" stop-color="var(--glow-b)"/></linearGradient></defs>
+    </div>
+    <div class="stat-num" data-count="1">0</div>
+    <div class="stat-label">Properties</div>
+  </div>
+  <div class="stat">
+    <div class="stat-ring">
+      <svg viewBox="0 0 36 36"><circle class="track" cx="18" cy="18" r="16"/><circle class="fill" cx="18" cy="18" r="16" stroke="var(--glow-a)" stroke-dasharray="100" stroke-dashoffset="100" data-target="0"/></svg>
+    </div>
+    <div class="stat-num" data-count="0">0</div>
+    <div class="stat-label">A-Grade</div>
+  </div>
+  <div class="stat">
+    <div class="stat-ring">
+      <svg viewBox="0 0 36 36"><circle class="track" cx="18" cy="18" r="16"/><circle class="fill" cx="18" cy="18" r="16" stroke="var(--glow-b)" stroke-dasharray="100" stroke-dashoffset="100" data-target="0"/></svg>
+    </div>
+    <div class="stat-num" data-count="0">0</div>
+    <div class="stat-label">B-Grade</div>
+  </div>
 </div>
-<table>
-<tr><th>#</th><th>评分</th><th>名称</th><th>地址</th><th>月租</th><th>单价</th><th>面积</th><th>类型</th><th>最近MRT</th></tr>
-<tr>
-<td>1</td>
-<td><span style="display:inline-block;padding:2px 8px;border-radius:4px;background:#f0fdf4;color:#22c55e;font-weight:bold;border:1px solid #22c55e">A-99</span></td>
-<td><a href="https://www.commercialguru.com.sg/listing/for-rent-upper-circular-road-25283035" target="_blank">Upper circular road</a></td>
-<td>Upper circular road</td>
-<td>S$ 26,000 /mo</td>
-<td>S$ 6.06 psf</td>
-<td>4,288 sqft</td>
-<td>Shop / Shophouse</td>
-<td>CLARK QUAY MRT<br><small>117m</small></td>
-</tr><tr>
-<td>2</td>
-<td><span style="display:inline-block;padding:2px 8px;border-radius:4px;background:#f0fdf4;color:#22c55e;font-weight:bold;border:1px solid #22c55e">A-99</span></td>
-<td><a href="https://www.commercialguru.com.sg/listing/for-rent-south-bridge-road-500067498" target="_blank"></a></td>
-<td>198 – 198B South Bridge Road</td>
-<td>S$ 10,000 /mo</td>
-<td>S$ 6.06 psf</td>
-<td>1,650 sqft</td>
-<td>Shop / Shophouse</td>
-<td>CHINATOWN MRT<br><small>101m</small> <small>(换乘2线)</small></td>
-</tr><tr>
-<td>3</td>
-<td><span style="display:inline-block;padding:2px 8px;border-radius:4px;background:#f0fdf4;color:#22c55e;font-weight:bold;border:1px solid #22c55e">A-98</span></td>
-<td><a href="https://www.commercialguru.com.sg/listing/for-rent-boat-quay-conservation-area-25626227" target="_blank">Charming Rental Shophouse at 63, Boat Quay, Singapore</a></td>
-<td>63 Boat Quay</td>
-<td>S$ 6,800 /mo</td>
-<td>S$ 6.18 psf</td>
-<td>1,100 sqft</td>
-<td>Shop / Shophouse</td>
-<td>CLARKE QUAY MRT<br><small>309m</small></td>
-</tr><tr>
-<td>4</td>
-<td><span style="display:inline-block;padding:2px 8px;border-radius:4px;background:#f0fdf4;color:#22c55e;font-weight:bold;border:1px solid #22c55e">A-98</span></td>
-<td><a href="https://www.commercialguru.com.sg/listing/for-rent-boat-quay-conservation-area-500049700" target="_blank">Boat Quay unit for rent, suitable for office, pub, or gym use.</a></td>
-<td>63 Boat Quay</td>
-<td>S$ 17,000 /mo</td>
-<td>S$ 6.80 psf</td>
-<td>2,500 sqft</td>
-<td>Shop / Shophouse</td>
-<td>CLARKE QUAY MRT<br><small>309m</small></td>
-</tr><tr>
-<td>5</td>
-<td><span style="display:inline-block;padding:2px 8px;border-radius:4px;background:#f0fdf4;color:#22c55e;font-weight:bold;border:1px solid #22c55e">A-98</span></td>
-<td><a href="https://www.commercialguru.com.sg/listing/for-rent-kandahar-street-shop-house-500034164" target="_blank">Distinctive Shophouse Space Along Kandahar Street, Kampong Glam</a></td>
-<td>Kandahar Street</td>
-<td>S$ 13,999 /mo</td>
-<td>S$ 5.39 psf</td>
-<td>2,597 sqft</td>
-<td>Shop / Shophouse</td>
-<td>BUGIS MRT<br><small>441m</small> <small>(换乘2线)</small></td>
-</tr><tr>
-<td>6</td>
-<td><span style="display:inline-block;padding:2px 8px;border-radius:4px;background:#f0fdf4;color:#22c55e;font-weight:bold;border:1px solid #22c55e">A-97</span></td>
-<td><a href="https://www.commercialguru.com.sg/listing/for-rent-river-valley-road-500064889" target="_blank">Rare River Valley Shophouse Near MRT with High Visibility for Rent.</a></td>
-<td>River Valley Road</td>
-<td>S$ 3,600 /mo</td>
-<td>S$ 6.77 psf</td>
-<td>532 sqft</td>
-<td>Shop / Shophouse</td>
-<td>TIONG BAHRU MRT<br><small>781m</small></td>
-</tr><tr>
-<td>7</td>
-<td><span style="display:inline-block;padding:2px 8px;border-radius:4px;background:#f0fdf4;color:#22c55e;font-weight:bold;border:1px solid #22c55e">A-97</span></td>
-<td><a href="https://www.commercialguru.com.sg/listing/for-rent-cheap-east-coast-two-storey-shophouse-suits-medical-tution-centre-gym-pet-shop-60235827" target="_blank">East Coast Shophouse facing main road, avail soon</a></td>
-<td>156 East coast road</td>
-<td>S$ 11,888 /mo</td>
-<td>S$ 5.94 psf</td>
-<td>2,000 sqft</td>
-<td>Shop / Shophouse</td>
-<td>MARINE PARADE MRT<br><small>429m</small></td>
-</tr><tr>
-<td>8</td>
-<td><span style="display:inline-block;padding:2px 8px;border-radius:4px;background:#f0fdf4;color:#22c55e;font-weight:bold;border:1px solid #22c55e">A-97</span></td>
-<td><a href="https://www.commercialguru.com.sg/listing/for-rent-mohamed-sultan-night-club-pub-bar-500024246" target="_blank"></a></td>
-<td>Mohamed Sultan</td>
-<td>S$ 15,500 /mo</td>
-<td>S$ 3.60 psf</td>
-<td>4,300 sqft</td>
-<td>Shop / Shophouse</td>
-<td>FORT CANNING MRT<br><small>390m</small></td>
-</tr><tr>
-<td>9</td>
-<td><span style="display:inline-block;padding:2px 8px;border-radius:4px;background:#f0fdf4;color:#22c55e;font-weight:bold;border:1px solid #22c55e">A-97</span></td>
-<td><a href="https://www.commercialguru.com.sg/listing/for-rent-mohamed-sultan-60062408" target="_blank"></a></td>
-<td>Mohamed Sultan Road</td>
-<td>S$ 15,000 /mo</td>
-<td>S$ 3.66 psf</td>
-<td>4,100 sqft</td>
-<td>Shop / Shophouse</td>
-<td>FORT CANNING MRT<br><small>390m</small></td>
-</tr><tr>
-<td>10</td>
-<td><span style="display:inline-block;padding:2px 8px;border-radius:4px;background:#f0fdf4;color:#22c55e;font-weight:bold;border:1px solid #22c55e">A-96</span></td>
-<td><a href="https://www.commercialguru.com.sg/listing/for-rent-tras-street-25600177" target="_blank">Prime Shophouse Office at Level 2 available now!</a></td>
-<td>Tras Street</td>
-<td>S$ 16,000 /mo</td>
-<td>S$ 8.00 psf</td>
-<td>2,000 sqft</td>
-<td>Shop / Shophouse</td>
-<td>TANJONG PAGAR MRT<br><small>282m</small></td>
-</tr><tr>
-<td>11</td>
-<td><span style="display:inline-block;padding:2px 8px;border-radius:4px;background:#f0fdf4;color:#22c55e;font-weight:bold;border:1px solid #22c55e">A-96</span></td>
-<td><a href="https://www.commercialguru.com.sg/listing/for-rent-corner-dual-frontage-3-storey-building-for-training-ctr-cafe-retail-office-near-aljunied-mrt-500029011" target="_blank">Large floor plate, high electricity supply 63amps 3-phase.</a></td>
-<td>Geylang Road</td>
-<td>S$ 39,980 /mo</td>
-<td>S$ 5.00 psf</td>
-<td>8,000 sqft</td>
-<td>Shop / Shophouse</td>
-<td>ALJUNIED MRT<br><small>349m</small></td>
-</tr><tr>
-<td>12</td>
-<td><span style="display:inline-block;padding:2px 8px;border-radius:4px;background:#f0fdf4;color:#22c55e;font-weight:bold;border:1px solid #22c55e">A-95</span></td>
-<td><a href="https://www.commercialguru.com.sg/listing/for-rent-cuff-road-little-india-500001958" target="_blank"></a></td>
-<td>Cuff Road</td>
-<td>S$ 15,500 /mo</td>
-<td>S$ 3.88 psf</td>
-<td>4,000 sqft</td>
-<td>Shop / Shophouse</td>
-<td>JALAN BESAR MRT<br><small>314m</small></td>
-</tr><tr>
-<td>13</td>
-<td><span style="display:inline-block;padding:2px 8px;border-radius:4px;background:#f0fdf4;color:#22c55e;font-weight:bold;border:1px solid #22c55e">A-94</span></td>
-<td><a href="https://www.commercialguru.com.sg/listing/for-rent-452-ang-mo-kio-avenue-10-24813991" target="_blank">Tuition Class for Rent</a></td>
-<td>452 Ang Mo Kio Avenue 10</td>
-<td>S$ 500 /mo</td>
-<td>S$ 2.50 psf</td>
-<td>200 sqft</td>
-<td>Shop / Shophouse</td>
-<td>ANG MO KIO MRT<br><small>747m</small></td>
-</tr><tr>
-<td>14</td>
-<td><span style="display:inline-block;padding:2px 8px;border-radius:4px;background:#f0fdf4;color:#22c55e;font-weight:bold;border:1px solid #22c55e">A-94</span></td>
-<td><a href="https://www.commercialguru.com.sg/listing/for-rent-south-bridge-road-25569197" target="_blank">South bridge road</a></td>
-<td>South Bridge Road</td>
-<td>S$ 15,800 /mo</td>
-<td>S$ 7.90 psf</td>
-<td>2,000 sqft</td>
-<td>Shop / Shophouse</td>
-<td>CHINATOWN MRT<br><small>202m</small> <small>(换乘2线)</small></td>
-</tr><tr>
-<td>15</td>
-<td><span style="display:inline-block;padding:2px 8px;border-radius:4px;background:#f0fdf4;color:#22c55e;font-weight:bold;border:1px solid #22c55e">A-94</span></td>
-<td><a href="https://www.commercialguru.com.sg/listing/for-rent-507-balestier-road-25369230" target="_blank">Suitable for Enrichment School/Tuition Center/ID Renovation Company</a></td>
-<td>507 Balestier Road</td>
-<td>S$ 11,000 /mo</td>
-<td>S$ 4.40 psf</td>
-<td>2,500 sqft</td>
-<td>Shop / Shophouse</td>
-<td>TOA PAYOH MRT<br><small>701m</small></td>
-</tr><tr>
-<td>16</td>
-<td><span style="display:inline-block;padding:2px 8px;border-radius:4px;background:#f0fdf4;color:#22c55e;font-weight:bold;border:1px solid #22c55e">A-94</span></td>
-<td><a href="https://www.commercialguru.com.sg/listing/for-rent-111-jalan-bukit-merah-60046459" target="_blank"></a></td>
-<td>Jalan Bukit Merah</td>
-<td>S$ 5,188 /mo</td>
-<td>S$ 7.98 psf</td>
-<td>650 sqft</td>
-<td>Shop / Shophouse</td>
-<td>REDHILL MRT<br><small>613m</small></td>
-</tr><tr>
-<td>17</td>
-<td><span style="display:inline-block;padding:2px 8px;border-radius:4px;background:#f0fdf4;color:#22c55e;font-weight:bold;border:1px solid #22c55e">A-94</span></td>
-<td><a href="https://www.commercialguru.com.sg/listing/for-rent-38-teban-gardens-road-facing-37a-hawker-centre-500055562" target="_blank">Prominent large shop facing hawker centre, and Posb Atm</a></td>
-<td>38 Teban Gardens Road</td>
-<td>S$ 10,383 /mo</td>
-<td>S$ 7.20 psf</td>
-<td>1,442 sqft</td>
-<td>Shop / Shophouse</td>
-<td>PANDAN RESERVOIR MRT<br><small>236m</small></td>
-</tr><tr>
-<td>18</td>
-<td><span style="display:inline-block;padding:2px 8px;border-radius:4px;background:#f0fdf4;color:#22c55e;font-weight:bold;border:1px solid #22c55e">A-94</span></td>
-<td><a href="https://www.commercialguru.com.sg/listing/for-rent-upper-thomson-road-shop-houses-500043521" target="_blank"></a></td>
-<td>272 Upper Thomson Road</td>
-<td>S$ 5,800 /mo</td>
-<td>S$ 4.83 psf</td>
-<td>1,200 sqft</td>
-<td>Shop / Shophouse</td>
-<td>UPPER THOMSON MRT<br><small>70m</small></td>
-</tr><tr>
-<td>19</td>
-<td><span style="display:inline-block;padding:2px 8px;border-radius:4px;background:#f0fdf4;color:#22c55e;font-weight:bold;border:1px solid #22c55e">A-94</span></td>
-<td><a href="https://www.commercialguru.com.sg/listing/for-rent-telok-blangah-house-24252969" target="_blank"></a></td>
-<td>52 Telok Blangah Road</td>
-<td>S$ 1,100 /mo</td>
-<td>S$ 7.33 psf</td>
-<td>150 sqft</td>
-<td>Shop / Shophouse</td>
-<td>HARBOURFRONT MRT<br><small>224m</small> <small>(换乘2线)</small></td>
-</tr><tr>
-<td>20</td>
-<td><span style="display:inline-block;padding:2px 8px;border-radius:4px;background:#f0fdf4;color:#22c55e;font-weight:bold;border:1px solid #22c55e">A-93</span></td>
-<td><a href="https://www.commercialguru.com.sg/listing/for-rent-ground-floor-shophouse-along-jalan-besar-60221505" target="_blank">Great location ground floor Jalan Besar shophouse for rent</a></td>
-<td>Jalan Besar</td>
-<td>S$ 9,000 /mo</td>
-<td>S$ 6.98 psf</td>
-<td>1,289 sqft</td>
-<td>Shop / Shophouse</td>
-<td>LAVENDER MRT<br><small>523m</small></td>
-</tr><tr>
-<td>21</td>
-<td><span style="display:inline-block;padding:2px 8px;border-radius:4px;background:#f0fdf4;color:#22c55e;font-weight:bold;border:1px solid #22c55e">A-93</span></td>
-<td><a href="https://www.commercialguru.com.sg/listing/for-rent-aljunied-road-500055862" target="_blank">Prominent 3-Storey Commercial Building – Near Aljunied MRT</a></td>
-<td>Aljunied road</td>
-<td>S$ 44,000 /mo</td>
-<td>S$ 5.51 psf</td>
-<td>7,981 sqft</td>
-<td>Shop / Shophouse</td>
-<td>MATTAR MRT<br><small>544m</small></td>
-</tr><tr>
-<td>22</td>
-<td><span style="display:inline-block;padding:2px 8px;border-radius:4px;background:#f0fdf4;color:#22c55e;font-weight:bold;border:1px solid #22c55e">A-91</span></td>
-<td><a href="https://www.commercialguru.com.sg/listing/for-rent-168-east-coast-road-facing-main-road-500053512" target="_blank">Immediate. 2 Storey Shophouse at East Coast Road. Face Main Road.</a></td>
-<td>East Coast Road</td>
-<td>S$ 11,500 /mo</td>
-<td>S$ 5.71 psf</td>
-<td>2,015 sqft</td>
-<td>Shop / Shophouse</td>
-<td>SIGLAP MRT<br><small>327m</small></td>
-</tr><tr>
-<td>23</td>
-<td><span style="display:inline-block;padding:2px 8px;border-radius:4px;background:#f0fdf4;color:#22c55e;font-weight:bold;border:1px solid #22c55e">A-90</span></td>
-<td><a href="https://www.commercialguru.com.sg/listing/for-rent-sembawang-road-500044155" target="_blank">Unit in Sembawang – Ideal for Gym/Pilates/yoga/ Tuition near chompang</a></td>
-<td>Sembawang road</td>
-<td>S$ 5,999 /mo</td>
-<td>S$ 3.33 psf</td>
-<td>1,800 sqft</td>
-<td>Shop / Shophouse</td>
-<td>YISHUN MRT<br><small>919m</small></td>
-</tr><tr>
-<td>24</td>
-<td><span style="display:inline-block;padding:2px 8px;border-radius:4px;background:#f0fdf4;color:#22c55e;font-weight:bold;border:1px solid #22c55e">A-89</span></td>
-<td><a href="https://www.commercialguru.com.sg/listing/for-rent-509-balestier-road-329848-500032577" target="_blank">Suitable for Enrichment School/ Tuition Center/ Id Renovation Company</a></td>
-<td>Balestier Road</td>
-<td>S$ 11,000 /mo</td>
-<td>S$ 4.23 psf</td>
-<td>2,600 sqft</td>
-<td>Shop / Shophouse</td>
-<td>BOON KENG MRT<br><small>996m</small></td>
-</tr><tr>
-<td>25</td>
-<td><span style="display:inline-block;padding:2px 8px;border-radius:4px;background:#f0fdf4;color:#22c55e;font-weight:bold;border:1px solid #22c55e">A-87</span></td>
-<td><a href="https://www.commercialguru.com.sg/listing/for-rent-syed-alwi-road-f-b-shophouse-500025889" target="_blank">Syed Alwi Road F & B Shophouse For Rent!</a></td>
-<td>Syed Alwi Road</td>
-<td>S$ 18,500 /mo</td>
-<td>S$ 7.58 psf</td>
-<td>2,440 sqft</td>
-<td>Shop / Shophouse</td>
-<td>LAVENDER MRT<br><small>417m</small></td>
-</tr><tr>
-<td>26</td>
-<td><span style="display:inline-block;padding:2px 8px;border-radius:4px;background:#f0fdf4;color:#22c55e;font-weight:bold;border:1px solid #22c55e">A-87</span></td>
-<td><a href="https://www.commercialguru.com.sg/listing/for-rent-ideal-for-24-hr-biz-yishun-ground-floor-shop-basement-parking-60235840" target="_blank">Prime Yishun shop facing road, open to other uses</a></td>
-<td>369 Sembawang road</td>
-<td>S$ 13,000 /mo</td>
-<td>S$ 8.13 psf</td>
-<td>1,599 sqft</td>
-<td>Shop / Shophouse</td>
-<td>YISHUN MRT<br><small>1034m</small></td>
-</tr><tr>
-<td>27</td>
-<td><span style="display:inline-block;padding:2px 8px;border-radius:4px;background:#f0fdf4;color:#22c55e;font-weight:bold;border:1px solid #22c55e">A-86</span></td>
-<td><a href="https://www.commercialguru.com.sg/listing/for-rent-122-bedok-north-street-2-25525250" target="_blank">122 Bedok north ave 2</a></td>
-<td>122 Bedok North Street 2</td>
-<td>S$ 2,800 /mo</td>
-<td>S$ 8.00 psf</td>
-<td>350 sqft</td>
-<td>Shop / Shophouse</td>
-<td>TANAH MERAH MRT<br><small>965m</small></td>
-</tr><tr>
-<td>28</td>
-<td><span style="display:inline-block;padding:2px 8px;border-radius:4px;background:#f0fdf4;color:#22c55e;font-weight:bold;border:1px solid #22c55e">A-84</span></td>
-<td><a href="https://www.commercialguru.com.sg/listing/for-rent-165-bukit-merah-central-500055614" target="_blank">2-Storey Shophouse with Large Floor Plate in a Prime Location</a></td>
-<td>165 Bukit Merah Central</td>
-<td>S$ 18,173 /mo</td>
-<td>S$ 9.10 psf</td>
-<td>1,997 sqft</td>
-<td>Shop / Shophouse</td>
-<td>REDHILL MRT<br><small>732m</small></td>
-</tr><tr>
-<td>29</td>
-<td><span style="display:inline-block;padding:2px 8px;border-radius:4px;background:#f0fdf4;color:#22c55e;font-weight:bold;border:1px solid #22c55e">A-81</span></td>
-<td><a href="https://www.commercialguru.com.sg/listing/for-rent-101-towner-road-500056317" target="_blank">Rare large 2-storey shophouse above Boon Keng MRT with high footfall</a></td>
-<td>101 Towner Road</td>
-<td>S$ 27,855 /mo</td>
-<td>S$ 8.50 psf</td>
-<td>3,277 sqft</td>
-<td>Shop / Shophouse</td>
-<td>BOON KENG MRT<br><small>55m</small></td>
-</tr><tr>
-<td>30</td>
-<td><span style="display:inline-block;padding:2px 8px;border-radius:4px;background:#eff6ff;color:#3b82f6;font-weight:bold;border:1px solid #3b82f6">B-74</span></td>
-<td><a href="https://www.commercialguru.com.sg/listing/for-rent-tg-pagar-road-shophouse-f-b-approved-500013265" target="_blank">F&B-approved shophouse on Tanjong Pagar Road</a></td>
-<td>Tanjong Pagar Road</td>
-<td>S$ 18,000 /mo</td>
-<td>S$ 11.25 psf</td>
-<td>1,600 sqft</td>
-<td>Shop / Shophouse</td>
-<td>TANJONG PAGAR MRT<br><small>254m</small></td>
-</tr><tr>
-<td>31</td>
-<td><span style="display:inline-block;padding:2px 8px;border-radius:4px;background:#eff6ff;color:#3b82f6;font-weight:bold;border:1px solid #3b82f6">B-70</span></td>
-<td><a href="https://www.commercialguru.com.sg/listing/for-rent-418-yishun-avenue-11-21733571" target="_blank">Next to coffeeshop and supermarket</a></td>
-<td>418 Yishun Avenue 11</td>
-<td>S$ 16,800 /mo</td>
-<td>S$ 21.40 psf</td>
-<td>785 sqft</td>
-<td>Shop / Shophouse</td>
-<td>YISHUN MRT<br><small>1452m</small></td>
-</tr><tr>
-<td>32</td>
-<td><span style="display:inline-block;padding:2px 8px;border-radius:4px;background:#eff6ff;color:#3b82f6;font-weight:bold;border:1px solid #3b82f6">B-69</span></td>
-<td><a href="https://www.commercialguru.com.sg/listing/for-rent-prinsep-place-25516430" target="_blank">C.H.E.A.P Cat 1 License Shophouse Pub Bar with Pa Slots</a></td>
-<td>76 Prinsep Street</td>
-<td>S$ 9,800 /mo</td>
-<td>S$ 9.80 psf</td>
-<td>1,000 sqft</td>
-<td>Shop / Shophouse</td>
-<td>BENCOOLEN MRT<br><small>111m</small></td>
-</tr><tr>
-<td>33</td>
-<td><span style="display:inline-block;padding:2px 8px;border-radius:4px;background:#eff6ff;color:#3b82f6;font-weight:bold;border:1px solid #3b82f6">B-68</span></td>
-<td><a href="https://www.commercialguru.com.sg/listing/for-rent-83-lorong-2-toa-payoh-60110147" target="_blank">HDB Ground floor Shop space at Lorong 2 Toa Payoh for rent.</a></td>
-<td>83 Lorong 2 Toa Payoh</td>
-<td>S$ 7,500 /mo</td>
-<td>S$ 9.62 psf</td>
-<td>780 sqft</td>
-<td>Shop / Shophouse</td>
-<td>TOA PAYOH MRT<br><small>355m</small></td>
-</tr><tr>
-<td>34</td>
-<td><span style="display:inline-block;padding:2px 8px;border-radius:4px;background:#eff6ff;color:#3b82f6;font-weight:bold;border:1px solid #3b82f6">B-61</span></td>
-<td><a href="https://www.commercialguru.com.sg/listing/for-rent-boon-tat-street-500067162" target="_blank">Rental or take-over for Shophouse.</a></td>
-<td>Boon Tat Street</td>
-<td>S$ 12,000 /mo</td>
-<td>S$ 12.00 psf</td>
-<td>1,000 sqft</td>
-<td>Shop / Shophouse</td>
-<td>TELOK AYER MRT<br><small>143m</small></td>
-</tr><tr>
-<td>35</td>
-<td><span style="display:inline-block;padding:2px 8px;border-radius:4px;background:#f9fafb;color:#9ca3af;font-weight:bold;border:1px solid #9ca3af">C-55</span></td>
-<td><a href="https://www.commercialguru.com.sg/listing/for-rent-tg-pagar-road-shophouse-f-b-approved-500013844" target="_blank">Tanjong pagar road shophouse approved F&B with strong foot traffic</a></td>
-<td>Tanjong Pagar Road</td>
-<td>S$ 12,000 /mo</td>
-<td>S$ 13.33 psf</td>
-<td>900 sqft</td>
-<td>Shop / Shophouse</td>
-<td>TANJONG PAGAR MRT<br><small>254m</small></td>
-</tr><tr>
-<td>36</td>
-<td><span style="display:inline-block;padding:2px 8px;border-radius:4px;background:#f9fafb;color:#9ca3af;font-weight:bold;border:1px solid #9ca3af">C-54</span></td>
-<td><a href="https://www.commercialguru.com.sg/listing/for-rent-261-serangoon-central-500055625" target="_blank">Prominent location with high footfall, and large floor plate</a></td>
-<td>261 Serangoon Central</td>
-<td>S$ 23,773 /mo</td>
-<td>S$ 18.40 psf</td>
-<td>1,292 sqft</td>
-<td>Shop / Shophouse</td>
-<td>SERANGOON MRT<br><small>381m</small> <small>(换乘2线)</small></td>
-</tr><tr>
-<td>37</td>
-<td><span style="display:inline-block;padding:2px 8px;border-radius:4px;background:#f9fafb;color:#9ca3af;font-weight:bold;border:1px solid #9ca3af">C-54</span></td>
-<td><a href="https://www.commercialguru.com.sg/listing/for-rent-492-jurong-west-street-41-500055533" target="_blank">Prominent shop with bus stop in front, and surrounded by food courts</a></td>
-<td>492 Jurong West Street 41</td>
-<td>S$ 17,572 /mo</td>
-<td>S$ 13.60 psf</td>
-<td>1,292 sqft</td>
-<td>Shop / Shophouse</td>
-<td>LAKESIDE MRT<br><small>788m</small></td>
-</tr><tr>
-<td>38</td>
-<td><span style="display:inline-block;padding:2px 8px;border-radius:4px;background:#f9fafb;color:#9ca3af;font-weight:bold;border:1px solid #9ca3af">C-48</span></td>
-<td><a href="https://www.commercialguru.com.sg/listing/for-rent-727-clementi-west-street-2-500055577" target="_blank">2-Storey Shophouse Right Beside a Coffee House, and 726 Hawker Market</a></td>
-<td>727 Clementi West Street 2</td>
-<td>S$ 13,176 /mo</td>
-<td>S$ 8.00 psf</td>
-<td>1,647 sqft</td>
-<td>Shop / Shophouse</td>
-<td>CLEMENTI MRT<br><small>1210m</small></td>
-</tr><tr>
-<td>39</td>
-<td></td>
-<td><a href="https://www.commercialguru.com.sg/listing/for-rent-north-bridge-road-500055656" target="_blank">North bridge road</a></td>
-<td></td>
-<td>S$ 4,500 /mo</td>
-<td>S$ 4.50 psf</td>
-<td>1,000 sqft</td>
-<td>Shop / Shophouse</td>
-<td></td>
-</tr><tr>
-<td>40</td>
-<td></td>
-<td><a href="https://www.commercialguru.com.sg/listing/for-rent-tras-street-shophouse-office-services-retail-60122267" target="_blank">Tras Street L2 Nicely Fitted Office</a></td>
-<td>Tras Street | Tanjong Pagar | Duxton | Club Street</td>
-<td>S$ 15,000 /mo</td>
-<td>S$ 8.82 psf</td>
-<td>1,700 sqft</td>
-<td>Shop / Shophouse</td>
-<td></td>
-</tr><tr>
-<td>41</td>
-<td></td>
-<td><a href="https://www.commercialguru.com.sg/listing/for-rent-duxton-road-shophouse-office-2-mins-walk-from-mrt-high-ceiling-25560389" target="_blank">1,500 sq ft Shophouse at Duxton Road</a></td>
-<td>Duxton Road | Tanjong Pagar | Tras Street</td>
-<td>S$ 12,500 /mo</td>
-<td>S$ 8.33 psf</td>
-<td>1,500 sqft</td>
-<td>Shop / Shophouse</td>
-<td></td>
-</tr><tr>
-<td>42</td>
-<td></td>
-<td><a href="https://www.commercialguru.com.sg/listing/for-rent-club-street-ang-siang-amoy-street-60043447" target="_blank">Ground floor and L2 Shophouse for Rent in Prime CBD</a></td>
-<td>Club Street, Amoy Street</td>
-<td>S$ 14,000 /mo</td>
-<td>S$ 8.24 psf</td>
-<td>1,700 sqft</td>
-<td>Shop / Shophouse</td>
-<td></td>
-</tr><tr>
-<td>43</td>
-<td></td>
-<td><a href="https://www.commercialguru.com.sg/listing/for-rent-restaurant-cafe-retail-dempsey-500062987" target="_blank">Rarely available ground floor units at Dempsey</a></td>
-<td></td>
-<td>S$ 29,430 /mo</td>
-<td>S$ 9.00 psf</td>
-<td>3,270 sqft</td>
-<td>Shop / Shophouse</td>
-<td></td>
-</tr><tr>
-<td>44</td>
-<td></td>
-<td><a href="https://www.commercialguru.com.sg/listing/for-rent-duxton-hill-shophouse-60044312" target="_blank">Prime Duxton Hill Conservation Shophouse</a></td>
-<td>⭐️</td>
-<td>S$ 22,500 /mo</td>
-<td>S$ 7.50 psf</td>
-<td>3,000 sqft</td>
-<td>Shop / Shophouse</td>
-<td></td>
-</tr><tr>
-<td>45</td>
-<td></td>
-<td><a href="https://www.commercialguru.com.sg/listing/for-rent-39-hong-kong-street-500037829" target="_blank">Strategic CBD Location Office with Excellent Connectivity</a></td>
-<td></td>
-<td>S$ 15,000 /mo</td>
-<td>S$ 10.04 psf</td>
-<td>1,494 sqft</td>
-<td>Shop / Shophouse</td>
-<td></td>
-</tr><tr>
-<td>46</td>
-<td></td>
-<td><a href="https://www.commercialguru.com.sg/listing/for-rent-f-b-for-rent-east-coast-road-500046128" target="_blank">Super Good Frontage Cafe Restaurant Space for rent Good Traffic Crowd</a></td>
-<td></td>
-<td>S$ 9,800 /mo</td>
-<td>S$ 16.33 psf</td>
-<td>600 sqft</td>
-<td>Shop / Shophouse</td>
-<td></td>
-</tr><tr>
-<td>47</td>
-<td></td>
-<td><a href="https://www.commercialguru.com.sg/listing/for-rent-keong-siak-road-f-b-retail-shops-for-rent-500026957" target="_blank">Keong Saik Road Iconic Ground Floor F&B Shop For Rent</a></td>
-<td>Keong Siak Road</td>
-<td>S$ 14,800 /mo</td>
-<td>S$ 13.90 psf</td>
-<td>1,065 sqft</td>
-<td>Shop / Shophouse</td>
-<td></td>
-</tr><tr>
-<td>48</td>
-<td></td>
-<td><a href="https://www.commercialguru.com.sg/listing/for-rent-club-street-office-with-2-toilets-60016117" target="_blank">Renovated. Very good ceiling height and width. One Call View All.</a></td>
-<td>Duxton Road/ Ann Siang Road/ Tras Street</td>
-<td>S$ 14,000 /mo</td>
-<td>S$ 8.24 psf</td>
-<td>1,700 sqft</td>
-<td>Shop / Shophouse</td>
-<td></td>
-</tr><tr>
-<td>49</td>
-<td></td>
-<td><a href="https://www.commercialguru.com.sg/listing/for-rent-tras-street-shophouse-office-60046439" target="_blank">Very Bright Unit. Near to few MRT/ Bus stop. One call view all units.</a></td>
-<td>Duxton Hill | Club Street | Ann Siang</td>
-<td>S$ 32,000 /mo</td>
-<td>S$ 8.00 psf</td>
-<td>4,000 sqft</td>
-<td>Shop / Shophouse</td>
-<td></td>
-</tr><tr>
-<td>50</td>
-<td></td>
-<td><a href="https://www.commercialguru.com.sg/listing/for-rent-73a-bussorah-street-25415234" target="_blank">New shophouse unit for rental</a></td>
-<td></td>
-<td>S$ 6,500 /mo</td>
-<td>S$ 5.42 psf</td>
-<td>1,200 sqft</td>
-<td>Shop / Shophouse</td>
-<td></td>
-</tr><tr>
-<td>51</td>
-<td></td>
-<td><a href="https://www.commercialguru.com.sg/listing/for-rent-owen-road-race-course-road-500068073" target="_blank">Good frontage with dual entrances facing the road</a></td>
-<td></td>
-<td>S$ 7,888 /mo</td>
-<td>S$ 6.66 psf</td>
-<td>1,184 sqft</td>
-<td>Shop / Shophouse</td>
-<td></td>
-</tr><tr>
-<td>52</td>
-<td></td>
-<td><a href="https://www.commercialguru.com.sg/listing/for-rent-246-upper-thomson-road-25481895" target="_blank">Main road facing lvl2, near MRT station, move in condition!</a></td>
-<td></td>
-<td>S$ 11,500 /mo</td>
-<td>S$ 6.76 psf</td>
-<td>1,700 sqft</td>
-<td>Shop / Shophouse</td>
-<td></td>
-</tr><tr>
-<td>53</td>
-<td></td>
-<td><a href="https://www.commercialguru.com.sg/listing/for-rent-108-hougang-ave-1-500061554" target="_blank"></a></td>
-<td></td>
-<td>S$ 7,900 /mo</td>
-<td>S$ 10.96 psf</td>
-<td>721 sqft</td>
-<td>Shop / Shophouse</td>
-<td></td>
-</tr><tr>
-<td>54</td>
-<td></td>
-<td><a href="https://www.commercialguru.com.sg/listing/for-rent-no-takeover-fees-cat-1-license-central-location-60064063" target="_blank">No Takeover Fees Cat 1 License Pub Bar in Central</a></td>
-<td></td>
-<td>S$ 9,888 /mo</td>
-<td>S$ 9.89 psf</td>
-<td>1,000 sqft</td>
-<td>Shop / Shophouse</td>
-<td></td>
-</tr><tr>
-<td>55</td>
-<td></td>
-<td><a href="https://www.commercialguru.com.sg/listing/for-rent-186-toa-payoh-central-500002401" target="_blank"></a></td>
-<td></td>
-<td>S$ 7,800 /mo</td>
-<td>S$ 14.77 psf</td>
-<td>528 sqft</td>
-<td>Shop / Shophouse</td>
-<td></td>
-</tr><tr>
-<td>56</td>
-<td></td>
-<td><a href="https://www.commercialguru.com.sg/listing/for-rent-shophouse-office-lvl-2-amoy-street-24767828" target="_blank">Level 2 Shophouse Office with Mezzanine On Amoy Street</a></td>
-<td>Amoy Street | Telok Ayer Street | Stanley Street</td>
-<td>S$ 6,900 /mo</td>
-<td>S$ 6.90 psf</td>
-<td>1,000 sqft</td>
-<td>Shop / Shophouse</td>
-<td></td>
-</tr><tr>
-<td>57</td>
-<td></td>
-<td><a href="https://www.commercialguru.com.sg/listing/for-rent-arab-street-500065654" target="_blank">Ground Floor Shophouse On Arab St, Steps From Mural On Muscat Street</a></td>
-<td>Arab Street | North Bridge Road | Baghdad Street</td>
-<td>S$ 17,000 /mo</td>
-<td>S$ 17.53 psf</td>
-<td>970 sqft</td>
-<td>Shop / Shophouse</td>
-<td></td>
-</tr><tr>
-<td>58</td>
-<td></td>
-<td><a href="https://www.commercialguru.com.sg/listing/for-rent-few-units-available-tras-street-level-2-near-mrt-bright-unit-60052527" target="_blank">2-3 mins to MRT. One call to view all units.</a></td>
-<td>Tanjong Pagar | Duxton Road | Duxton Hill</td>
-<td>S$ 14,500 /mo</td>
-<td>S$ 8.06 psf</td>
-<td>1,800 sqft</td>
-<td>Shop / Shophouse</td>
-<td></td>
-</tr><tr>
-<td>59</td>
-<td></td>
-<td><a href="https://www.commercialguru.com.sg/listing/for-rent-67-kallang-bahru-500056078" target="_blank"></a></td>
-<td></td>
-<td>S$ 6,800 /mo</td>
-<td>S$ 7.56 psf</td>
-<td>900 sqft</td>
-<td>Shop / Shophouse</td>
-<td></td>
-</tr><tr>
-<td>60</td>
-<td></td>
-<td><a href="https://www.commercialguru.com.sg/listing/for-rent-arab-street-office-retail-showroom-500004652" target="_blank">Modern 2 Storey Shophouse, Perfect for Office, Retail Showroom</a></td>
-<td>Arab Street, North Bridge Road,</td>
-<td>S$ 18,000 /mo</td>
-<td>S$ 7.83 psf</td>
-<td>2,300 sqft</td>
-<td>Shop / Shophouse</td>
-<td></td>
-</tr>
-</table>
-<p class="source">数据来源: <a href="https://www.commercialguru.com.sg/shop-for-rent">CommercialGuru</a></p>
+
+<div class="nav">
+  <a href="/villa"><span>Villa</span></a>
+  <a href="/fnb"><span>F&amp;B</span></a>
+  <a href="/shop" class="active"><span>Shop</span></a>
+</div>
+</header>
+
+<div class="grid">
+<div class="card" style="--i:0;--gc:#888;--gg:none" onclick="window.open('#')">
+<div class="card-header">
+<div class="grade-ring"><svg viewBox="0 0 44 44"><circle class="track" cx="22" cy="22" r="20" stroke-width="3"/><circle class="progress" cx="22" cy="22" r="20" stroke="#888" data-pct="0"/></svg><div class="grade-letter" style="color:#888">-<span class="score-num"></span></div></div>
+<div class="title">No new shop listings today</div>
+</div>
+<div class="card-body">
+<div class="price">Check back tomorrow</div>
+</div></div>
+</div>
+
+<footer>
+  <div>Data: <a href="https://www.commercialguru.com.sg">commercialguru</a></div>
+  <div class="footer-links">
+    <a href="/villa">Villa</a>
+    <a href="/fnb">F&amp;B</a>
+    <a href="/shop">Shop</a>
+    <a href="/">leonardchow.work</a>
+  </div>
+</footer>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════
+//  1. WebGL Aurora Background
+// ═══════════════════════════════════════════════
+(function(){
+  const cv=document.getElementById('aurora'),gl=cv.getContext('webgl');
+  if(!gl)return;
+  function resize(){cv.width=innerWidth;cv.height=innerHeight;gl.viewport(0,0,cv.width,cv.height)}
+  resize();addEventListener('resize',resize);
+
+  const vs=`attribute vec2 p;void main(){gl_Position=vec4(p,0,1);}`;
+  const fs=`precision highp float;
+  uniform float t;uniform vec2 r;
+  void main(){
+    vec2 u=(gl_FragCoord.xy-.5*r)/min(r.x,r.y);
+    float a=0.;
+    for(int i=0;i<5;i++){
+      float fi=float(i);
+      float wave=sin(u.x*2.+t*.3+fi*.7)*cos(u.y*1.5+t*.2+fi*.5)*.5;
+      wave+=sin(length(u-vec2(sin(t*.1+fi),cos(t*.15+fi)))*(3.+fi))*(.15-fi*.02);
+      a+=wave;
+    }
+    a=smoothstep(-.5,.8,a)*.12;
+    vec3 c1=vec3(.65,.33,.97);vec3 c2=vec3(0.,.83,1.);vec3 c3=vec3(0.,1.,.53);
+    vec3 col=mix(mix(c1,c2,sin(t*.2)*.5+.5),c3,sin(t*.3+1.)*.5+.5);
+    gl_FragColor=vec4(col*a,a*.6);
+  }`;
+
+  function sh(type,src){const s=gl.createShader(type);gl.shaderSource(s,src);gl.compileShader(s);return s}
+  const pg=gl.createProgram();
+  gl.attachShader(pg,sh(gl.VERTEX_SHADER,vs));
+  gl.attachShader(pg,sh(gl.FRAGMENT_SHADER,fs));
+  gl.linkProgram(pg);gl.useProgram(pg);
+
+  const buf=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,buf);
+  gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,1,1]),gl.STATIC_DRAW);
+  const pl=gl.getAttribLocation(pg,'p');gl.enableVertexAttribArray(pl);
+  gl.vertexAttribPointer(pl,2,gl.FLOAT,!1,0,0);
+
+  const tl=gl.getUniformLocation(pg,'t'),rl=gl.getUniformLocation(pg,'r');
+  gl.enable(gl.BLEND);gl.blendFunc(gl.SRC_ALPHA,gl.ONE);
+
+  (function draw(now){
+    gl.uniform1f(tl,now*.001);gl.uniform2f(rl,cv.width,cv.height);
+    gl.clear(gl.COLOR_BUFFER_BIT);gl.drawArrays(gl.TRIANGLE_STRIP,0,4);
+    requestAnimationFrame(draw);
+  })(0);
+})();
+
+// ═══════════════════════════════════════════════
+//  2. Constellation particles (on top of aurora)
+// ═══════════════════════════════════════════════
+(function(){
+  const cv2=document.createElement('canvas');
+  cv2.style.cssText='position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none';
+  document.body.insertBefore(cv2,document.body.firstChild.nextSibling);
+  const x=cv2.getContext('2d');
+  let w,h,pts=[];
+  function resize(){w=cv2.width=innerWidth;h=cv2.height=innerHeight;pts=[];for(let i=0;i<60;i++)pts.push({x:Math.random()*w,y:Math.random()*h,vx:(Math.random()-.5)*.4,vy:(Math.random()-.5)*.4,r:Math.random()*1.5+.3})}
+  function draw(){
+    x.clearRect(0,0,w,h);
+    pts.forEach(p=>{
+      p.x+=p.vx;p.y+=p.vy;
+      if(p.x<0||p.x>w)p.vx*=-1;if(p.y<0||p.y>h)p.vy*=-1;
+      x.beginPath();x.arc(p.x,p.y,p.r,0,Math.PI*2);
+      x.fillStyle='rgba(168,85,247,0.35)';x.fill();
+    });
+    for(let i=0;i<pts.length;i++)for(let j=i+1;j<pts.length;j++){
+      const d=Math.hypot(pts[i].x-pts[j].x,pts[i].y-pts[j].y);
+      if(d<130){x.beginPath();x.moveTo(pts[i].x,pts[i].y);x.lineTo(pts[j].x,pts[j].y);x.strokeStyle='rgba(168,85,247,'+(1-d/130)*.12+')';x.stroke()}
+    }
+    requestAnimationFrame(draw);
+  }
+  resize();draw();addEventListener('resize',resize);
+})();
+
+// ═══════════════════════════════════════════════
+//  3. Scroll-reveal cards (IntersectionObserver)
+// ═══════════════════════════════════════════════
+const obs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');obs.unobserve(e.target)}})
+},{threshold:0.1,rootMargin:'0px 0px -40px 0px'});
+document.querySelectorAll('.card').forEach(c=>obs.observe(c));
+
+// ═══════════════════════════════════════════════
+//  4. 3D Card tilt on mouse
+// ═══════════════════════════════════════════════
+document.querySelectorAll('.card').forEach(card=>{
+  card.addEventListener('mousemove',e=>{
+    const r=card.getBoundingClientRect();
+    const x=(e.clientX-r.left)/r.width-.5;
+    const y=(e.clientY-r.top)/r.height-.5;
+    card.style.transform=`translateY(-8px) scale(1.02) rotateY(${x*8}deg) rotateX(${-y*8}deg)`;
+  });
+  card.addEventListener('mouseleave',()=>{card.style.transform=''});
+});
+
+// ═══════════════════════════════════════════════
+//  5. Animated counters
+// ═══════════════════════════════════════════════
+document.querySelectorAll('.stat-num').forEach(el=>{
+  const target=parseInt(el.dataset.count)||0;
+  let cur=0;const dur=1200;const start=performance.now();
+  function step(now){
+    const p=Math.min((now-start)/dur,1);
+    const ease=1-Math.pow(1-p,3);
+    cur=Math.round(target*ease);
+    el.textContent=cur;
+    if(p<1)requestAnimationFrame(step);
+  }
+  setTimeout(()=>requestAnimationFrame(step),400);
+});
+
+// ═══════════════════════════════════════════════
+//  6. Animated SVG grade rings in cards
+// ═══════════════════════════════════════════════
+setTimeout(()=>{
+  document.querySelectorAll('.grade-ring .progress').forEach(c=>{
+    const pct=parseFloat(c.dataset.pct)||0;
+    const circ=2*Math.PI*20;
+    c.style.strokeDasharray=circ;
+    c.style.strokeDashoffset=circ*(1-pct/100);
+  });
+},600);
+</script>
 </body>
 </html>
