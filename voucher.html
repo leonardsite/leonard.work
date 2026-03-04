@@ -320,13 +320,17 @@ function cleanProductName(rawName, merchantPrefix) {
 
 function parseMeituanDatetime(dateStr) {
     // Format: "Sun Feb 22 20:33:03 CST 2026"
-    // Remove timezone abbreviation
-    const cleaned = dateStr.replace(/\s+[A-Z]{3,4}\s+/, ' ');
-    const d = new Date(cleaned);
-    if (isNaN(d.getTime())) {
-        // Try alternative parse
-        return new Date(dateStr);
+    // Remove timezone abbreviation (position-aware: between time and year)
+    const cleaned = dateStr.trim().replace(/(\d{2}:\d{2}:\d{2})\s+[A-Z]{2,5}\s+(\d{4})/, '$1 $2');
+    // Parse manually to avoid timezone-dependent new Date() behavior
+    const m = cleaned.match(/\w+\s+(\w+)\s+(\d+)\s+(\d+):(\d+):(\d+)\s+(\d+)/);
+    if (m) {
+        const months = {Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6,Aug:7,Sep:8,Oct:9,Nov:10,Dec:11};
+        return new Date(parseInt(m[6]), months[m[1]] || 0, parseInt(m[2]), parseInt(m[3]), parseInt(m[4]), parseInt(m[5]));
     }
+    // Fallback
+    const d = new Date(cleaned);
+    if (isNaN(d.getTime())) return new Date(dateStr);
     return d;
 }
 
@@ -469,8 +473,8 @@ function parseExcel(data) {
     }
 
     const products = [];
-    for (const [name, data] of Object.entries(groups)) {
-        products.push({ name, qty: data.qty, unit_price: data.unit_price });
+    for (const [name, groupInfo] of Object.entries(groups)) {
+        products.push({ name, qty: groupInfo.qty, unit_price: groupInfo.unit_price });
     }
 
     sourceData = { products, dateRange, recordCount };
@@ -484,7 +488,8 @@ btnGenerate.addEventListener('click', generatePreview);
 function getStatementData() {
     const merchantKey = merchantSelect.value;
     const merchant = MERCHANTS[merchantKey];
-    const commissionRate = parseFloat(commissionRateInput.value) || 5;
+    const parsedRate = parseFloat(commissionRateInput.value);
+    const commissionRate = isNaN(parsedRate) ? 5 : parsedRate;
     const commissionPct = commissionRate / 100;
     const statementNo = statementNoInput.value;
     const products = sourceData.products;
@@ -942,7 +947,7 @@ ${rows}
         <tr><td class="bank-label">Account Name:</td><td>${merchant.legal_name}</td></tr>
         <tr><td class="bank-label">Bank Account:</td><td>${merchant.bank_account}</td></tr>
         <tr><td class="bank-label">Bank Name:</td><td>${merchant.bank_name}</td></tr>
-        <tr><td class="bank-label">Beneficiary Address:</td><td>${merchant.bank_address}</td></tr>
+        <tr><td class="bank-label">Beneficiary Address：</td><td>${merchant.bank_address}</td></tr>
     </table>
 </div>
 </div>
