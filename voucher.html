@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Meituan E-Voucher Statement Generator</title>
+<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    background: #f5f7fa;
+    color: #333;
+    line-height: 1.6;
+}
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 24px;
+}
+header {
+    text-align: center;
+    padding: 32px 0 24px;
+}
+header h1 {
+    font-size: 28px;
+    color: #1a3a5c;
+    margin-bottom: 4px;
+}
+header p {
+    font-size: 14px;
+    color: #6b7c93;
+}
+.card {
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    padding: 28px;
+    margin-bottom: 20px;
+}
+.card h2 {
+    font-size: 16px;
+    color: #1a3a5c;
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #e8ecf1;
+}
+.drop-zone {
+    border: 2px dashed #c0cfe0;
+    border-radius: 10px;
+    padding: 48px 24px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: #f8fafd;
+    margin-bottom: 20px;
+}
+.drop-zone:hover, .drop-zone.dragover {
+    border-color: #3b82f6;
+    background: #eff6ff;
+}
+.drop-zone .icon {
+    font-size: 48px;
+    color: #93b4d4;
+    margin-bottom: 12px;
+}
+.drop-zone p {
+    color: #6b7c93;
+    font-size: 14px;
+}
+.drop-zone .filename {
+    color: #1a3a5c;
+    font-weight: 600;
+    font-size: 15px;
+    margin-top: 8px;
+}
+.form-row {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+}
+.form-group {
+    flex: 1;
+    min-width: 200px;
+}
+.form-group label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: #4a5568;
+    margin-bottom: 6px;
+}
+.form-group input, .form-group select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #d1d9e6;
+    border-radius: 6px;
+    font-size: 14px;
+    color: #333;
+    background: #fff;
+    transition: border-color 0.2s;
+}
+.form-group input:focus, .form-group select:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
+}
+.btn-row {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 20px;
+}
+.btn {
+    padding: 10px 22px;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+.btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+.btn-primary {
+    background: #3b82f6;
+    color: #fff;
+}
+.btn-primary:hover:not(:disabled) {
+    background: #2563eb;
+}
+.btn-secondary {
+    background: #e8ecf1;
+    color: #1a3a5c;
+}
+.btn-secondary:hover:not(:disabled) {
+    background: #d1d9e6;
+}
+.btn-success {
+    background: #10b981;
+    color: #fff;
+}
+.btn-success:hover:not(:disabled) {
+    background: #059669;
+}
+.preview-wrap {
+    overflow-x: auto;
+    margin-top: 12px;
+}
+.preview-wrap table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+    min-width: 900px;
+}
+.preview-wrap th {
+    background: #d9e1f2;
+    padding: 8px 6px;
+    border: 1px solid #b4c0d4;
+    font-weight: 600;
+    color: #1a3a5c;
+    text-align: center;
+    white-space: pre-line;
+}
+.preview-wrap td {
+    padding: 7px 6px;
+    border: 1px solid #d1d9e6;
+    text-align: center;
+}
+.preview-wrap .summary-row td {
+    font-weight: 600;
+    border: none;
+    padding-top: 12px;
+}
+.preview-wrap .bank-row td {
+    border: none;
+    text-align: left;
+    font-size: 11px;
+    padding: 3px 6px;
+    color: #4a5568;
+}
+.info-bar {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+    padding: 12px 16px;
+    background: #f0f7ff;
+    border-radius: 6px;
+    font-size: 13px;
+    color: #1a3a5c;
+}
+.info-bar span { font-weight: 600; }
+.hidden { display: none; }
+.status {
+    padding: 10px 16px;
+    border-radius: 6px;
+    font-size: 13px;
+    margin-bottom: 16px;
+}
+.status.error {
+    background: #fef2f2;
+    color: #dc2626;
+    border: 1px solid #fecaca;
+}
+.status.success {
+    background: #f0fdf4;
+    color: #16a34a;
+    border: 1px solid #bbf7d0;
+}
+@media (max-width: 600px) {
+    .container { padding: 12px; }
+    header h1 { font-size: 22px; }
+    .card { padding: 16px; }
+    .drop-zone { padding: 32px 16px; }
+    .form-group { min-width: 100%; }
+}
+@media print {
+    body { background: #fff; }
+    .no-print { display: none !important; }
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>美团 E-Voucher Statement 生成器</h1>
+        <p>Meituan E-Voucher Statement Generator</p>
+    </header>
+
+    <div class="card no-print">
+        <h2>1. 上传文件 Upload File</h2>
+        <div class="drop-zone" id="dropZone">
+            <div class="icon">&#128196;</div>
+            <p>拖拽 .xlsx 文件到此处，或点击选择文件<br>Drag & drop .xlsx file here, or click to select</p>
+            <div class="filename" id="fileName"></div>
+        </div>
+        <input type="file" id="fileInput" accept=".xlsx,.xls" class="hidden">
+
+        <h2>2. 设置 Settings</h2>
+        <div class="form-row">
+            <div class="form-group">
+                <label>商户 Merchant</label>
+                <select id="merchantSelect">
+                    <option value="莆田" selected>莆田新加坡</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>佣金比例 Commission Rate (%)</label>
+                <input type="number" id="commissionRate" value="5" min="0" max="100" step="0.1">
+            </div>
+            <div class="form-group">
+                <label>账单编号 Statement No.</label>
+                <input type="text" id="statementNo" placeholder="e.g. INV-2026-001">
+            </div>
+        </div>
+
+        <div id="statusMsg" class="hidden"></div>
+
+        <div class="btn-row">
+            <button class="btn btn-primary" id="btnGenerate" disabled>生成预览 Generate Preview</button>
+            <button class="btn btn-success" id="btnDownloadXlsx" disabled>Download Excel (.xlsx)</button>
+            <button class="btn btn-secondary" id="btnDownloadHtml" disabled>Download HTML</button>
+        </div>
+    </div>
+
+    <div class="card hidden" id="previewCard">
+        <h2>3. 预览 Preview</h2>
+        <div id="infoBar" class="info-bar"></div>
+        <div class="preview-wrap" id="previewWrap"></div>
+    </div>
+</div>
+
+<script>
+// ============================================================
+// Configuration
+// ============================================================
+const MERCHANTS = {
+    "莆田": {
+        display_name: "莆田新加坡",
+        legal_name: "Pu Tien Restaurant Pte Ltd",
+        address: "1 Harbourfront Avenue, Keppel Bay Tower #06-01 Singapore 098632",
+        bank_account: "0119025301",
+        bank_name: "DBS Bank",
+        bank_address: "12, Marina Boulevard, Level 43, DBS Asia Central@Marina Bay Financial Centre Tower 3, Singapore 018982",
+        default_commission: 5,
+    }
+};
+
+const COMPANY = {
+    name: "UFRIEND MEDIA PTE. LTD.",
+    address_line1: "111 North Bridge Road, #14-04 Peninsula Plaza",
+    address_line2: "Singapore 179098",
+    email: "finance@ufriendmedia.com",
+    phone: "+ 65 81388290",
+};
+
+const PRODUCT_MAPPINGS = {
+    "价值50新加坡元代金券": "$50代金券",
+};
+
+// ============================================================
+// Utility functions
+// ============================================================
+function cleanProductName(rawName, merchantPrefix) {
+    let name = rawName;
+    if (name.startsWith(merchantPrefix)) {
+        name = name.slice(merchantPrefix.length);
+    }
+    name = name.replace(/\[[\d.]+元\]$/, '');
+    return PRODUCT_MAPPINGS[name] || name;
+}
+
+function parseMeituanDatetime(dateStr) {
+    // Format: "Sun Feb 22 20:33:03 CST 2026"
+    // Remove timezone abbreviation
+    const cleaned = dateStr.replace(/\s+[A-Z]{3,4}\s+/, ' ');
+    const d = new Date(cleaned);
+    if (isNaN(d.getTime())) {
+        // Try alternative parse
+        return new Date(dateStr);
+    }
+    return d;
+}
+
+function formatDateRange(start, end) {
+    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    return `${start.getDate()} ${months[start.getMonth()]} - ${end.getDate()} ${months[end.getMonth()]}`;
+}
+
+function padZero(n) { return n < 10 ? '0' + n : '' + n; }
+
+function todayStr() {
+    const d = new Date();
+    return `${d.getFullYear()}.${padZero(d.getMonth()+1)}.${padZero(d.getDate())}`;
+}
+
+function fmtNum(n, decimals) {
+    return n.toFixed(decimals).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+}
+
+// ============================================================
+// State
+// ============================================================
+let sourceData = null; // { products, dateRange, recordCount }
+
+// ============================================================
+// DOM Elements
+// ============================================================
+const dropZone = document.getElementById('dropZone');
+const fileInput = document.getElementById('fileInput');
+const fileNameEl = document.getElementById('fileName');
+const merchantSelect = document.getElementById('merchantSelect');
+const commissionRateInput = document.getElementById('commissionRate');
+const statementNoInput = document.getElementById('statementNo');
+const btnGenerate = document.getElementById('btnGenerate');
+const btnDownloadXlsx = document.getElementById('btnDownloadXlsx');
+const btnDownloadHtml = document.getElementById('btnDownloadHtml');
+const statusMsg = document.getElementById('statusMsg');
+const previewCard = document.getElementById('previewCard');
+const infoBar = document.getElementById('infoBar');
+const previewWrap = document.getElementById('previewWrap');
+
+// ============================================================
+// File Upload Handling
+// ============================================================
+dropZone.addEventListener('click', () => fileInput.click());
+dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('dragover'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+dropZone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    dropZone.classList.remove('dragover');
+    if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
+});
+fileInput.addEventListener('change', () => {
+    if (fileInput.files.length) handleFile(fileInput.files[0]);
+});
+
+function showStatus(msg, type) {
+    statusMsg.className = 'status ' + type;
+    statusMsg.textContent = msg;
+    statusMsg.classList.remove('hidden');
+}
+function hideStatus() { statusMsg.classList.add('hidden'); }
+
+function handleFile(file) {
+    if (!file.name.match(/\.xlsx?$/i)) {
+        showStatus('请上传 .xlsx 文件 / Please upload an .xlsx file', 'error');
+        return;
+    }
+    hideStatus();
+    fileNameEl.textContent = file.name;
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            parseExcel(new Uint8Array(e.target.result));
+            btnGenerate.disabled = false;
+            showStatus(`成功读取 ${sourceData.recordCount} 条记录，聚合为 ${sourceData.products.length} 个产品 / Loaded ${sourceData.recordCount} records, aggregated into ${sourceData.products.length} products`, 'success');
+        } catch(err) {
+            showStatus('解析失败 / Parse error: ' + err.message, 'error');
+            console.error(err);
+        }
+    };
+    reader.readAsArrayBuffer(file);
+}
+
+// ============================================================
+// Excel Parsing
+// ============================================================
+function parseExcel(data) {
+    const wb = XLSX.read(data, { type: 'array' });
+
+    // Find sheet containing "明细"
+    let sheetName = null;
+    for (const name of wb.SheetNames) {
+        if (name.indexOf('明细') !== -1) { sheetName = name; break; }
+    }
+    if (!sheetName) {
+        sheetName = wb.SheetNames.length > 1 ? wb.SheetNames[1] : wb.SheetNames[0];
+    }
+
+    const ws = wb.Sheets[sheetName];
+    const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
+
+    const merchantKey = merchantSelect.value;
+    const merchantPrefix = merchantKey; // e.g. "莆田"
+
+    const groups = {};
+    const dates = [];
+    let recordCount = 0;
+
+    // Start from row index 1 (row 2 in Excel, skip header)
+    for (let i = 1; i < rows.length; i++) {
+        const row = rows[i];
+        if (!row[2]) continue; // Column C empty - skip
+
+        recordCount++;
+        const rawName = String(row[2]);
+        const cleaned = cleanProductName(rawName, merchantPrefix);
+        const redemptionTime = row[7] ? String(row[7]) : null;
+        const foreignPrice = parseFloat(row[11]) || 0; // Column L
+
+        if (!groups[cleaned]) {
+            groups[cleaned] = { qty: 0, unit_price: 0, raw_name: rawName };
+        }
+        groups[cleaned].qty += 1;
+        groups[cleaned].unit_price = foreignPrice;
+
+        if (redemptionTime) {
+            try {
+                const dt = parseMeituanDatetime(redemptionTime);
+                if (!isNaN(dt.getTime())) dates.push(dt);
+            } catch(e) { /* skip */ }
+        }
+    }
+
+    let dateRange = 'N/A';
+    if (dates.length > 0) {
+        dates.sort((a, b) => a - b);
+        dateRange = formatDateRange(dates[0], dates[dates.length - 1]);
+    }
+
+    const products = [];
+    for (const [name, data] of Object.entries(groups)) {
+        products.push({ name, qty: data.qty, unit_price: data.unit_price });
+    }
+
+    sourceData = { products, dateRange, recordCount };
+}
+
+// ============================================================
+// Generate Preview
+// ============================================================
+btnGenerate.addEventListener('click', generatePreview);
+
+function getStatementData() {
+    const merchantKey = merchantSelect.value;
+    const merchant = MERCHANTS[merchantKey];
+    const commissionRate = parseFloat(commissionRateInput.value) || 5;
+    const commissionPct = commissionRate / 100;
+    const statementNo = statementNoInput.value;
+    const products = sourceData.products;
+    const dateRange = sourceData.dateRange;
+
+    const lineItems = products.map(p => {
+        const priceWithoutComm = p.unit_price;
+        const priceWithComm = +(priceWithoutComm * (1 - commissionPct)).toFixed(3);
+        const totalWithComm = +(priceWithComm * p.qty).toFixed(3);
+        const totalWithoutComm = +(priceWithoutComm * p.qty).toFixed(3);
+        const commissionAmount = +(totalWithoutComm - totalWithComm).toFixed(3);
+        const netAmount = totalWithComm;
+        return {
+            date: dateRange,
+            description: p.name,
+            qty: p.qty,
+            pct: commissionRate,
+            priceWithComm,
+            priceWithoutComm,
+            totalWithComm,
+            totalWithoutComm,
+            commissionAmount,
+            netAmount,
+        };
+    });
+
+    const totalNet = lineItems.reduce((s, r) => s + r.netAmount, 0);
+    const totalCommission = lineItems.reduce((s, r) => s + r.commissionAmount, 0);
+    const totalWithoutComm = lineItems.reduce((s, r) => s + r.totalWithoutComm, 0);
+
+    return { merchant, merchantKey, commissionRate, commissionPct, statementNo, lineItems, totalNet, totalCommission, totalWithoutComm, dateRange };
+}
+
+function generatePreview() {
+    if (!sourceData) return;
+    const d = getStatementData();
+
+    // Info bar
+    infoBar.innerHTML = `
+        <div>日期范围 Date Range: <span>${d.dateRange}</span></div>
+        <div>产品数 Products: <span>${d.lineItems.length}</span></div>
+        <div>总记录 Records: <span>${sourceData.recordCount}</span></div>
+        <div>佣金 Commission: <span>${d.commissionRate}%</span></div>
+    `;
+
+    // Table
+    let html = '<table>';
+    html += '<thead><tr>';
+    html += '<th>Date</th><th>Description</th><th>Qty</th><th>%</th>';
+    html += '<th>Price with\ncommission</th><th>Price without\ncommission</th>';
+    html += '<th>Total with\ncommission</th><th>Total without\ncommission</th>';
+    html += '<th>Commission\nAmount</th><th>Net Amount</th>';
+    html += '</tr></thead><tbody>';
+
+    for (const item of d.lineItems) {
+        html += '<tr>';
+        html += `<td>${item.date}</td>`;
+        html += `<td>${item.description}</td>`;
+        html += `<td>${item.qty}</td>`;
+        html += `<td>${item.pct}</td>`;
+        html += `<td>${fmtNum(item.priceWithComm, 3)}</td>`;
+        html += `<td>${fmtNum(item.priceWithoutComm, 2)}</td>`;
+        html += `<td>${fmtNum(item.totalWithComm, 3)}</td>`;
+        html += `<td>${fmtNum(item.totalWithoutComm, 2)}</td>`;
+        html += `<td>${fmtNum(item.commissionAmount, 3)}</td>`;
+        html += `<td>${fmtNum(item.netAmount, 3)}</td>`;
+        html += '</tr>';
+    }
+
+    // Total row
+    html += '<tr class="summary-row">';
+    html += '<td colspan="8"></td>';
+    html += `<td style="text-align:right;font-weight:700;">Total</td>`;
+    html += `<td style="font-weight:700;">${fmtNum(d.totalNet, 3)}</td>`;
+    html += '</tr>';
+
+    // Bank info rows
+    html += '<tr class="bank-row">';
+    html += `<td colspan="2">Account Name:</td><td colspan="5">${d.merchant.legal_name}</td>`;
+    html += `<td></td><td style="text-align:right;">Commission Amount</td><td>${fmtNum(d.totalCommission, 3)}</td>`;
+    html += '</tr>';
+    html += '<tr class="bank-row">';
+    html += `<td colspan="2">Bank Account:</td><td colspan="5">${d.merchant.bank_account}</td>`;
+    html += `<td></td><td style="text-align:right;">Total with Commission</td><td>${fmtNum(d.totalWithoutComm, 2)}</td>`;
+    html += '</tr>';
+    html += '<tr class="bank-row">';
+    html += `<td colspan="2">Bank Name:</td><td colspan="5">${d.merchant.bank_name}</td>`;
+    html += `<td></td><td style="text-align:right;">Payment</td><td></td>`;
+    html += '</tr>';
+    html += '<tr class="bank-row">';
+    html += `<td colspan="2">Beneficiary Address:</td><td colspan="5">${d.merchant.bank_address}</td>`;
+    html += `<td></td><td style="text-align:right;">Balance Due</td><td style="font-weight:700;">${fmtNum(d.totalNet, 3)}</td>`;
+    html += '</tr>';
+
+    html += '</tbody></table>';
+    previewWrap.innerHTML = html;
+    previewCard.classList.remove('hidden');
+    btnDownloadXlsx.disabled = false;
+    btnDownloadHtml.disabled = false;
+}
+
+// ============================================================
+// Download Excel
+// ============================================================
+btnDownloadXlsx.addEventListener('click', downloadExcel);
+
+function downloadExcel() {
+    if (!sourceData) return;
+    const d = getStatementData();
+    const merchant = d.merchant;
+
+    const wb = XLSX.utils.book_new();
+    const wsData = [];
+
+    // We'll build a 2D array and then set merges + styles manually
+    // Columns: A=0, B=1, C=2, D=3, E=4, F=5, G=6, H=7, I=8, J=9, K=10
+
+    // Row 0 (Excel row 1): Company name
+    wsData.push([COMPANY.name, '', '', '', '', '', '', '', '', '', '']);
+    // Row 1 (Excel row 2)
+    wsData.push(['', '', '', '', '', '', '', '', COMPANY.address_line1, '', '']);
+    // Row 2 (Excel row 3)
+    wsData.push(['', '', '', '', '', '', '', '', COMPANY.address_line2, '', '']);
+    // Row 3 (Excel row 4)
+    wsData.push(['', '', '', '', '', '', '', '', COMPANY.email, '', '']);
+    // Row 4 (Excel row 5)
+    wsData.push(['', '', '', '', '', '', '', '', COMPANY.phone, '', '']);
+    // Row 5 (Excel row 6): Merchant
+    wsData.push(['Merchant:', '', '', '', merchant.display_name, '', '', '', '', '', '']);
+    // Row 6 (Excel row 7): Name
+    wsData.push(['Name', '', '', '', merchant.legal_name, '', '', '', '', '', '']);
+    // Row 7 (Excel row 8): Address + Statement No.
+    wsData.push(['Street Address', '', '', '', merchant.address, '', '', '', '', 'Statement No.', d.statementNo]);
+    // Row 8 (Excel row 9): Statement Date
+    wsData.push(['', '', '', '', '', '', '', '', '', 'Statement Date', todayStr()]);
+    // Row 9 (Excel row 10): spacer
+    wsData.push(['', '', '', '', '', '', '', '', '', '', '']);
+    // Row 10 (Excel row 11): E-Voucher Statement title
+    wsData.push(['', '', '', '', '', '', '', 'E-Voucher Statement', '', '', '']);
+    // Row 11 (Excel row 12): Headers
+    wsData.push(['Date', 'Description', '', 'Qty', '%', 'Price with\ncommission', 'Price without\ncommission', 'Total with\ncommission', 'Total without\ncommission', 'Commission\nAmount', 'Net Amount']);
+    // Row 12 (Excel row 13): Second header row (merged with above)
+    wsData.push(['', '', '', '', '', '', '', '', '', '', '']);
+
+    // Data rows (Excel row 14+)
+    const dataStartExcel = 14; // 1-indexed
+    const dataStartIdx = wsData.length; // 0-indexed array index
+
+    for (const item of d.lineItems) {
+        wsData.push([
+            item.date,
+            item.description,
+            '',
+            item.qty,
+            item.pct,
+            { t: 'n', v: item.priceWithComm, z: '#,##0.000' },
+            { t: 'n', v: item.priceWithoutComm, z: '#,##0.00' },
+            { t: 'n', v: item.totalWithComm, z: '#,##0.000' },
+            { t: 'n', v: item.totalWithoutComm, z: '#,##0.00' },
+            { t: 'n', v: item.commissionAmount, z: '#,##0.000' },
+            { t: 'n', v: item.netAmount, z: '#,##0.000' },
+        ]);
+    }
+
+    const lastDataIdx = wsData.length - 1;
+    const lastDataExcel = lastDataIdx + 1;
+
+    // Total row
+    const totalRowIdx = wsData.length;
+    wsData.push(['', '', '', '', '', '', '', '', '', 'Total', { t: 'n', v: d.totalNet, z: '#,##0.000' }]);
+
+    // Bank info rows
+    const bankRow1Idx = wsData.length;
+    wsData.push(['Account Name: ', '', '', merchant.legal_name, '', '', '', '', '', 'Commission Amount', { t: 'n', v: d.totalCommission, z: '#,##0.000' }]);
+
+    const bankRow2Idx = wsData.length;
+    wsData.push(['Bank Account', '', '', merchant.bank_account, '', '', '', '', '', 'Total with Commission ', { t: 'n', v: d.totalWithoutComm, z: '#,##0.00' }]);
+
+    const bankRow3Idx = wsData.length;
+    wsData.push(['Bank Name', '', '', merchant.bank_name, '', '', '', '', '', 'Payment', '']);
+
+    const bankRow4Idx = wsData.length;
+    wsData.push(['Beneficiary Address：', '', '', merchant.bank_address, '', '', '', '', '', 'Balance Due', { t: 'n', v: d.totalNet, z: '#,##0.000' }]);
+
+    // Create worksheet from array
+    const ws = XLSX.utils.aoa_to_sheet(wsData);
+
+    // Set column widths
+    ws['!cols'] = [
+        { wch: 14 }, // A
+        { wch: 14 }, // B
+        { wch: 6 },  // C
+        { wch: 6 },  // D
+        { wch: 6 },  // E
+        { wch: 16 }, // F
+        { wch: 16 }, // G
+        { wch: 16 }, // H
+        { wch: 16 }, // I
+        { wch: 14 }, // J
+        { wch: 14 }, // K
+    ];
+
+    // Merges (0-indexed: {s:{r:row,c:col}, e:{r:row,c:col}})
+    const merges = [
+        // Company name A1:G3
+        { s: { r: 0, c: 0 }, e: { r: 2, c: 6 } },
+        // Address right side
+        { s: { r: 1, c: 8 }, e: { r: 1, c: 10 } }, // I2:K2
+        { s: { r: 2, c: 8 }, e: { r: 2, c: 10 } }, // I3:K3
+        { s: { r: 3, c: 8 }, e: { r: 3, c: 10 } }, // I4:K4
+        { s: { r: 4, c: 8 }, e: { r: 4, c: 10 } }, // I5:K5
+        // Merchant display name E6:F6
+        { s: { r: 5, c: 4 }, e: { r: 5, c: 5 } },
+        // Name A7:B7
+        { s: { r: 6, c: 0 }, e: { r: 6, c: 1 } },
+        // Address E8:G8
+        { s: { r: 7, c: 4 }, e: { r: 7, c: 6 } },
+        // Row 9 merges
+        { s: { r: 8, c: 0 }, e: { r: 8, c: 1 } },
+        { s: { r: 8, c: 4 }, e: { r: 8, c: 5 } },
+        // Row 10 merges
+        { s: { r: 9, c: 0 }, e: { r: 9, c: 1 } },
+        { s: { r: 9, c: 4 }, e: { r: 9, c: 5 } },
+        // E-Voucher Statement H11:K11
+        { s: { r: 10, c: 7 }, e: { r: 10, c: 10 } },
+        { s: { r: 10, c: 4 }, e: { r: 10, c: 5 } },
+        // Headers: merge row 12-13 vertically for each header column
+        { s: { r: 11, c: 0 }, e: { r: 12, c: 0 } }, // A12:A13 Date
+        { s: { r: 11, c: 1 }, e: { r: 12, c: 2 } }, // B12:C13 Description
+        { s: { r: 11, c: 3 }, e: { r: 12, c: 3 } }, // D12:D13 Qty
+        { s: { r: 11, c: 4 }, e: { r: 12, c: 4 } }, // E12:E13 %
+        { s: { r: 11, c: 5 }, e: { r: 12, c: 5 } }, // F12:F13
+        { s: { r: 11, c: 6 }, e: { r: 12, c: 6 } }, // G12:G13
+        { s: { r: 11, c: 7 }, e: { r: 12, c: 7 } }, // H12:H13
+        { s: { r: 11, c: 8 }, e: { r: 12, c: 8 } }, // I12:I13
+        { s: { r: 11, c: 9 }, e: { r: 12, c: 9 } }, // J12:J13
+        { s: { r: 11, c: 10 }, e: { r: 12, c: 10 } }, // K12:K13
+    ];
+
+    // Data row merges: B:C merged for each data row
+    for (let i = 0; i < d.lineItems.length; i++) {
+        merges.push({ s: { r: dataStartIdx + i, c: 1 }, e: { r: dataStartIdx + i, c: 2 } });
+    }
+
+    // Bank rows merges
+    // Account Name A:B merge
+    merges.push({ s: { r: bankRow1Idx, c: 0 }, e: { r: bankRow1Idx, c: 1 } });
+    // Account Name value D:H merge
+    merges.push({ s: { r: bankRow1Idx, c: 3 }, e: { r: bankRow1Idx, c: 7 } });
+
+    // Bank Account A:B merge
+    merges.push({ s: { r: bankRow2Idx, c: 0 }, e: { r: bankRow2Idx, c: 1 } });
+    // Bank Account value D:G merge
+    merges.push({ s: { r: bankRow2Idx, c: 3 }, e: { r: bankRow2Idx, c: 6 } });
+
+    // Bank Name A:B merge
+    merges.push({ s: { r: bankRow3Idx, c: 0 }, e: { r: bankRow3Idx, c: 1 } });
+    // Bank Name value D:G merge
+    merges.push({ s: { r: bankRow3Idx, c: 3 }, e: { r: bankRow3Idx, c: 6 } });
+
+    // Beneficiary Address A:B merge
+    merges.push({ s: { r: bankRow4Idx, c: 0 }, e: { r: bankRow4Idx, c: 1 } });
+    // Beneficiary Address value D:H merge
+    merges.push({ s: { r: bankRow4Idx, c: 3 }, e: { r: bankRow4Idx, c: 7 } });
+
+    ws['!merges'] = merges;
+
+    // Set formulas for data rows
+    for (let i = 0; i < d.lineItems.length; i++) {
+        const excelRow = dataStartExcel + i;
+        const commFactor = 1 - d.commissionPct;
+
+        // F column: =G{row}*(1-commission)
+        ws[XLSX.utils.encode_cell({ r: dataStartIdx + i, c: 5 })] = {
+            t: 'n', f: `G${excelRow}*${commFactor}`, z: '#,##0.000'
+        };
+        // H column: =F{row}*D{row}
+        ws[XLSX.utils.encode_cell({ r: dataStartIdx + i, c: 7 })] = {
+            t: 'n', f: `F${excelRow}*D${excelRow}`, z: '#,##0.000'
+        };
+        // I column: =G{row}*D{row}
+        ws[XLSX.utils.encode_cell({ r: dataStartIdx + i, c: 8 })] = {
+            t: 'n', f: `G${excelRow}*D${excelRow}`, z: '#,##0.00'
+        };
+        // J column: =I{row}-H{row}
+        ws[XLSX.utils.encode_cell({ r: dataStartIdx + i, c: 9 })] = {
+            t: 'n', f: `I${excelRow}-H${excelRow}`, z: '#,##0.000'
+        };
+        // K column: =H{row}
+        ws[XLSX.utils.encode_cell({ r: dataStartIdx + i, c: 10 })] = {
+            t: 'n', f: `H${excelRow}`, z: '#,##0.000'
+        };
+    }
+
+    // Total K: =SUM(K{dataStart}:K{lastData})
+    ws[XLSX.utils.encode_cell({ r: totalRowIdx, c: 10 })] = {
+        t: 'n', f: `SUM(K${dataStartExcel}:K${lastDataExcel})`, z: '#,##0.000'
+    };
+
+    // Commission Amount K: =SUM(J{dataStart}:J{lastData})
+    ws[XLSX.utils.encode_cell({ r: bankRow1Idx, c: 10 })] = {
+        t: 'n', f: `SUM(J${dataStartExcel}:J${lastDataExcel})`, z: '#,##0.000'
+    };
+
+    // Total with Commission K: =SUM(I{dataStart}:I{lastData})
+    ws[XLSX.utils.encode_cell({ r: bankRow2Idx, c: 10 })] = {
+        t: 'n', f: `SUM(I${dataStartExcel}:I${lastDataExcel})`, z: '#,##0.00'
+    };
+
+    // Balance Due K: =K{totalRow}
+    const totalExcelRow = totalRowIdx + 1;
+    ws[XLSX.utils.encode_cell({ r: bankRow4Idx, c: 10 })] = {
+        t: 'n', f: `K${totalExcelRow}`, z: '#,##0.000'
+    };
+
+    // Sheet name
+    const sheetName = merchant.display_name;
+    XLSX.utils.book_append_sheet(wb, ws, sheetName);
+
+    // Generate filename
+    const now = new Date();
+    const mm = padZero(now.getMonth() + 1);
+    const yyyy = now.getFullYear();
+    const filename = `${merchant.display_name}-美团E-Voucher Statement (${mm}_${yyyy}).xlsx`;
+
+    XLSX.writeFile(wb, filename);
+}
+
+// ============================================================
+// Download HTML (printable A4)
+// ============================================================
+btnDownloadHtml.addEventListener('click', downloadHtml);
+
+function downloadHtml() {
+    if (!sourceData) return;
+    const d = getStatementData();
+    const merchant = d.merchant;
+
+    let rows = '';
+    for (const item of d.lineItems) {
+        rows += `
+        <tr>
+            <td>${item.date}</td>
+            <td colspan="2">${item.description}</td>
+            <td>${item.qty}</td>
+            <td>${item.pct}</td>
+            <td>${fmtNum(item.priceWithComm, 3)}</td>
+            <td>${fmtNum(item.priceWithoutComm, 2)}</td>
+            <td>${fmtNum(item.totalWithComm, 3)}</td>
+            <td>${fmtNum(item.totalWithoutComm, 2)}</td>
+            <td>${fmtNum(item.commissionAmount, 3)}</td>
+            <td>${fmtNum(item.netAmount, 3)}</td>
+        </tr>`;
+    }
+
+    const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>E-Voucher Statement - ${merchant.display_name}</title>
+<style>
+@page { size: A4 landscape; margin: 15mm; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: Arial, Helvetica, sans-serif; font-size: 10px; color: #000; padding: 20px; }
+.header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; }
+.company-name { font-size: 20px; font-weight: bold; }
+.company-info { text-align: right; font-size: 9px; line-height: 1.5; }
+.merchant-info { margin-bottom: 10px; font-size: 10px; }
+.merchant-info table { border-collapse: collapse; }
+.merchant-info td { padding: 2px 8px 2px 0; vertical-align: top; }
+.merchant-info td.label { font-weight: normal; }
+.merchant-info td.value { }
+.statement-meta { text-align: right; font-size: 9px; margin-bottom: 6px; }
+.statement-title { text-align: right; font-size: 20px; margin-bottom: 10px; }
+table.data { width: 100%; border-collapse: collapse; font-size: 9px; margin-bottom: 6px; }
+table.data th { background: #d9e1f2; border: 1px solid #b4c0d4; padding: 5px 4px; text-align: center; font-weight: bold; white-space: pre-line; vertical-align: middle; }
+table.data td { border: 1px solid #d1d9e6; padding: 4px; text-align: center; }
+.summary td { border: none !important; font-size: 9px; padding: 3px 4px; }
+.summary .label { text-align: right; font-weight: bold; }
+.bank-section { margin-top: 4px; }
+.bank-section table { border-collapse: collapse; width: 100%; font-size: 9px; }
+.bank-section td { padding: 2px 4px; vertical-align: top; }
+.bank-label { width: 120px; }
+.totals-section { float: right; width: 280px; }
+.totals-section table { border-collapse: collapse; width: 100%; font-size: 9px; }
+.totals-section td { padding: 2px 4px; }
+.totals-section td:first-child { text-align: right; }
+.totals-section td:last-child { text-align: right; width: 100px; }
+.clearfix::after { content: ''; display: table; clear: both; }
+</style>
+</head>
+<body>
+<div class="header">
+    <div class="company-name">${COMPANY.name}</div>
+    <div class="company-info">
+        ${COMPANY.address_line1}<br>
+        ${COMPANY.address_line2}<br>
+        ${COMPANY.email}<br>
+        ${COMPANY.phone}
+    </div>
+</div>
+
+<div class="merchant-info">
+    <table>
+        <tr><td class="label"><strong>Merchant:</strong></td><td></td><td class="value"><strong>${merchant.display_name}</strong></td></tr>
+        <tr><td class="label">Name</td><td></td><td class="value">${merchant.legal_name}</td></tr>
+        <tr><td class="label">Street Address</td><td></td><td class="value">${merchant.address}</td></tr>
+    </table>
+</div>
+
+<div class="statement-meta">
+    <strong>Statement No.</strong> ${d.statementNo}<br>
+    <strong>Statement Date</strong> ${todayStr()}
+</div>
+
+<div class="statement-title">E-Voucher Statement</div>
+
+<table class="data">
+<thead>
+<tr>
+    <th>Date</th>
+    <th colspan="2">Description</th>
+    <th>Qty</th>
+    <th>%</th>
+    <th>Price with
+commission</th>
+    <th>Price without
+commission</th>
+    <th>Total with
+commission</th>
+    <th>Total without
+commission</th>
+    <th>Commission
+Amount</th>
+    <th>Net Amount</th>
+</tr>
+</thead>
+<tbody>
+${rows}
+</tbody>
+</table>
+
+<div class="clearfix">
+<div class="totals-section">
+    <table>
+        <tr><td><strong>Total</strong></td><td><strong>${fmtNum(d.totalNet, 3)}</strong></td></tr>
+        <tr><td>Commission Amount</td><td>${fmtNum(d.totalCommission, 3)}</td></tr>
+        <tr><td>Total with Commission</td><td>${fmtNum(d.totalWithoutComm, 2)}</td></tr>
+        <tr><td>Payment</td><td></td></tr>
+        <tr><td><strong>Balance Due</strong></td><td><strong>${fmtNum(d.totalNet, 3)}</strong></td></tr>
+    </table>
+</div>
+<div class="bank-section">
+    <table>
+        <tr><td class="bank-label">Account Name:</td><td>${merchant.legal_name}</td></tr>
+        <tr><td class="bank-label">Bank Account:</td><td>${merchant.bank_account}</td></tr>
+        <tr><td class="bank-label">Bank Name:</td><td>${merchant.bank_name}</td></tr>
+        <tr><td class="bank-label">Beneficiary Address:</td><td>${merchant.bank_address}</td></tr>
+    </table>
+</div>
+</div>
+
+</body>
+</html>`;
+
+    const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const now = new Date();
+    const mm = padZero(now.getMonth() + 1);
+    const yyyy = now.getFullYear();
+    a.href = url;
+    a.download = `${merchant.display_name}-美团E-Voucher Statement (${mm}_${yyyy}).html`;
+    a.click();
+    URL.revokeObjectURL(url);
+}
+</script>
+</body>
+</html>
