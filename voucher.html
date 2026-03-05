@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>UFriend Media - Document Generator</title>
+<title>UFriend Media - 文档生成器</title>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 <style>
 /* ============================================================
@@ -475,17 +475,17 @@ header p {
 
 <div class="container">
     <header>
-        <h1>UFriend Media - Document Generator</h1>
-        <p>E-Voucher Statement / Invoice / Quotation</p>
+        <h1>UFriend Media - 文档生成器</h1>
+        <p>电子券对账单 / 发票 / 报价单</p>
     </header>
 
     <!-- ============================================================
          Tab Navigation
          ============================================================ -->
     <div class="tab-nav no-print">
-        <button class="tab-btn active" data-tab="voucher">E-Voucher Statement</button>
-        <button class="tab-btn" data-tab="invoice">Invoice</button>
-        <button class="tab-btn" data-tab="quotation">Quotation</button>
+        <button class="tab-btn active" data-tab="voucher">电子券对账单</button>
+        <button class="tab-btn" data-tab="invoice">发票</button>
+        <button class="tab-btn" data-tab="quotation">报价单</button>
     </div>
 
     <!-- ============================================================
@@ -493,28 +493,28 @@ header p {
          ============================================================ -->
     <div id="tab-voucher" class="tab-content">
         <div class="card no-print">
-            <h2>1. Upload Meituan Report</h2>
+            <h2>1. 上传美团报表</h2>
             <div class="drop-zone" id="voucherDropZone">
                 <div class="icon">&#128196;</div>
-                <p>Drag & drop .xlsx file here, or click to select</p>
+                <p>拖拽 .xlsx 文件到此处，或点击选择</p>
                 <div class="filename" id="voucherFileName"></div>
             </div>
             <input type="file" id="voucherFileInput" accept=".xlsx,.xls" class="hidden">
 
-            <h2>2. Settings</h2>
+            <h2>2. 设置</h2>
             <div class="form-row">
                 <div class="form-group">
-                    <label>Merchant</label>
+                    <label>商户</label>
                     <select id="merchantSelect">
                         <option value="莆田" selected>莆田新加坡</option>
                     </select>
                 </div>
                 <div class="form-group">
-                    <label>Commission Rate (%)</label>
+                    <label>佣金比例 (%)</label>
                     <input type="number" id="commissionRate" value="5" min="0" max="100" step="0.1">
                 </div>
                 <div class="form-group">
-                    <label>Statement No.</label>
+                    <label>账单编号</label>
                     <input type="text" id="statementNo" placeholder="e.g. INV-2026-001">
                 </div>
             </div>
@@ -522,14 +522,14 @@ header p {
             <div id="voucherStatus" class="hidden"></div>
 
             <div class="btn-row">
-                <button class="btn btn-primary" id="btnVoucherGenerate" disabled>Generate Preview</button>
-                <button class="btn btn-success" id="btnVoucherDownloadXlsx" disabled>Download Excel (.xlsx)</button>
-                <button class="btn btn-secondary" id="btnVoucherDownloadHtml" disabled>Download HTML</button>
+                <button class="btn btn-primary" id="btnVoucherGenerate" disabled>生成预览</button>
+                <button class="btn btn-success" id="btnVoucherDownloadXlsx" disabled>下载 Excel (.xlsx)</button>
+                <button class="btn btn-secondary" id="btnVoucherDownloadHtml" disabled>下载 HTML</button>
             </div>
         </div>
 
         <div class="card hidden" id="voucherPreviewCard">
-            <h2>3. Preview</h2>
+            <h2>3. 预览</h2>
             <div id="voucherInfoBar" class="info-bar"></div>
             <div class="preview-wrap" id="voucherPreviewWrap"></div>
         </div>
@@ -540,33 +540,33 @@ header p {
          ============================================================ -->
     <div id="tab-invoice" class="tab-content hidden">
         <div class="card no-print">
-            <h2>1. Upload Existing Invoice (Optional)</h2>
+            <h2>1. 上传已有发票（可选）</h2>
             <div class="drop-zone" id="invoiceDropZone">
                 <div class="icon">&#128196;</div>
-                <p>Drag & drop existing Invoice .xlsx to auto-fill, or fill manually below</p>
+                <p>拖拽已有发票 .xlsx 自动填充，或在下方手动填写</p>
                 <div class="filename" id="invoiceFileName"></div>
             </div>
             <input type="file" id="invoiceFileInput" accept=".xlsx,.xls" class="hidden">
 
-            <h2>2. Invoice Details</h2>
+            <h2>2. 发票详情</h2>
             <div class="form-row">
                 <div class="form-group">
-                    <label>Entity</label>
+                    <label>公司主体</label>
                     <select id="invoiceEntity">
                         <option value="SG">UFRIEND MEDIA PTE. LTD. (SG)</option>
                         <option value="MY">UFRIEND MEDIA SDN. BHD. (MY)</option>
                     </select>
                 </div>
                 <div class="form-group">
-                    <label>Invoice No.</label>
-                    <input type="text" id="invoiceNo" placeholder="Auto-generated">
+                    <label>发票编号</label>
+                    <input type="text" id="invoiceNo" placeholder="自动生成">
                 </div>
                 <div class="form-group">
-                    <label>Date</label>
+                    <label>日期</label>
                     <input type="text" id="invoiceDate" placeholder="DD/MM/YYYY">
                 </div>
                 <div class="form-group">
-                    <label>Currency</label>
+                    <label>币种</label>
                     <select id="invoiceCurrency">
                         <option value="SGD">SGD</option>
                         <option value="RM">RM</option>
@@ -579,50 +579,50 @@ header p {
             </div>
             <div class="form-row">
                 <div class="form-group wide">
-                    <label>Bill To (Client Name)</label>
-                    <input type="text" id="invoiceClientName" placeholder="Client / Company Name">
+                    <label>客户名称 (Bill To)</label>
+                    <input type="text" id="invoiceClientName" placeholder="客户/公司名称">
                 </div>
                 <div class="form-group wide">
-                    <label>Client Address (optional)</label>
-                    <input type="text" id="invoiceClientAddress" placeholder="Address">
+                    <label>客户地址（可选）</label>
+                    <input type="text" id="invoiceClientAddress" placeholder="地址">
                 </div>
             </div>
 
-            <h2>3. Service Items</h2>
+            <h2>3. 服务项目</h2>
             <table class="service-table" id="invoiceServiceTable">
                 <thead>
                     <tr>
-                        <th class="col-service">Service</th>
-                        <th class="col-details">Details</th>
-                        <th class="col-price">Unit Price</th>
-                        <th class="col-qty">Qty</th>
-                        <th class="col-final">Final Price</th>
+                        <th class="col-service">服务</th>
+                        <th class="col-details">详情</th>
+                        <th class="col-price">单价</th>
+                        <th class="col-qty">数量</th>
+                        <th class="col-final">总价</th>
                         <th class="col-actions"></th>
                     </tr>
                 </thead>
                 <tbody id="invoiceServiceBody">
                 </tbody>
             </table>
-            <button class="btn btn-sm btn-secondary" id="btnInvoiceAddRow">+ Add Service Item</button>
+            <button class="btn btn-sm btn-secondary" id="btnInvoiceAddRow">+ 添加服务项</button>
 
             <div style="margin-top:16px;">
                 <div class="toggle-group">
                     <input type="checkbox" id="invoiceShowTerms">
-                    <label for="invoiceShowTerms">Include confidentiality clause / terms</label>
+                    <label for="invoiceShowTerms">包含保密条款 / 合同条款</label>
                 </div>
             </div>
 
             <div id="invoiceStatus" class="hidden"></div>
 
             <div class="btn-row">
-                <button class="btn btn-primary" id="btnInvoiceGenerate">Generate Preview</button>
-                <button class="btn btn-success" id="btnInvoiceDownloadXlsx" disabled>Download Excel (.xlsx)</button>
-                <button class="btn btn-secondary" id="btnInvoiceDownloadHtml" disabled>Download HTML</button>
+                <button class="btn btn-primary" id="btnInvoiceGenerate">生成预览</button>
+                <button class="btn btn-success" id="btnInvoiceDownloadXlsx" disabled>下载 Excel (.xlsx)</button>
+                <button class="btn btn-secondary" id="btnInvoiceDownloadHtml" disabled>下载 HTML</button>
             </div>
         </div>
 
         <div class="card hidden" id="invoicePreviewCard">
-            <h2>4. Preview</h2>
+            <h2>4. 预览</h2>
             <div class="preview-wrap" id="invoicePreviewWrap"></div>
         </div>
     </div>
@@ -632,33 +632,33 @@ header p {
          ============================================================ -->
     <div id="tab-quotation" class="tab-content hidden">
         <div class="card no-print">
-            <h2>1. Upload Existing Quotation (Optional)</h2>
+            <h2>1. 上传已有报价单（可选）</h2>
             <div class="drop-zone" id="quotationDropZone">
                 <div class="icon">&#128196;</div>
-                <p>Drag & drop existing Quotation .xlsx to auto-fill, or fill manually below</p>
+                <p>拖拽已有报价单 .xlsx 自动填充，或在下方手动填写</p>
                 <div class="filename" id="quotationFileName"></div>
             </div>
             <input type="file" id="quotationFileInput" accept=".xlsx,.xls" class="hidden">
 
-            <h2>2. Quotation Details</h2>
+            <h2>2. 报价单详情</h2>
             <div class="form-row">
                 <div class="form-group">
-                    <label>Entity</label>
+                    <label>公司主体</label>
                     <select id="quotationEntity">
                         <option value="SG">UFRIEND MEDIA PTE. LTD. (SG)</option>
                         <option value="MY">UFRIEND MEDIA SDN. BHD. (MY)</option>
                     </select>
                 </div>
                 <div class="form-group">
-                    <label>Quotation No.</label>
-                    <input type="text" id="quotationNo" placeholder="Auto-generated">
+                    <label>报价单编号</label>
+                    <input type="text" id="quotationNo" placeholder="自动生成">
                 </div>
                 <div class="form-group">
-                    <label>Date</label>
+                    <label>日期</label>
                     <input type="text" id="quotationDate" placeholder="DD/MM/YYYY">
                 </div>
                 <div class="form-group">
-                    <label>Currency</label>
+                    <label>币种</label>
                     <select id="quotationCurrency">
                         <option value="SGD">SGD</option>
                         <option value="RM">RM</option>
@@ -671,50 +671,50 @@ header p {
             </div>
             <div class="form-row">
                 <div class="form-group wide">
-                    <label>To (Client Name)</label>
-                    <input type="text" id="quotationClientName" placeholder="Client / Company Name">
+                    <label>客户名称 (To)</label>
+                    <input type="text" id="quotationClientName" placeholder="客户/公司名称">
                 </div>
                 <div class="form-group wide">
-                    <label>Client Address (optional)</label>
-                    <input type="text" id="quotationClientAddress" placeholder="Address">
+                    <label>客户地址（可选）</label>
+                    <input type="text" id="quotationClientAddress" placeholder="地址">
                 </div>
             </div>
 
-            <h2>3. Service Items</h2>
+            <h2>3. 服务项目</h2>
             <table class="service-table" id="quotationServiceTable">
                 <thead>
                     <tr>
-                        <th class="col-service">Service</th>
-                        <th class="col-details">Details</th>
-                        <th class="col-price">Unit Price</th>
-                        <th class="col-qty">Qty</th>
-                        <th class="col-final">Final Price</th>
+                        <th class="col-service">服务</th>
+                        <th class="col-details">详情</th>
+                        <th class="col-price">单价</th>
+                        <th class="col-qty">数量</th>
+                        <th class="col-final">总价</th>
                         <th class="col-actions"></th>
                     </tr>
                 </thead>
                 <tbody id="quotationServiceBody">
                 </tbody>
             </table>
-            <button class="btn btn-sm btn-secondary" id="btnQuotationAddRow">+ Add Service Item</button>
+            <button class="btn btn-sm btn-secondary" id="btnQuotationAddRow">+ 添加服务项</button>
 
             <div style="margin-top:16px;">
                 <div class="toggle-group">
                     <input type="checkbox" id="quotationShowTerms">
-                    <label for="quotationShowTerms">Include confidentiality clause / terms</label>
+                    <label for="quotationShowTerms">包含保密条款 / 合同条款</label>
                 </div>
             </div>
 
             <div id="quotationStatus" class="hidden"></div>
 
             <div class="btn-row">
-                <button class="btn btn-primary" id="btnQuotationGenerate">Generate Preview</button>
-                <button class="btn btn-success" id="btnQuotationDownloadXlsx" disabled>Download Excel (.xlsx)</button>
-                <button class="btn btn-secondary" id="btnQuotationDownloadHtml" disabled>Download HTML</button>
+                <button class="btn btn-primary" id="btnQuotationGenerate">生成预览</button>
+                <button class="btn btn-success" id="btnQuotationDownloadXlsx" disabled>下载 Excel (.xlsx)</button>
+                <button class="btn btn-secondary" id="btnQuotationDownloadHtml" disabled>下载 HTML</button>
             </div>
         </div>
 
         <div class="card hidden" id="quotationPreviewCard">
-            <h2>4. Preview</h2>
+            <h2>4. 预览</h2>
             <div class="preview-wrap" id="quotationPreviewWrap"></div>
         </div>
     </div>
@@ -965,7 +965,7 @@ voucherFileInput.addEventListener('change', () => {
 
 function handleVoucherFile(file) {
     if (!file.name.match(/\.xlsx?$/i)) {
-        showVoucherStatus('Please upload an .xlsx file', 'error');
+        showVoucherStatus('请上传 .xlsx 文件', 'error');
         return;
     }
     hideVoucherStatus();
@@ -975,9 +975,9 @@ function handleVoucherFile(file) {
         try {
             parseVoucherExcel(new Uint8Array(e.target.result));
             btnVoucherGenerate.disabled = false;
-            showVoucherStatus(`Loaded ${voucherSourceData.recordCount} records, aggregated into ${voucherSourceData.products.length} products`, 'success');
+            showVoucherStatus(`成功读取 ${voucherSourceData.recordCount} 条记录，汇总为 ${voucherSourceData.products.length} 个产品`, 'success');
         } catch(err) {
-            showVoucherStatus('Parse error: ' + err.message, 'error');
+            showVoucherStatus('解析失败: ' + err.message, 'error');
             console.error(err);
         }
     };
@@ -1481,11 +1481,11 @@ class DocController {
         this.serviceItems.forEach((item, idx) => {
             const tr = document.createElement('tr');
             tr.innerHTML = `
-                <td><input type="text" data-idx="${idx}" data-field="service" value="${this.escHtml(item.service)}" placeholder="Service name"></td>
-                <td><textarea data-idx="${idx}" data-field="details" placeholder="Details (multiline)">${this.escHtml(item.details)}</textarea></td>
+                <td><input type="text" data-idx="${idx}" data-field="service" value="${this.escHtml(item.service)}" placeholder="服务名称"></td>
+                <td><textarea data-idx="${idx}" data-field="details" placeholder="详情（多行）">${this.escHtml(item.details)}</textarea></td>
                 <td><input type="number" data-idx="${idx}" data-field="unitPrice" value="${item.unitPrice}" step="0.01" placeholder="0.00"></td>
                 <td><input type="number" data-idx="${idx}" data-field="qty" value="${item.qty}" min="1" step="1"></td>
-                <td><input type="number" data-idx="${idx}" data-field="finalPrice" value="${item.finalPrice}" step="0.01" placeholder="Auto"></td>
+                <td><input type="number" data-idx="${idx}" data-field="finalPrice" value="${item.finalPrice}" step="0.01" placeholder="自动"></td>
                 <td style="text-align:center;"><button class="btn btn-danger btn-sm" data-remove="${idx}">X</button></td>
             `;
             this.serviceBody.appendChild(tr);
@@ -1518,7 +1518,7 @@ class DocController {
     // --- File Upload & Parsing ---
     handleFile(file) {
         if (!file.name.match(/\.xlsx?$/i)) {
-            this.showStatus('Please upload an .xlsx file', 'error');
+            this.showStatus('请上传 .xlsx 文件', 'error');
             return;
         }
         this.hideStatus();
@@ -1527,9 +1527,9 @@ class DocController {
         reader.onload = (e) => {
             try {
                 this.parseUploadedExcel(new Uint8Array(e.target.result));
-                this.showStatus('File parsed and form auto-filled successfully', 'success');
+                this.showStatus('文件解析成功，表单已自动填充', 'success');
             } catch(err) {
-                this.showStatus('Parse error: ' + err.message, 'error');
+                this.showStatus('解析失败: ' + err.message, 'error');
                 console.error(err);
             }
         };
@@ -1796,7 +1796,7 @@ class DocController {
         this.generatedData = d;
 
         if (d.items.length === 0) {
-            this.showStatus('Please add at least one service item', 'error');
+            this.showStatus('请至少添加一个服务项目', 'error');
             return;
         }
         this.hideStatus();
