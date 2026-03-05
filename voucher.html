@@ -1,11 +1,14 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Meituan E-Voucher Statement Generator</title>
+<title>UFriend Media - Document Generator</title>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 <style>
+/* ============================================================
+   Base Styles
+   ============================================================ */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
@@ -31,6 +34,45 @@ header p {
     font-size: 14px;
     color: #6b7c93;
 }
+
+/* ============================================================
+   Tab Navigation
+   ============================================================ */
+.tab-nav {
+    display: flex;
+    gap: 0;
+    margin-bottom: 24px;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    overflow: hidden;
+}
+.tab-btn {
+    flex: 1;
+    padding: 16px 20px;
+    border: none;
+    background: #fff;
+    font-size: 15px;
+    font-weight: 600;
+    color: #6b7c93;
+    cursor: pointer;
+    transition: all 0.2s;
+    border-bottom: 3px solid transparent;
+    text-align: center;
+}
+.tab-btn:hover {
+    background: #f0f7ff;
+    color: #1a3a5c;
+}
+.tab-btn.active {
+    color: #3b82f6;
+    border-bottom-color: #3b82f6;
+    background: #f0f7ff;
+}
+
+/* ============================================================
+   Card & Form Styles
+   ============================================================ */
 .card {
     background: #fff;
     border-radius: 10px;
@@ -84,6 +126,9 @@ header p {
     flex: 1;
     min-width: 200px;
 }
+.form-group.wide {
+    min-width: 400px;
+}
 .form-group label {
     display: block;
     font-size: 13px;
@@ -91,7 +136,7 @@ header p {
     color: #4a5568;
     margin-bottom: 6px;
 }
-.form-group input, .form-group select {
+.form-group input, .form-group select, .form-group textarea {
     width: 100%;
     padding: 10px 12px;
     border: 1px solid #d1d9e6;
@@ -100,12 +145,21 @@ header p {
     color: #333;
     background: #fff;
     transition: border-color 0.2s;
+    font-family: inherit;
 }
-.form-group input:focus, .form-group select:focus {
+.form-group textarea {
+    resize: vertical;
+    min-height: 60px;
+}
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus {
     outline: none;
     border-color: #3b82f6;
     box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
 }
+
+/* ============================================================
+   Buttons
+   ============================================================ */
 .btn-row {
     display: flex;
     gap: 12px;
@@ -149,6 +203,64 @@ header p {
 .btn-success:hover:not(:disabled) {
     background: #059669;
 }
+.btn-danger {
+    background: #ef4444;
+    color: #fff;
+    padding: 6px 12px;
+    font-size: 13px;
+}
+.btn-danger:hover:not(:disabled) {
+    background: #dc2626;
+}
+.btn-sm {
+    padding: 6px 14px;
+    font-size: 13px;
+}
+
+/* ============================================================
+   Service Items Table
+   ============================================================ */
+.service-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 12px;
+}
+.service-table th {
+    background: #f0f4f8;
+    padding: 8px 10px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #4a5568;
+    text-align: left;
+    border-bottom: 2px solid #e8ecf1;
+}
+.service-table td {
+    padding: 6px 4px;
+    vertical-align: top;
+    border-bottom: 1px solid #e8ecf1;
+}
+.service-table input, .service-table textarea {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid #d1d9e6;
+    border-radius: 4px;
+    font-size: 13px;
+    font-family: inherit;
+}
+.service-table textarea {
+    resize: vertical;
+    min-height: 40px;
+}
+.service-table .col-service { width: 18%; }
+.service-table .col-details { width: 32%; }
+.service-table .col-price { width: 14%; }
+.service-table .col-qty { width: 8%; }
+.service-table .col-final { width: 16%; }
+.service-table .col-actions { width: 6%; text-align: center; }
+
+/* ============================================================
+   Preview & Info
+   ============================================================ */
 .preview-wrap {
     overflow-x: auto;
     margin-top: 12px;
@@ -197,7 +309,7 @@ header p {
     color: #1a3a5c;
 }
 .info-bar span { font-weight: 600; }
-.hidden { display: none; }
+.hidden { display: none !important; }
 .status {
     padding: 10px 16px;
     border-radius: 6px;
@@ -214,12 +326,144 @@ header p {
     color: #16a34a;
     border: 1px solid #bbf7d0;
 }
+
+/* ============================================================
+   Invoice/Quotation Preview
+   ============================================================ */
+.doc-preview {
+    background: #fff;
+    border: 1px solid #d1d9e6;
+    padding: 40px;
+    max-width: 800px;
+    margin: 0 auto;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 11px;
+    color: #000;
+    line-height: 1.5;
+}
+.doc-preview .doc-title {
+    text-align: center;
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    color: #1a3a5c;
+}
+.doc-preview .doc-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 16px;
+}
+.doc-preview .doc-header .left {
+    font-size: 11px;
+    line-height: 1.6;
+}
+.doc-preview .doc-header .left .company-name {
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 4px;
+}
+.doc-preview .doc-header .right {
+    text-align: right;
+    font-size: 11px;
+    line-height: 1.6;
+}
+.doc-preview .bill-to {
+    margin-bottom: 16px;
+    font-size: 11px;
+}
+.doc-preview .bill-to strong {
+    display: block;
+    margin-bottom: 2px;
+}
+.doc-preview table.items {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 16px;
+    font-size: 11px;
+}
+.doc-preview table.items th {
+    background: #d9e1f2;
+    padding: 8px 6px;
+    border: 1px solid #b4c0d4;
+    font-weight: bold;
+    text-align: center;
+}
+.doc-preview table.items td {
+    padding: 6px;
+    border: 1px solid #d1d9e6;
+    vertical-align: top;
+}
+.doc-preview table.items td.text-right {
+    text-align: right;
+}
+.doc-preview table.items td.text-center {
+    text-align: center;
+}
+.doc-preview .total-row td {
+    font-weight: bold;
+    background: #f0f4f8;
+}
+.doc-preview .bank-details {
+    margin-top: 20px;
+    font-size: 10px;
+    line-height: 1.6;
+}
+.doc-preview .bank-details table {
+    border-collapse: collapse;
+}
+.doc-preview .bank-details td {
+    padding: 2px 8px 2px 0;
+    vertical-align: top;
+}
+.doc-preview .terms {
+    margin-top: 16px;
+    font-size: 10px;
+    color: #666;
+    border-top: 1px solid #d1d9e6;
+    padding-top: 12px;
+}
+.doc-preview .signature-area {
+    margin-top: 40px;
+    display: flex;
+    justify-content: space-between;
+}
+.doc-preview .signature-box {
+    width: 200px;
+    text-align: center;
+    font-size: 10px;
+}
+.doc-preview .signature-line {
+    border-top: 1px solid #333;
+    margin-top: 60px;
+    padding-top: 4px;
+}
+
+/* ============================================================
+   Toggle / Checkbox
+   ============================================================ */
+.toggle-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+.toggle-group label {
+    font-size: 13px;
+    color: #4a5568;
+    cursor: pointer;
+}
+
+/* ============================================================
+   Responsive & Print
+   ============================================================ */
 @media (max-width: 600px) {
     .container { padding: 12px; }
     header h1 { font-size: 22px; }
     .card { padding: 16px; }
     .drop-zone { padding: 32px 16px; }
     .form-group { min-width: 100%; }
+    .form-group.wide { min-width: 100%; }
+    .tab-btn { font-size: 13px; padding: 12px 8px; }
 }
 @media print {
     body { background: #fff; }
@@ -231,56 +475,283 @@ header p {
 
 <div class="container">
     <header>
-        <h1>美团 E-Voucher Statement 生成器</h1>
-        <p>Meituan E-Voucher Statement Generator</p>
+        <h1>UFriend Media - Document Generator</h1>
+        <p>E-Voucher Statement / Invoice / Quotation</p>
     </header>
 
-    <div class="card no-print">
-        <h2>1. 上传文件 Upload File</h2>
-        <div class="drop-zone" id="dropZone">
-            <div class="icon">&#128196;</div>
-            <p>拖拽 .xlsx 文件到此处，或点击选择文件<br>Drag & drop .xlsx file here, or click to select</p>
-            <div class="filename" id="fileName"></div>
+    <!-- ============================================================
+         Tab Navigation
+         ============================================================ -->
+    <div class="tab-nav no-print">
+        <button class="tab-btn active" data-tab="voucher">E-Voucher Statement</button>
+        <button class="tab-btn" data-tab="invoice">Invoice</button>
+        <button class="tab-btn" data-tab="quotation">Quotation</button>
+    </div>
+
+    <!-- ============================================================
+         MODE 1: E-Voucher Statement
+         ============================================================ -->
+    <div id="tab-voucher" class="tab-content">
+        <div class="card no-print">
+            <h2>1. Upload Meituan Report</h2>
+            <div class="drop-zone" id="voucherDropZone">
+                <div class="icon">&#128196;</div>
+                <p>Drag & drop .xlsx file here, or click to select</p>
+                <div class="filename" id="voucherFileName"></div>
+            </div>
+            <input type="file" id="voucherFileInput" accept=".xlsx,.xls" class="hidden">
+
+            <h2>2. Settings</h2>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Merchant</label>
+                    <select id="merchantSelect">
+                        <option value="莆田" selected>莆田新加坡</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Commission Rate (%)</label>
+                    <input type="number" id="commissionRate" value="5" min="0" max="100" step="0.1">
+                </div>
+                <div class="form-group">
+                    <label>Statement No.</label>
+                    <input type="text" id="statementNo" placeholder="e.g. INV-2026-001">
+                </div>
+            </div>
+
+            <div id="voucherStatus" class="hidden"></div>
+
+            <div class="btn-row">
+                <button class="btn btn-primary" id="btnVoucherGenerate" disabled>Generate Preview</button>
+                <button class="btn btn-success" id="btnVoucherDownloadXlsx" disabled>Download Excel (.xlsx)</button>
+                <button class="btn btn-secondary" id="btnVoucherDownloadHtml" disabled>Download HTML</button>
+            </div>
         </div>
-        <input type="file" id="fileInput" accept=".xlsx,.xls" class="hidden">
 
-        <h2>2. 设置 Settings</h2>
-        <div class="form-row">
-            <div class="form-group">
-                <label>商户 Merchant</label>
-                <select id="merchantSelect">
-                    <option value="莆田" selected>莆田新加坡</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>佣金比例 Commission Rate (%)</label>
-                <input type="number" id="commissionRate" value="5" min="0" max="100" step="0.1">
-            </div>
-            <div class="form-group">
-                <label>账单编号 Statement No.</label>
-                <input type="text" id="statementNo" placeholder="e.g. INV-2026-001">
-            </div>
-        </div>
-
-        <div id="statusMsg" class="hidden"></div>
-
-        <div class="btn-row">
-            <button class="btn btn-primary" id="btnGenerate" disabled>生成预览 Generate Preview</button>
-            <button class="btn btn-success" id="btnDownloadXlsx" disabled>Download Excel (.xlsx)</button>
-            <button class="btn btn-secondary" id="btnDownloadHtml" disabled>Download HTML</button>
+        <div class="card hidden" id="voucherPreviewCard">
+            <h2>3. Preview</h2>
+            <div id="voucherInfoBar" class="info-bar"></div>
+            <div class="preview-wrap" id="voucherPreviewWrap"></div>
         </div>
     </div>
 
-    <div class="card hidden" id="previewCard">
-        <h2>3. 预览 Preview</h2>
-        <div id="infoBar" class="info-bar"></div>
-        <div class="preview-wrap" id="previewWrap"></div>
+    <!-- ============================================================
+         MODE 2: Invoice
+         ============================================================ -->
+    <div id="tab-invoice" class="tab-content hidden">
+        <div class="card no-print">
+            <h2>1. Upload Existing Invoice (Optional)</h2>
+            <div class="drop-zone" id="invoiceDropZone">
+                <div class="icon">&#128196;</div>
+                <p>Drag & drop existing Invoice .xlsx to auto-fill, or fill manually below</p>
+                <div class="filename" id="invoiceFileName"></div>
+            </div>
+            <input type="file" id="invoiceFileInput" accept=".xlsx,.xls" class="hidden">
+
+            <h2>2. Invoice Details</h2>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Entity</label>
+                    <select id="invoiceEntity">
+                        <option value="SG">UFRIEND MEDIA PTE. LTD. (SG)</option>
+                        <option value="MY">UFRIEND MEDIA SDN. BHD. (MY)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Invoice No.</label>
+                    <input type="text" id="invoiceNo" placeholder="Auto-generated">
+                </div>
+                <div class="form-group">
+                    <label>Date</label>
+                    <input type="text" id="invoiceDate" placeholder="DD/MM/YYYY">
+                </div>
+                <div class="form-group">
+                    <label>Currency</label>
+                    <select id="invoiceCurrency">
+                        <option value="SGD">SGD</option>
+                        <option value="RM">RM</option>
+                        <option value="HKD">HKD</option>
+                        <option value="RMB">RMB</option>
+                        <option value="USD">USD</option>
+                        <option value="JPY">JPY</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group wide">
+                    <label>Bill To (Client Name)</label>
+                    <input type="text" id="invoiceClientName" placeholder="Client / Company Name">
+                </div>
+                <div class="form-group wide">
+                    <label>Client Address (optional)</label>
+                    <input type="text" id="invoiceClientAddress" placeholder="Address">
+                </div>
+            </div>
+
+            <h2>3. Service Items</h2>
+            <table class="service-table" id="invoiceServiceTable">
+                <thead>
+                    <tr>
+                        <th class="col-service">Service</th>
+                        <th class="col-details">Details</th>
+                        <th class="col-price">Unit Price</th>
+                        <th class="col-qty">Qty</th>
+                        <th class="col-final">Final Price</th>
+                        <th class="col-actions"></th>
+                    </tr>
+                </thead>
+                <tbody id="invoiceServiceBody">
+                </tbody>
+            </table>
+            <button class="btn btn-sm btn-secondary" id="btnInvoiceAddRow">+ Add Service Item</button>
+
+            <div style="margin-top:16px;">
+                <div class="toggle-group">
+                    <input type="checkbox" id="invoiceShowTerms">
+                    <label for="invoiceShowTerms">Include confidentiality clause / terms</label>
+                </div>
+            </div>
+
+            <div id="invoiceStatus" class="hidden"></div>
+
+            <div class="btn-row">
+                <button class="btn btn-primary" id="btnInvoiceGenerate">Generate Preview</button>
+                <button class="btn btn-success" id="btnInvoiceDownloadXlsx" disabled>Download Excel (.xlsx)</button>
+                <button class="btn btn-secondary" id="btnInvoiceDownloadHtml" disabled>Download HTML</button>
+            </div>
+        </div>
+
+        <div class="card hidden" id="invoicePreviewCard">
+            <h2>4. Preview</h2>
+            <div class="preview-wrap" id="invoicePreviewWrap"></div>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         MODE 3: Quotation
+         ============================================================ -->
+    <div id="tab-quotation" class="tab-content hidden">
+        <div class="card no-print">
+            <h2>1. Upload Existing Quotation (Optional)</h2>
+            <div class="drop-zone" id="quotationDropZone">
+                <div class="icon">&#128196;</div>
+                <p>Drag & drop existing Quotation .xlsx to auto-fill, or fill manually below</p>
+                <div class="filename" id="quotationFileName"></div>
+            </div>
+            <input type="file" id="quotationFileInput" accept=".xlsx,.xls" class="hidden">
+
+            <h2>2. Quotation Details</h2>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Entity</label>
+                    <select id="quotationEntity">
+                        <option value="SG">UFRIEND MEDIA PTE. LTD. (SG)</option>
+                        <option value="MY">UFRIEND MEDIA SDN. BHD. (MY)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Quotation No.</label>
+                    <input type="text" id="quotationNo" placeholder="Auto-generated">
+                </div>
+                <div class="form-group">
+                    <label>Date</label>
+                    <input type="text" id="quotationDate" placeholder="DD/MM/YYYY">
+                </div>
+                <div class="form-group">
+                    <label>Currency</label>
+                    <select id="quotationCurrency">
+                        <option value="SGD">SGD</option>
+                        <option value="RM">RM</option>
+                        <option value="HKD">HKD</option>
+                        <option value="RMB">RMB</option>
+                        <option value="USD">USD</option>
+                        <option value="JPY">JPY</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group wide">
+                    <label>To (Client Name)</label>
+                    <input type="text" id="quotationClientName" placeholder="Client / Company Name">
+                </div>
+                <div class="form-group wide">
+                    <label>Client Address (optional)</label>
+                    <input type="text" id="quotationClientAddress" placeholder="Address">
+                </div>
+            </div>
+
+            <h2>3. Service Items</h2>
+            <table class="service-table" id="quotationServiceTable">
+                <thead>
+                    <tr>
+                        <th class="col-service">Service</th>
+                        <th class="col-details">Details</th>
+                        <th class="col-price">Unit Price</th>
+                        <th class="col-qty">Qty</th>
+                        <th class="col-final">Final Price</th>
+                        <th class="col-actions"></th>
+                    </tr>
+                </thead>
+                <tbody id="quotationServiceBody">
+                </tbody>
+            </table>
+            <button class="btn btn-sm btn-secondary" id="btnQuotationAddRow">+ Add Service Item</button>
+
+            <div style="margin-top:16px;">
+                <div class="toggle-group">
+                    <input type="checkbox" id="quotationShowTerms">
+                    <label for="quotationShowTerms">Include confidentiality clause / terms</label>
+                </div>
+            </div>
+
+            <div id="quotationStatus" class="hidden"></div>
+
+            <div class="btn-row">
+                <button class="btn btn-primary" id="btnQuotationGenerate">Generate Preview</button>
+                <button class="btn btn-success" id="btnQuotationDownloadXlsx" disabled>Download Excel (.xlsx)</button>
+                <button class="btn btn-secondary" id="btnQuotationDownloadHtml" disabled>Download HTML</button>
+            </div>
+        </div>
+
+        <div class="card hidden" id="quotationPreviewCard">
+            <h2>4. Preview</h2>
+            <div class="preview-wrap" id="quotationPreviewWrap"></div>
+        </div>
     </div>
 </div>
 
 <script>
 // ============================================================
-// Configuration
+// Configuration: Entities
+// ============================================================
+const ENTITIES = {
+    "SG": {
+        company_name: "UFRIEND MEDIA PTE. LTD.",
+        address: "111 North Bridge Road, #25-01 Peninsula Plaza, Singapore 179098",
+        contact: "Tel: 8138 8290  |  Email:  contact@ufriendmedia.com",
+        bank_beneficiary: "UFRIEND MEDIA PTE. LTD.",
+        bank_name: "OCBC (Oversea-Chinese Banking Corporation)",
+        bank_account: "713-2701-22001",
+        bank_code: "7339",
+        branch_code: "713",
+        swift_code: "OCBCSGSG",
+        bank_address: "65 CHULIA STREET, #01-100 OCBC CENTRE, SINGAPORE 049513",
+        default_currency: "SGD",
+    },
+    "MY": {
+        company_name: "UFRIEND MEDIA SDN. BHD.",
+        registration: "1363722-X",
+        address: "F-1-9, Block F, Neo Damansara, Jalan PJU8/1 Damansara Perdana 47820. PJ Selangor",
+        contact: "Email: finance@ufriendmedia.com",
+        bank_name: "OCBC (Oversea-Chinese Banking Corporation)",
+        bank_account: "7861250866",
+        branch_code: "Puchong OCBC",
+        default_currency: "RM",
+    }
+};
+
+// ============================================================
+// Configuration: Merchants (E-Voucher mode)
 // ============================================================
 const MERCHANTS = {
     "莆田": {
@@ -294,6 +765,9 @@ const MERCHANTS = {
     }
 };
 
+// ============================================================
+// Configuration: Company (E-Voucher backward compat)
+// ============================================================
 const COMPANY = {
     name: "UFRIEND MEDIA PTE. LTD.",
     address_line1: "111 North Bridge Road, #14-04 Peninsula Plaza",
@@ -302,13 +776,129 @@ const COMPANY = {
     phone: "+ 65 81388290",
 };
 
+// ============================================================
+// Configuration: Product name mappings (E-Voucher only)
+// ============================================================
 const PRODUCT_MAPPINGS = {
     "价值50新加坡元代金券": "$50代金券",
 };
 
 // ============================================================
-// Utility functions
+// Utility Functions
 // ============================================================
+function padZero(n) { return n < 10 ? '0' + n : '' + n; }
+
+function todayStr() {
+    const d = new Date();
+    return `${d.getFullYear()}.${padZero(d.getMonth()+1)}.${padZero(d.getDate())}`;
+}
+
+function todaySlash() {
+    const d = new Date();
+    return `${padZero(d.getDate())}/${padZero(d.getMonth()+1)}/${d.getFullYear()}`;
+}
+
+function fmtNum(n, decimals) {
+    if (typeof n !== 'number' || isNaN(n)) return '0';
+    return n.toFixed(decimals).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+}
+
+function fmtCurrency(n, currency, decimals) {
+    if (decimals === undefined) decimals = 2;
+    const val = fmtNum(n, decimals);
+    return currency + ' ' + val;
+}
+
+/** Clean a cell value: handle null, undefined, NBSP, trim */
+function cleanCell(val) {
+    if (val === null || val === undefined) return '';
+    return String(val).replace(/\xa0/g, ' ').replace(/\u00a0/g, ' ').trim();
+}
+
+/** Parse currency value from string like "RM 6,267.82", "SGD 2,385", "HKD 5,716.50\n(RM 2,816.82)" */
+function parseCurrencyValue(str) {
+    if (typeof str === 'number') return str;
+    str = cleanCell(str);
+    // Take first line only (handle dual currency)
+    str = str.split('\n')[0].split('\r')[0];
+    // Remove currency prefixes and commas
+    str = str.replace(/^(SGD|RM|HKD|RMB|USD|JPY|MYR)\s*/i, '');
+    str = str.replace(/,/g, '');
+    // Remove any remaining non-numeric except dot and minus
+    str = str.replace(/[^\d.\-]/g, '');
+    const v = parseFloat(str);
+    return isNaN(v) ? 0 : v;
+}
+
+/** Detect currency from a price string */
+function detectCurrency(str) {
+    str = cleanCell(str);
+    if (/^SGD\s/i.test(str)) return 'SGD';
+    if (/^RM\s/i.test(str)) return 'RM';
+    if (/^HKD\s/i.test(str)) return 'HKD';
+    if (/^RMB\s/i.test(str)) return 'RMB';
+    if (/^USD\s/i.test(str)) return 'USD';
+    if (/^JPY\s/i.test(str)) return 'JPY';
+    if (/^MYR\s/i.test(str)) return 'RM';
+    return null;
+}
+
+/**
+ * Parse various date formats:
+ * "9/02/2026", "11.02.2026", "3/3/2026", "26/01/2026", "05.03.2026", "20.02.2026"
+ * Returns { day, month, year } or null
+ */
+function parseFlexibleDate(str) {
+    if (!str) return null;
+    str = cleanCell(str);
+    // Handle multiline (date might be on first line, doc number on second)
+    const lines = str.split('\n');
+    let dateLine = lines[0].trim();
+
+    // Try DD/MM/YYYY or D/MM/YYYY or D/M/YYYY
+    let m = dateLine.match(/^(\d{1,2})[\/\.\-](\d{1,2})[\/\.\-](\d{4})$/);
+    if (m) {
+        return { day: parseInt(m[1]), month: parseInt(m[2]), year: parseInt(m[3]) };
+    }
+    // Try YYYY-MM-DD
+    m = dateLine.match(/^(\d{4})[\/\.\-](\d{1,2})[\/\.\-](\d{1,2})$/);
+    if (m) {
+        return { day: parseInt(m[3]), month: parseInt(m[2]), year: parseInt(m[1]) };
+    }
+    return null;
+}
+
+function formatDateObj(dateObj) {
+    if (!dateObj) return todaySlash();
+    return `${padZero(dateObj.day)}/${padZero(dateObj.month)}/${dateObj.year}`;
+}
+
+function generateTimestamp() {
+    return Date.now().toString(36).toUpperCase();
+}
+
+// ============================================================
+// Tab Navigation
+// ============================================================
+const tabBtns = document.querySelectorAll('.tab-btn');
+const tabContents = document.querySelectorAll('.tab-content');
+
+tabBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+        tabBtns.forEach(b => b.classList.remove('active'));
+        tabContents.forEach(c => c.classList.add('hidden'));
+        btn.classList.add('active');
+        document.getElementById('tab-' + btn.dataset.tab).classList.remove('hidden');
+    });
+});
+
+// ============================================================
+// ============================================================
+//  MODE 1: E-VOUCHER STATEMENT
+// ============================================================
+// ============================================================
+
+// --- E-Voucher Utility ---
 function cleanProductName(rawName, merchantPrefix) {
     let name = rawName;
     if (name.startsWith(merchantPrefix)) {
@@ -319,16 +909,12 @@ function cleanProductName(rawName, merchantPrefix) {
 }
 
 function parseMeituanDatetime(dateStr) {
-    // Format: "Sun Feb 22 20:33:03 CST 2026"
-    // Remove timezone abbreviation (position-aware: between time and year)
     const cleaned = dateStr.trim().replace(/(\d{2}:\d{2}:\d{2})\s+[A-Z]{2,5}\s+(\d{4})/, '$1 $2');
-    // Parse manually to avoid timezone-dependent new Date() behavior
     const m = cleaned.match(/\w+\s+(\w+)\s+(\d+)\s+(\d+):(\d+):(\d+)\s+(\d+)/);
     if (m) {
         const months = {Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6,Aug:7,Sep:8,Oct:9,Nov:10,Dec:11};
         return new Date(parseInt(m[6]), months[m[1]] || 0, parseInt(m[2]), parseInt(m[3]), parseInt(m[4]), parseInt(m[5]));
     }
-    // Fallback
     const d = new Date(cleaned);
     if (isNaN(d.getTime())) return new Date(dateStr);
     return d;
@@ -339,90 +925,68 @@ function formatDateRange(start, end) {
     return `${start.getDate()} ${months[start.getMonth()]} - ${end.getDate()} ${months[end.getMonth()]}`;
 }
 
-function padZero(n) { return n < 10 ? '0' + n : '' + n; }
+// --- E-Voucher State ---
+let voucherSourceData = null;
 
-function todayStr() {
-    const d = new Date();
-    return `${d.getFullYear()}.${padZero(d.getMonth()+1)}.${padZero(d.getDate())}`;
-}
-
-function fmtNum(n, decimals) {
-    return n.toFixed(decimals).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-}
-
-// ============================================================
-// State
-// ============================================================
-let sourceData = null; // { products, dateRange, recordCount }
-
-// ============================================================
-// DOM Elements
-// ============================================================
-const dropZone = document.getElementById('dropZone');
-const fileInput = document.getElementById('fileInput');
-const fileNameEl = document.getElementById('fileName');
+// --- E-Voucher DOM ---
+const voucherDropZone = document.getElementById('voucherDropZone');
+const voucherFileInput = document.getElementById('voucherFileInput');
+const voucherFileNameEl = document.getElementById('voucherFileName');
 const merchantSelect = document.getElementById('merchantSelect');
 const commissionRateInput = document.getElementById('commissionRate');
 const statementNoInput = document.getElementById('statementNo');
-const btnGenerate = document.getElementById('btnGenerate');
-const btnDownloadXlsx = document.getElementById('btnDownloadXlsx');
-const btnDownloadHtml = document.getElementById('btnDownloadHtml');
-const statusMsg = document.getElementById('statusMsg');
-const previewCard = document.getElementById('previewCard');
-const infoBar = document.getElementById('infoBar');
-const previewWrap = document.getElementById('previewWrap');
+const btnVoucherGenerate = document.getElementById('btnVoucherGenerate');
+const btnVoucherDownloadXlsx = document.getElementById('btnVoucherDownloadXlsx');
+const btnVoucherDownloadHtml = document.getElementById('btnVoucherDownloadHtml');
+const voucherStatus = document.getElementById('voucherStatus');
+const voucherPreviewCard = document.getElementById('voucherPreviewCard');
+const voucherInfoBar = document.getElementById('voucherInfoBar');
+const voucherPreviewWrap = document.getElementById('voucherPreviewWrap');
 
-// ============================================================
-// File Upload Handling
-// ============================================================
-dropZone.addEventListener('click', () => fileInput.click());
-dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('dragover'); });
-dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
-dropZone.addEventListener('drop', (e) => {
-    e.preventDefault();
-    dropZone.classList.remove('dragover');
-    if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
-});
-fileInput.addEventListener('change', () => {
-    if (fileInput.files.length) handleFile(fileInput.files[0]);
-});
-
-function showStatus(msg, type) {
-    statusMsg.className = 'status ' + type;
-    statusMsg.textContent = msg;
-    statusMsg.classList.remove('hidden');
+function showVoucherStatus(msg, type) {
+    voucherStatus.className = 'status ' + type;
+    voucherStatus.textContent = msg;
+    voucherStatus.classList.remove('hidden');
 }
-function hideStatus() { statusMsg.classList.add('hidden'); }
+function hideVoucherStatus() { voucherStatus.classList.add('hidden'); }
 
-function handleFile(file) {
+// --- E-Voucher File Upload ---
+voucherDropZone.addEventListener('click', () => voucherFileInput.click());
+voucherDropZone.addEventListener('dragover', (e) => { e.preventDefault(); voucherDropZone.classList.add('dragover'); });
+voucherDropZone.addEventListener('dragleave', () => voucherDropZone.classList.remove('dragover'));
+voucherDropZone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    voucherDropZone.classList.remove('dragover');
+    if (e.dataTransfer.files.length) handleVoucherFile(e.dataTransfer.files[0]);
+});
+voucherFileInput.addEventListener('change', () => {
+    if (voucherFileInput.files.length) handleVoucherFile(voucherFileInput.files[0]);
+});
+
+function handleVoucherFile(file) {
     if (!file.name.match(/\.xlsx?$/i)) {
-        showStatus('请上传 .xlsx 文件 / Please upload an .xlsx file', 'error');
+        showVoucherStatus('Please upload an .xlsx file', 'error');
         return;
     }
-    hideStatus();
-    fileNameEl.textContent = file.name;
-
+    hideVoucherStatus();
+    voucherFileNameEl.textContent = file.name;
     const reader = new FileReader();
     reader.onload = function(e) {
         try {
-            parseExcel(new Uint8Array(e.target.result));
-            btnGenerate.disabled = false;
-            showStatus(`成功读取 ${sourceData.recordCount} 条记录，聚合为 ${sourceData.products.length} 个产品 / Loaded ${sourceData.recordCount} records, aggregated into ${sourceData.products.length} products`, 'success');
+            parseVoucherExcel(new Uint8Array(e.target.result));
+            btnVoucherGenerate.disabled = false;
+            showVoucherStatus(`Loaded ${voucherSourceData.recordCount} records, aggregated into ${voucherSourceData.products.length} products`, 'success');
         } catch(err) {
-            showStatus('解析失败 / Parse error: ' + err.message, 'error');
+            showVoucherStatus('Parse error: ' + err.message, 'error');
             console.error(err);
         }
     };
     reader.readAsArrayBuffer(file);
 }
 
-// ============================================================
-// Excel Parsing
-// ============================================================
-function parseExcel(data) {
+// --- E-Voucher Excel Parsing ---
+function parseVoucherExcel(data) {
     const wb = XLSX.read(data, { type: 'array' });
-
-    // Find sheet containing "明细"
     let sheetName = null;
     for (const name of wb.SheetNames) {
         if (name.indexOf('明细') !== -1) { sheetName = name; break; }
@@ -430,34 +994,26 @@ function parseExcel(data) {
     if (!sheetName) {
         sheetName = wb.SheetNames.length > 1 ? wb.SheetNames[1] : wb.SheetNames[0];
     }
-
     const ws = wb.Sheets[sheetName];
     const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
-
     const merchantKey = merchantSelect.value;
-    const merchantPrefix = merchantKey; // e.g. "莆田"
-
+    const merchantPrefix = merchantKey;
     const groups = {};
     const dates = [];
     let recordCount = 0;
-
-    // Start from row index 1 (row 2 in Excel, skip header)
     for (let i = 1; i < rows.length; i++) {
         const row = rows[i];
-        if (!row[2]) continue; // Column C empty - skip
-
+        if (!row[2]) continue;
         recordCount++;
         const rawName = String(row[2]);
         const cleaned = cleanProductName(rawName, merchantPrefix);
         const redemptionTime = row[7] ? String(row[7]) : null;
-        const foreignPrice = parseFloat(row[11]) || 0; // Column L
-
+        const foreignPrice = parseFloat(row[11]) || 0;
         if (!groups[cleaned]) {
             groups[cleaned] = { qty: 0, unit_price: 0, raw_name: rawName };
         }
         groups[cleaned].qty += 1;
         groups[cleaned].unit_price = foreignPrice;
-
         if (redemptionTime) {
             try {
                 const dt = parseMeituanDatetime(redemptionTime);
@@ -465,36 +1021,28 @@ function parseExcel(data) {
             } catch(e) { /* skip */ }
         }
     }
-
     let dateRange = 'N/A';
     if (dates.length > 0) {
         dates.sort((a, b) => a - b);
         dateRange = formatDateRange(dates[0], dates[dates.length - 1]);
     }
-
     const products = [];
     for (const [name, groupInfo] of Object.entries(groups)) {
         products.push({ name, qty: groupInfo.qty, unit_price: groupInfo.unit_price });
     }
-
-    sourceData = { products, dateRange, recordCount };
+    voucherSourceData = { products, dateRange, recordCount };
 }
 
-// ============================================================
-// Generate Preview
-// ============================================================
-btnGenerate.addEventListener('click', generatePreview);
-
-function getStatementData() {
+// --- E-Voucher Statement Data ---
+function getVoucherStatementData() {
     const merchantKey = merchantSelect.value;
     const merchant = MERCHANTS[merchantKey];
     const parsedRate = parseFloat(commissionRateInput.value);
     const commissionRate = isNaN(parsedRate) ? 5 : parsedRate;
     const commissionPct = commissionRate / 100;
     const statementNo = statementNoInput.value;
-    const products = sourceData.products;
-    const dateRange = sourceData.dateRange;
-
+    const products = voucherSourceData.products;
+    const dateRange = voucherSourceData.dateRange;
     const lineItems = products.map(p => {
         const priceWithoutComm = p.unit_price;
         const priceWithComm = +(priceWithoutComm * (1 - commissionPct)).toFixed(3);
@@ -515,27 +1063,24 @@ function getStatementData() {
             netAmount,
         };
     });
-
     const totalNet = lineItems.reduce((s, r) => s + r.netAmount, 0);
     const totalCommission = lineItems.reduce((s, r) => s + r.commissionAmount, 0);
     const totalWithoutComm = lineItems.reduce((s, r) => s + r.totalWithoutComm, 0);
-
     return { merchant, merchantKey, commissionRate, commissionPct, statementNo, lineItems, totalNet, totalCommission, totalWithoutComm, dateRange };
 }
 
-function generatePreview() {
-    if (!sourceData) return;
-    const d = getStatementData();
+// --- E-Voucher Generate Preview ---
+btnVoucherGenerate.addEventListener('click', generateVoucherPreview);
 
-    // Info bar
-    infoBar.innerHTML = `
-        <div>日期范围 Date Range: <span>${d.dateRange}</span></div>
-        <div>产品数 Products: <span>${d.lineItems.length}</span></div>
-        <div>总记录 Records: <span>${sourceData.recordCount}</span></div>
-        <div>佣金 Commission: <span>${d.commissionRate}%</span></div>
+function generateVoucherPreview() {
+    if (!voucherSourceData) return;
+    const d = getVoucherStatementData();
+    voucherInfoBar.innerHTML = `
+        <div>Date Range: <span>${d.dateRange}</span></div>
+        <div>Products: <span>${d.lineItems.length}</span></div>
+        <div>Records: <span>${voucherSourceData.recordCount}</span></div>
+        <div>Commission: <span>${d.commissionRate}%</span></div>
     `;
-
-    // Table
     let html = '<table>';
     html += '<thead><tr>';
     html += '<th>Date</th><th>Description</th><th>Qty</th><th>%</th>';
@@ -543,7 +1088,6 @@ function generatePreview() {
     html += '<th>Total with\ncommission</th><th>Total without\ncommission</th>';
     html += '<th>Commission\nAmount</th><th>Net Amount</th>';
     html += '</tr></thead><tbody>';
-
     for (const item of d.lineItems) {
         html += '<tr>';
         html += `<td>${item.date}</td>`;
@@ -558,15 +1102,11 @@ function generatePreview() {
         html += `<td>${fmtNum(item.netAmount, 3)}</td>`;
         html += '</tr>';
     }
-
-    // Total row
     html += '<tr class="summary-row">';
     html += '<td colspan="8"></td>';
     html += `<td style="text-align:right;font-weight:700;">Total</td>`;
     html += `<td style="font-weight:700;">${fmtNum(d.totalNet, 3)}</td>`;
     html += '</tr>';
-
-    // Bank info rows
     html += '<tr class="bank-row">';
     html += `<td colspan="2">Account Name:</td><td colspan="5">${d.merchant.legal_name}</td>`;
     html += `<td></td><td style="text-align:right;">Commission Amount</td><td>${fmtNum(d.totalCommission, 3)}</td>`;
@@ -583,68 +1123,43 @@ function generatePreview() {
     html += `<td colspan="2">Beneficiary Address:</td><td colspan="5">${d.merchant.bank_address}</td>`;
     html += `<td></td><td style="text-align:right;">Balance Due</td><td style="font-weight:700;">${fmtNum(d.totalNet, 3)}</td>`;
     html += '</tr>';
-
     html += '</tbody></table>';
-    previewWrap.innerHTML = html;
-    previewCard.classList.remove('hidden');
-    btnDownloadXlsx.disabled = false;
-    btnDownloadHtml.disabled = false;
+    voucherPreviewWrap.innerHTML = html;
+    voucherPreviewCard.classList.remove('hidden');
+    btnVoucherDownloadXlsx.disabled = false;
+    btnVoucherDownloadHtml.disabled = false;
 }
 
-// ============================================================
-// Download Excel
-// ============================================================
-btnDownloadXlsx.addEventListener('click', downloadExcel);
+// --- E-Voucher Download Excel ---
+btnVoucherDownloadXlsx.addEventListener('click', downloadVoucherExcel);
 
-function downloadExcel() {
-    if (!sourceData) return;
-    const d = getStatementData();
+function downloadVoucherExcel() {
+    if (!voucherSourceData) return;
+    const d = getVoucherStatementData();
     const merchant = d.merchant;
-
     const wb = XLSX.utils.book_new();
     const wsData = [];
 
-    // We'll build a 2D array and then set merges + styles manually
-    // Columns: A=0, B=1, C=2, D=3, E=4, F=5, G=6, H=7, I=8, J=9, K=10
-
-    // Row 0 (Excel row 1): Company name
     wsData.push([COMPANY.name, '', '', '', '', '', '', '', '', '', '']);
-    // Row 1 (Excel row 2)
     wsData.push(['', '', '', '', '', '', '', '', COMPANY.address_line1, '', '']);
-    // Row 2 (Excel row 3)
     wsData.push(['', '', '', '', '', '', '', '', COMPANY.address_line2, '', '']);
-    // Row 3 (Excel row 4)
     wsData.push(['', '', '', '', '', '', '', '', COMPANY.email, '', '']);
-    // Row 4 (Excel row 5)
     wsData.push(['', '', '', '', '', '', '', '', COMPANY.phone, '', '']);
-    // Row 5 (Excel row 6): Merchant
     wsData.push(['Merchant:', '', '', '', merchant.display_name, '', '', '', '', '', '']);
-    // Row 6 (Excel row 7): Name
     wsData.push(['Name', '', '', '', merchant.legal_name, '', '', '', '', '', '']);
-    // Row 7 (Excel row 8): Address + Statement No.
     wsData.push(['Street Address', '', '', '', merchant.address, '', '', '', '', 'Statement No.', d.statementNo]);
-    // Row 8 (Excel row 9): Statement Date
     wsData.push(['', '', '', '', '', '', '', '', '', 'Statement Date', todayStr()]);
-    // Row 9 (Excel row 10): spacer
     wsData.push(['', '', '', '', '', '', '', '', '', '', '']);
-    // Row 10 (Excel row 11): E-Voucher Statement title
     wsData.push(['', '', '', '', '', '', '', 'E-Voucher Statement', '', '', '']);
-    // Row 11 (Excel row 12): Headers
     wsData.push(['Date', 'Description', '', 'Qty', '%', 'Price with\ncommission', 'Price without\ncommission', 'Total with\ncommission', 'Total without\ncommission', 'Commission\nAmount', 'Net Amount']);
-    // Row 12 (Excel row 13): Second header row (merged with above)
     wsData.push(['', '', '', '', '', '', '', '', '', '', '']);
 
-    // Data rows (Excel row 14+)
-    const dataStartExcel = 14; // 1-indexed
-    const dataStartIdx = wsData.length; // 0-indexed array index
+    const dataStartExcel = 14;
+    const dataStartIdx = wsData.length;
 
     for (const item of d.lineItems) {
         wsData.push([
-            item.date,
-            item.description,
-            '',
-            item.qty,
-            item.pct,
+            item.date, item.description, '', item.qty, item.pct,
             { t: 'n', v: item.priceWithComm, z: '#,##0.000' },
             { t: 'n', v: item.priceWithoutComm, z: '#,##0.00' },
             { t: 'n', v: item.totalWithComm, z: '#,##0.000' },
@@ -656,182 +1171,95 @@ function downloadExcel() {
 
     const lastDataIdx = wsData.length - 1;
     const lastDataExcel = lastDataIdx + 1;
-
-    // Total row
     const totalRowIdx = wsData.length;
     wsData.push(['', '', '', '', '', '', '', '', '', 'Total', { t: 'n', v: d.totalNet, z: '#,##0.000' }]);
 
-    // Bank info rows
     const bankRow1Idx = wsData.length;
     wsData.push(['Account Name: ', '', '', merchant.legal_name, '', '', '', '', '', 'Commission Amount', { t: 'n', v: d.totalCommission, z: '#,##0.000' }]);
-
     const bankRow2Idx = wsData.length;
     wsData.push(['Bank Account', '', '', merchant.bank_account, '', '', '', '', '', 'Total with Commission ', { t: 'n', v: d.totalWithoutComm, z: '#,##0.00' }]);
-
     const bankRow3Idx = wsData.length;
     wsData.push(['Bank Name', '', '', merchant.bank_name, '', '', '', '', '', 'Payment', '']);
-
     const bankRow4Idx = wsData.length;
-    wsData.push(['Beneficiary Address：', '', '', merchant.bank_address, '', '', '', '', '', 'Balance Due', { t: 'n', v: d.totalNet, z: '#,##0.000' }]);
+    wsData.push(['Beneficiary Address:', '', '', merchant.bank_address, '', '', '', '', '', 'Balance Due', { t: 'n', v: d.totalNet, z: '#,##0.000' }]);
 
-    // Create worksheet from array
     const ws = XLSX.utils.aoa_to_sheet(wsData);
-
-    // Set column widths
     ws['!cols'] = [
-        { wch: 14 }, // A
-        { wch: 14 }, // B
-        { wch: 6 },  // C
-        { wch: 6 },  // D
-        { wch: 6 },  // E
-        { wch: 16 }, // F
-        { wch: 16 }, // G
-        { wch: 16 }, // H
-        { wch: 16 }, // I
-        { wch: 14 }, // J
-        { wch: 14 }, // K
+        { wch: 14 }, { wch: 14 }, { wch: 6 }, { wch: 6 }, { wch: 6 },
+        { wch: 16 }, { wch: 16 }, { wch: 16 }, { wch: 16 }, { wch: 14 }, { wch: 14 },
     ];
 
-    // Merges (0-indexed: {s:{r:row,c:col}, e:{r:row,c:col}})
     const merges = [
-        // Company name A1:G3
         { s: { r: 0, c: 0 }, e: { r: 2, c: 6 } },
-        // Address right side
-        { s: { r: 1, c: 8 }, e: { r: 1, c: 10 } }, // I2:K2
-        { s: { r: 2, c: 8 }, e: { r: 2, c: 10 } }, // I3:K3
-        { s: { r: 3, c: 8 }, e: { r: 3, c: 10 } }, // I4:K4
-        { s: { r: 4, c: 8 }, e: { r: 4, c: 10 } }, // I5:K5
-        // Merchant display name E6:F6
+        { s: { r: 1, c: 8 }, e: { r: 1, c: 10 } },
+        { s: { r: 2, c: 8 }, e: { r: 2, c: 10 } },
+        { s: { r: 3, c: 8 }, e: { r: 3, c: 10 } },
+        { s: { r: 4, c: 8 }, e: { r: 4, c: 10 } },
         { s: { r: 5, c: 4 }, e: { r: 5, c: 5 } },
-        // Name A7:B7
         { s: { r: 6, c: 0 }, e: { r: 6, c: 1 } },
-        // Address E8:G8
         { s: { r: 7, c: 4 }, e: { r: 7, c: 6 } },
-        // Row 9 merges
         { s: { r: 8, c: 0 }, e: { r: 8, c: 1 } },
         { s: { r: 8, c: 4 }, e: { r: 8, c: 5 } },
-        // Row 10 merges
         { s: { r: 9, c: 0 }, e: { r: 9, c: 1 } },
         { s: { r: 9, c: 4 }, e: { r: 9, c: 5 } },
-        // E-Voucher Statement H11:K11
         { s: { r: 10, c: 7 }, e: { r: 10, c: 10 } },
         { s: { r: 10, c: 4 }, e: { r: 10, c: 5 } },
-        // Headers: merge row 12-13 vertically for each header column
-        { s: { r: 11, c: 0 }, e: { r: 12, c: 0 } }, // A12:A13 Date
-        { s: { r: 11, c: 1 }, e: { r: 12, c: 2 } }, // B12:C13 Description
-        { s: { r: 11, c: 3 }, e: { r: 12, c: 3 } }, // D12:D13 Qty
-        { s: { r: 11, c: 4 }, e: { r: 12, c: 4 } }, // E12:E13 %
-        { s: { r: 11, c: 5 }, e: { r: 12, c: 5 } }, // F12:F13
-        { s: { r: 11, c: 6 }, e: { r: 12, c: 6 } }, // G12:G13
-        { s: { r: 11, c: 7 }, e: { r: 12, c: 7 } }, // H12:H13
-        { s: { r: 11, c: 8 }, e: { r: 12, c: 8 } }, // I12:I13
-        { s: { r: 11, c: 9 }, e: { r: 12, c: 9 } }, // J12:J13
-        { s: { r: 11, c: 10 }, e: { r: 12, c: 10 } }, // K12:K13
+        { s: { r: 11, c: 0 }, e: { r: 12, c: 0 } },
+        { s: { r: 11, c: 1 }, e: { r: 12, c: 2 } },
+        { s: { r: 11, c: 3 }, e: { r: 12, c: 3 } },
+        { s: { r: 11, c: 4 }, e: { r: 12, c: 4 } },
+        { s: { r: 11, c: 5 }, e: { r: 12, c: 5 } },
+        { s: { r: 11, c: 6 }, e: { r: 12, c: 6 } },
+        { s: { r: 11, c: 7 }, e: { r: 12, c: 7 } },
+        { s: { r: 11, c: 8 }, e: { r: 12, c: 8 } },
+        { s: { r: 11, c: 9 }, e: { r: 12, c: 9 } },
+        { s: { r: 11, c: 10 }, e: { r: 12, c: 10 } },
     ];
-
-    // Data row merges: B:C merged for each data row
     for (let i = 0; i < d.lineItems.length; i++) {
         merges.push({ s: { r: dataStartIdx + i, c: 1 }, e: { r: dataStartIdx + i, c: 2 } });
     }
-
-    // Bank rows merges
-    // Account Name A:B merge
     merges.push({ s: { r: bankRow1Idx, c: 0 }, e: { r: bankRow1Idx, c: 1 } });
-    // Account Name value D:H merge
     merges.push({ s: { r: bankRow1Idx, c: 3 }, e: { r: bankRow1Idx, c: 7 } });
-
-    // Bank Account A:B merge
     merges.push({ s: { r: bankRow2Idx, c: 0 }, e: { r: bankRow2Idx, c: 1 } });
-    // Bank Account value D:G merge
     merges.push({ s: { r: bankRow2Idx, c: 3 }, e: { r: bankRow2Idx, c: 6 } });
-
-    // Bank Name A:B merge
     merges.push({ s: { r: bankRow3Idx, c: 0 }, e: { r: bankRow3Idx, c: 1 } });
-    // Bank Name value D:G merge
     merges.push({ s: { r: bankRow3Idx, c: 3 }, e: { r: bankRow3Idx, c: 6 } });
-
-    // Beneficiary Address A:B merge
     merges.push({ s: { r: bankRow4Idx, c: 0 }, e: { r: bankRow4Idx, c: 1 } });
-    // Beneficiary Address value D:H merge
     merges.push({ s: { r: bankRow4Idx, c: 3 }, e: { r: bankRow4Idx, c: 7 } });
-
     ws['!merges'] = merges;
 
-    // Set formulas for data rows
     for (let i = 0; i < d.lineItems.length; i++) {
         const excelRow = dataStartExcel + i;
         const commFactor = 1 - d.commissionPct;
-
-        // F column: =G{row}*(1-commission)
-        ws[XLSX.utils.encode_cell({ r: dataStartIdx + i, c: 5 })] = {
-            t: 'n', f: `G${excelRow}*${commFactor}`, z: '#,##0.000'
-        };
-        // H column: =F{row}*D{row}
-        ws[XLSX.utils.encode_cell({ r: dataStartIdx + i, c: 7 })] = {
-            t: 'n', f: `F${excelRow}*D${excelRow}`, z: '#,##0.000'
-        };
-        // I column: =G{row}*D{row}
-        ws[XLSX.utils.encode_cell({ r: dataStartIdx + i, c: 8 })] = {
-            t: 'n', f: `G${excelRow}*D${excelRow}`, z: '#,##0.00'
-        };
-        // J column: =I{row}-H{row}
-        ws[XLSX.utils.encode_cell({ r: dataStartIdx + i, c: 9 })] = {
-            t: 'n', f: `I${excelRow}-H${excelRow}`, z: '#,##0.000'
-        };
-        // K column: =H{row}
-        ws[XLSX.utils.encode_cell({ r: dataStartIdx + i, c: 10 })] = {
-            t: 'n', f: `H${excelRow}`, z: '#,##0.000'
-        };
+        ws[XLSX.utils.encode_cell({ r: dataStartIdx + i, c: 5 })] = { t: 'n', f: `G${excelRow}*${commFactor}`, z: '#,##0.000' };
+        ws[XLSX.utils.encode_cell({ r: dataStartIdx + i, c: 7 })] = { t: 'n', f: `F${excelRow}*D${excelRow}`, z: '#,##0.000' };
+        ws[XLSX.utils.encode_cell({ r: dataStartIdx + i, c: 8 })] = { t: 'n', f: `G${excelRow}*D${excelRow}`, z: '#,##0.00' };
+        ws[XLSX.utils.encode_cell({ r: dataStartIdx + i, c: 9 })] = { t: 'n', f: `I${excelRow}-H${excelRow}`, z: '#,##0.000' };
+        ws[XLSX.utils.encode_cell({ r: dataStartIdx + i, c: 10 })] = { t: 'n', f: `H${excelRow}`, z: '#,##0.000' };
     }
+    ws[XLSX.utils.encode_cell({ r: totalRowIdx, c: 10 })] = { t: 'n', f: `SUM(K${dataStartExcel}:K${lastDataExcel})`, z: '#,##0.000' };
+    ws[XLSX.utils.encode_cell({ r: bankRow1Idx, c: 10 })] = { t: 'n', f: `SUM(J${dataStartExcel}:J${lastDataExcel})`, z: '#,##0.000' };
+    ws[XLSX.utils.encode_cell({ r: bankRow2Idx, c: 10 })] = { t: 'n', f: `SUM(I${dataStartExcel}:I${lastDataExcel})`, z: '#,##0.00' };
+    ws[XLSX.utils.encode_cell({ r: bankRow4Idx, c: 10 })] = { t: 'n', f: `K${totalRowIdx + 1}`, z: '#,##0.000' };
 
-    // Total K: =SUM(K{dataStart}:K{lastData})
-    ws[XLSX.utils.encode_cell({ r: totalRowIdx, c: 10 })] = {
-        t: 'n', f: `SUM(K${dataStartExcel}:K${lastDataExcel})`, z: '#,##0.000'
-    };
-
-    // Commission Amount K: =SUM(J{dataStart}:J{lastData})
-    ws[XLSX.utils.encode_cell({ r: bankRow1Idx, c: 10 })] = {
-        t: 'n', f: `SUM(J${dataStartExcel}:J${lastDataExcel})`, z: '#,##0.000'
-    };
-
-    // Total with Commission K: =SUM(I{dataStart}:I{lastData})
-    ws[XLSX.utils.encode_cell({ r: bankRow2Idx, c: 10 })] = {
-        t: 'n', f: `SUM(I${dataStartExcel}:I${lastDataExcel})`, z: '#,##0.00'
-    };
-
-    // Balance Due K: =K{totalRow}
-    const totalExcelRow = totalRowIdx + 1;
-    ws[XLSX.utils.encode_cell({ r: bankRow4Idx, c: 10 })] = {
-        t: 'n', f: `K${totalExcelRow}`, z: '#,##0.000'
-    };
-
-    // Sheet name
-    const sheetName = merchant.display_name;
-    XLSX.utils.book_append_sheet(wb, ws, sheetName);
-
-    // Generate filename
+    const sheetDisplayName = merchant.display_name;
+    XLSX.utils.book_append_sheet(wb, ws, sheetDisplayName);
     const now = new Date();
     const mm = padZero(now.getMonth() + 1);
     const yyyy = now.getFullYear();
-    const filename = `${merchant.display_name}-美团E-Voucher Statement (${mm}_${yyyy}).xlsx`;
-
-    XLSX.writeFile(wb, filename);
+    XLSX.writeFile(wb, `${merchant.display_name}-E-Voucher Statement (${mm}_${yyyy}).xlsx`);
 }
 
-// ============================================================
-// Download HTML (printable A4)
-// ============================================================
-btnDownloadHtml.addEventListener('click', downloadHtml);
+// --- E-Voucher Download HTML ---
+btnVoucherDownloadHtml.addEventListener('click', downloadVoucherHtml);
 
-function downloadHtml() {
-    if (!sourceData) return;
-    const d = getStatementData();
+function downloadVoucherHtml() {
+    if (!voucherSourceData) return;
+    const d = getVoucherStatementData();
     const merchant = d.merchant;
-
     let rows = '';
     for (const item of d.lineItems) {
-        rows += `
-        <tr>
+        rows += `<tr>
             <td>${item.date}</td>
             <td colspan="2">${item.description}</td>
             <td>${item.qty}</td>
@@ -844,7 +1272,6 @@ function downloadHtml() {
             <td>${fmtNum(item.netAmount, 3)}</td>
         </tr>`;
     }
-
     const html = `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -860,78 +1287,51 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 10px; color: #000; 
 .merchant-info { margin-bottom: 10px; font-size: 10px; }
 .merchant-info table { border-collapse: collapse; }
 .merchant-info td { padding: 2px 8px 2px 0; vertical-align: top; }
-.merchant-info td.label { font-weight: normal; }
-.merchant-info td.value { }
 .statement-meta { text-align: right; font-size: 9px; margin-bottom: 6px; }
 .statement-title { text-align: right; font-size: 20px; margin-bottom: 10px; }
 table.data { width: 100%; border-collapse: collapse; font-size: 9px; margin-bottom: 6px; }
 table.data th { background: #d9e1f2; border: 1px solid #b4c0d4; padding: 5px 4px; text-align: center; font-weight: bold; white-space: pre-line; vertical-align: middle; }
 table.data td { border: 1px solid #d1d9e6; padding: 4px; text-align: center; }
-.summary td { border: none !important; font-size: 9px; padding: 3px 4px; }
-.summary .label { text-align: right; font-weight: bold; }
-.bank-section { margin-top: 4px; }
-.bank-section table { border-collapse: collapse; width: 100%; font-size: 9px; }
-.bank-section td { padding: 2px 4px; vertical-align: top; }
-.bank-label { width: 120px; }
+.clearfix::after { content: ''; display: table; clear: both; }
 .totals-section { float: right; width: 280px; }
 .totals-section table { border-collapse: collapse; width: 100%; font-size: 9px; }
 .totals-section td { padding: 2px 4px; }
 .totals-section td:first-child { text-align: right; }
 .totals-section td:last-child { text-align: right; width: 100px; }
-.clearfix::after { content: ''; display: table; clear: both; }
+.bank-section { margin-top: 4px; }
+.bank-section table { border-collapse: collapse; width: 100%; font-size: 9px; }
+.bank-section td { padding: 2px 4px; vertical-align: top; }
+.bank-label { width: 120px; }
 </style>
 </head>
 <body>
 <div class="header">
     <div class="company-name">${COMPANY.name}</div>
     <div class="company-info">
-        ${COMPANY.address_line1}<br>
-        ${COMPANY.address_line2}<br>
-        ${COMPANY.email}<br>
-        ${COMPANY.phone}
+        ${COMPANY.address_line1}<br>${COMPANY.address_line2}<br>${COMPANY.email}<br>${COMPANY.phone}
     </div>
 </div>
-
 <div class="merchant-info">
     <table>
-        <tr><td class="label"><strong>Merchant:</strong></td><td></td><td class="value"><strong>${merchant.display_name}</strong></td></tr>
-        <tr><td class="label">Name</td><td></td><td class="value">${merchant.legal_name}</td></tr>
-        <tr><td class="label">Street Address</td><td></td><td class="value">${merchant.address}</td></tr>
+        <tr><td><strong>Merchant:</strong></td><td></td><td><strong>${merchant.display_name}</strong></td></tr>
+        <tr><td>Name</td><td></td><td>${merchant.legal_name}</td></tr>
+        <tr><td>Street Address</td><td></td><td>${merchant.address}</td></tr>
     </table>
 </div>
-
 <div class="statement-meta">
     <strong>Statement No.</strong> ${d.statementNo}<br>
     <strong>Statement Date</strong> ${todayStr()}
 </div>
-
 <div class="statement-title">E-Voucher Statement</div>
-
 <table class="data">
-<thead>
-<tr>
-    <th>Date</th>
-    <th colspan="2">Description</th>
-    <th>Qty</th>
-    <th>%</th>
-    <th>Price with
-commission</th>
-    <th>Price without
-commission</th>
-    <th>Total with
-commission</th>
-    <th>Total without
-commission</th>
-    <th>Commission
-Amount</th>
-    <th>Net Amount</th>
-</tr>
-</thead>
-<tbody>
-${rows}
-</tbody>
+<thead><tr>
+    <th>Date</th><th colspan="2">Description</th><th>Qty</th><th>%</th>
+    <th>Price with\ncommission</th><th>Price without\ncommission</th>
+    <th>Total with\ncommission</th><th>Total without\ncommission</th>
+    <th>Commission\nAmount</th><th>Net Amount</th>
+</tr></thead>
+<tbody>${rows}</tbody>
 </table>
-
 <div class="clearfix">
 <div class="totals-section">
     <table>
@@ -947,25 +1347,862 @@ ${rows}
         <tr><td class="bank-label">Account Name:</td><td>${merchant.legal_name}</td></tr>
         <tr><td class="bank-label">Bank Account:</td><td>${merchant.bank_account}</td></tr>
         <tr><td class="bank-label">Bank Name:</td><td>${merchant.bank_name}</td></tr>
-        <tr><td class="bank-label">Beneficiary Address：</td><td>${merchant.bank_address}</td></tr>
+        <tr><td class="bank-label">Beneficiary Address:</td><td>${merchant.bank_address}</td></tr>
     </table>
 </div>
 </div>
-
-</body>
-</html>`;
-
+</body></html>`;
     const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     const now = new Date();
-    const mm = padZero(now.getMonth() + 1);
-    const yyyy = now.getFullYear();
     a.href = url;
-    a.download = `${merchant.display_name}-美团E-Voucher Statement (${mm}_${yyyy}).html`;
+    a.download = `${merchant.display_name}-E-Voucher Statement (${padZero(now.getMonth()+1)}_${now.getFullYear()}).html`;
     a.click();
     URL.revokeObjectURL(url);
 }
+
+
+// ============================================================
+// ============================================================
+//  MODE 2 & 3: INVOICE / QUOTATION (Shared Logic)
+// ============================================================
+// ============================================================
+
+/**
+ * Generic document controller for Invoice and Quotation modes.
+ * Instantiated once per mode with its DOM IDs.
+ */
+class DocController {
+    constructor(mode) {
+        this.mode = mode; // 'invoice' or 'quotation'
+        this.prefix = mode;
+        this.docLabel = mode === 'invoice' ? 'Invoice' : 'Quotation';
+        this.billToLabel = mode === 'invoice' ? 'Bill To' : 'To';
+
+        // DOM refs
+        this.dropZone = document.getElementById(`${mode}DropZone`);
+        this.fileInput = document.getElementById(`${mode}FileInput`);
+        this.fileNameEl = document.getElementById(`${mode}FileName`);
+        this.entitySelect = document.getElementById(`${mode}Entity`);
+        this.docNoInput = document.getElementById(`${mode}No`);
+        this.dateInput = document.getElementById(`${mode}Date`);
+        this.currencySelect = document.getElementById(`${mode}Currency`);
+        this.clientNameInput = document.getElementById(`${mode}ClientName`);
+        this.clientAddressInput = document.getElementById(`${mode}ClientAddress`);
+        this.serviceBody = document.getElementById(`${mode}ServiceBody`);
+        this.showTermsCheckbox = document.getElementById(`${mode}ShowTerms`);
+        this.statusEl = document.getElementById(`${mode}Status`);
+        this.previewCard = document.getElementById(`${mode}PreviewCard`);
+        this.previewWrap = document.getElementById(`${mode}PreviewWrap`);
+        this.btnGenerate = document.getElementById(`btn${this.capitalize(mode)}Generate`);
+        this.btnDownloadXlsx = document.getElementById(`btn${this.capitalize(mode)}DownloadXlsx`);
+        this.btnDownloadHtml = document.getElementById(`btn${this.capitalize(mode)}DownloadHtml`);
+        this.btnAddRow = document.getElementById(`btn${this.capitalize(mode)}AddRow`);
+
+        this.serviceItems = [];
+        this.generatedData = null;
+
+        this.init();
+    }
+
+    capitalize(str) {
+        return str.charAt(0).toUpperCase() + str.slice(1);
+    }
+
+    init() {
+        // Set defaults
+        this.dateInput.value = todaySlash();
+        this.generateDocNo();
+
+        // Entity change -> update currency
+        this.entitySelect.addEventListener('change', () => {
+            const entity = ENTITIES[this.entitySelect.value];
+            this.currencySelect.value = entity.default_currency;
+            this.generateDocNo();
+        });
+
+        // File upload
+        this.dropZone.addEventListener('click', () => this.fileInput.click());
+        this.dropZone.addEventListener('dragover', (e) => { e.preventDefault(); this.dropZone.classList.add('dragover'); });
+        this.dropZone.addEventListener('dragleave', () => this.dropZone.classList.remove('dragover'));
+        this.dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            this.dropZone.classList.remove('dragover');
+            if (e.dataTransfer.files.length) this.handleFile(e.dataTransfer.files[0]);
+        });
+        this.fileInput.addEventListener('change', () => {
+            if (this.fileInput.files.length) this.handleFile(this.fileInput.files[0]);
+        });
+
+        // Add row
+        this.btnAddRow.addEventListener('click', () => this.addServiceRow());
+        // Generate
+        this.btnGenerate.addEventListener('click', () => this.generatePreview());
+        // Downloads
+        this.btnDownloadXlsx.addEventListener('click', () => this.downloadExcel());
+        this.btnDownloadHtml.addEventListener('click', () => this.downloadHtml());
+
+        // Add initial empty row
+        this.addServiceRow();
+    }
+
+    generateDocNo() {
+        const ts = generateTimestamp();
+        if (this.mode === 'invoice') {
+            this.docNoInput.value = `IN-UF${ts}`;
+        } else {
+            this.docNoInput.value = `UF${ts}`;
+        }
+    }
+
+    showStatus(msg, type) {
+        this.statusEl.className = 'status ' + type;
+        this.statusEl.textContent = msg;
+        this.statusEl.classList.remove('hidden');
+    }
+    hideStatus() { this.statusEl.classList.add('hidden'); }
+
+    // --- Service Row Management ---
+    addServiceRow(data) {
+        data = data || { service: '', details: '', unitPrice: '', qty: 1, finalPrice: '' };
+        const idx = this.serviceItems.length;
+        this.serviceItems.push(data);
+        this.renderServiceRows();
+    }
+
+    removeServiceRow(idx) {
+        this.serviceItems.splice(idx, 1);
+        this.renderServiceRows();
+    }
+
+    renderServiceRows() {
+        this.serviceBody.innerHTML = '';
+        this.serviceItems.forEach((item, idx) => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td><input type="text" data-idx="${idx}" data-field="service" value="${this.escHtml(item.service)}" placeholder="Service name"></td>
+                <td><textarea data-idx="${idx}" data-field="details" placeholder="Details (multiline)">${this.escHtml(item.details)}</textarea></td>
+                <td><input type="number" data-idx="${idx}" data-field="unitPrice" value="${item.unitPrice}" step="0.01" placeholder="0.00"></td>
+                <td><input type="number" data-idx="${idx}" data-field="qty" value="${item.qty}" min="1" step="1"></td>
+                <td><input type="number" data-idx="${idx}" data-field="finalPrice" value="${item.finalPrice}" step="0.01" placeholder="Auto"></td>
+                <td style="text-align:center;"><button class="btn btn-danger btn-sm" data-remove="${idx}">X</button></td>
+            `;
+            this.serviceBody.appendChild(tr);
+        });
+
+        // Bind events
+        this.serviceBody.querySelectorAll('input, textarea').forEach(el => {
+            el.addEventListener('input', () => {
+                const idx = parseInt(el.dataset.idx);
+                const field = el.dataset.field;
+                if (field === 'unitPrice' || field === 'qty' || field === 'finalPrice') {
+                    this.serviceItems[idx][field] = el.value;
+                } else {
+                    this.serviceItems[idx][field] = el.value;
+                }
+            });
+        });
+        this.serviceBody.querySelectorAll('[data-remove]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                this.removeServiceRow(parseInt(btn.dataset.remove));
+            });
+        });
+    }
+
+    escHtml(str) {
+        if (!str) return '';
+        return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    // --- File Upload & Parsing ---
+    handleFile(file) {
+        if (!file.name.match(/\.xlsx?$/i)) {
+            this.showStatus('Please upload an .xlsx file', 'error');
+            return;
+        }
+        this.hideStatus();
+        this.fileNameEl.textContent = file.name;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                this.parseUploadedExcel(new Uint8Array(e.target.result));
+                this.showStatus('File parsed and form auto-filled successfully', 'success');
+            } catch(err) {
+                this.showStatus('Parse error: ' + err.message, 'error');
+                console.error(err);
+            }
+        };
+        reader.readAsArrayBuffer(file);
+    }
+
+    parseUploadedExcel(data) {
+        const wb = XLSX.read(data, { type: 'array' });
+        const ws = wb.Sheets[wb.SheetNames[0]];
+        const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: null });
+
+        // Helper to get clean cell value
+        const cell = (r, c) => {
+            if (r >= rows.length) return '';
+            if (!rows[r] || c >= rows[r].length) return '';
+            return cleanCell(rows[r][c]);
+        };
+
+        // 1. Detect document type from C3 (row 2, col 2)
+        const docTypeCell = cell(2, 2);
+        let detectedType = null;
+        if (/invoice/i.test(docTypeCell)) detectedType = 'invoice';
+        else if (/quotation/i.test(docTypeCell)) detectedType = 'quotation';
+
+        // 2. Detect entity from B6 (row 5, col 1)
+        const entityCell = cell(5, 1);
+        if (/PTE\.\s*LTD/i.test(entityCell)) {
+            this.entitySelect.value = 'SG';
+        } else if (/SDN\.\s*BHD/i.test(entityCell)) {
+            this.entitySelect.value = 'MY';
+        }
+        // Update currency to entity default
+        this.currencySelect.value = ENTITIES[this.entitySelect.value].default_currency;
+
+        // 3. Extract date and doc number from H7 (row 6, col 7)
+        const h7Value = cell(6, 7);
+        if (h7Value) {
+            const h7Lines = h7Value.split('\n');
+            // First line is date, second line (if exists) might be doc number
+            if (h7Lines.length >= 1) {
+                const parsed = parseFlexibleDate(h7Lines[0]);
+                if (parsed) {
+                    this.dateInput.value = formatDateObj(parsed);
+                }
+            }
+            if (h7Lines.length >= 2) {
+                const docNo = h7Lines[1].trim();
+                if (docNo) this.docNoInput.value = docNo;
+            }
+        }
+
+        // 4. Extract client name - scan rows B8-B12 for "Bill To:" or "To:" patterns
+        let clientName = '';
+        let clientAddress = '';
+        let clientFoundRow = -1;
+        for (let r = 7; r <= 12 && r < rows.length; r++) {
+            const bVal = cell(r, 1);
+            // Check for "Bill To: NAME" or "To: NAME" with inline name
+            let match = bVal.match(/^(?:Bill\s*To|To)\s*:\s*(.+)$/i);
+            if (match) {
+                clientName = match[1].trim();
+                clientFoundRow = r;
+                break;
+            }
+            // Check for standalone "Bill To:" or "To:" (name on next row or C column)
+            if (/^(?:Bill\s*To|To)\s*:?\s*$/i.test(bVal)) {
+                const cVal = cell(r, 2);
+                if (cVal) {
+                    clientName = cVal;
+                } else if (r + 1 < rows.length) {
+                    clientName = cell(r + 1, 1);
+                }
+                clientFoundRow = r;
+                break;
+            }
+            // Check if "Bill To" is embedded in a multiline cell
+            if (/bill\s*to/i.test(bVal) && !(/^(?:Bill\s*To|To)\s*:?\s*$/i.test(bVal))) {
+                const afterBillTo = bVal.replace(/^.*bill\s*to\s*:?\s*/i, '').trim();
+                if (afterBillTo) {
+                    clientName = afterBillTo;
+                } else {
+                    const lines = bVal.split('\n');
+                    if (lines.length > 1) {
+                        clientName = lines.slice(1).join('\n').trim();
+                    }
+                }
+                clientFoundRow = r;
+                break;
+            }
+        }
+
+        // If client name contains newline, split into name + address
+        if (clientName.includes('\n')) {
+            const parts = clientName.split('\n');
+            clientName = parts[0].trim();
+            clientAddress = parts.slice(1).join('\n').trim();
+        }
+
+        // 5. Extract client address from row after Bill To
+        if (!clientAddress && clientFoundRow >= 0 && clientFoundRow + 1 < rows.length) {
+            const nextRowVal = cell(clientFoundRow + 1, 1);
+            // Only use as address if it doesn't look like a header row
+            if (nextRowVal && !/^(service|details|unit|qty|final|total)/i.test(nextRowVal)) {
+                clientAddress = nextRowVal;
+            }
+        }
+
+        this.clientNameInput.value = clientName;
+        this.clientAddressInput.value = clientAddress;
+
+        // 6. Find service table header row
+        let headerRow = -1;
+        for (let r = 0; r < rows.length; r++) {
+            const bVal = cell(r, 1);
+            const cVal = cell(r, 2);
+            if (/service/i.test(bVal) && /detail/i.test(cVal)) {
+                headerRow = r;
+                break;
+            }
+        }
+
+        // 7. Extract service items
+        this.serviceItems = [];
+        if (headerRow >= 0) {
+            let currentItem = null;
+            for (let r = headerRow + 1; r < rows.length; r++) {
+                const bVal = cell(r, 1);
+                const cVal = cell(r, 2);
+                const gVal = cell(r, 6);
+
+                // Check if we hit the Total row
+                if (/^total$/i.test(gVal) || /^total$/i.test(bVal)) {
+                    break;
+                }
+
+                if (bVal) {
+                    // New service item
+                    if (currentItem) {
+                        this.serviceItems.push(currentItem);
+                    }
+
+                    // Find price columns - they might be at various positions
+                    // Look for Unit Price, Qty, Final Price in the row
+                    let unitPrice = '';
+                    let qty = 1;
+                    let finalPrice = '';
+
+                    // Typical layout: B=Service, C=Details, D or E=Unit Price, E or F=Qty, G or H=Final Price
+                    // We scan columns D onwards for numeric values
+                    const dVal = cell(r, 3);
+                    const eVal = cell(r, 4);
+                    const fVal = cell(r, 5);
+                    const hVal = cell(r, 7);
+
+                    // Detect currency from any price cell
+                    for (let c = 3; c <= 7; c++) {
+                        const v = cell(r, c);
+                        const detected = detectCurrency(v);
+                        if (detected) {
+                            this.currencySelect.value = detected;
+                            break;
+                        }
+                    }
+
+                    // Try common column mappings
+                    // Format 1: D=empty, E=UnitPrice, F=Qty, G=FinalPrice
+                    // Format 2: D=UnitPrice, E=Qty, F=FinalPrice
+                    // Format 3: varies - just scan for numbers
+                    if (parseCurrencyValue(fVal) > 0 && /^\d+$/.test(eVal)) {
+                        unitPrice = parseCurrencyValue(dVal);
+                        qty = parseInt(eVal) || 1;
+                        finalPrice = parseCurrencyValue(fVal);
+                    } else if (parseCurrencyValue(gVal) > 0 && /^\d+$/.test(fVal)) {
+                        unitPrice = parseCurrencyValue(eVal);
+                        qty = parseInt(fVal) || 1;
+                        finalPrice = parseCurrencyValue(gVal);
+                    } else if (parseCurrencyValue(hVal) > 0) {
+                        // Try: E=UnitPrice, F=Qty, H=FinalPrice or just H=FinalPrice
+                        if (/^\d+$/.test(fVal)) {
+                            unitPrice = parseCurrencyValue(eVal);
+                            qty = parseInt(fVal) || 1;
+                        } else {
+                            unitPrice = parseCurrencyValue(hVal);
+                            qty = 1;
+                        }
+                        finalPrice = parseCurrencyValue(hVal);
+                    } else {
+                        // Last resort: find any numeric cell
+                        for (let c = 3; c <= 7; c++) {
+                            const v = parseCurrencyValue(cell(r, c));
+                            if (v > 0) {
+                                finalPrice = v;
+                                unitPrice = v;
+                                break;
+                            }
+                        }
+                    }
+
+                    currentItem = {
+                        service: bVal,
+                        details: cVal,
+                        unitPrice: unitPrice || '',
+                        qty: qty,
+                        finalPrice: finalPrice || '',
+                    };
+                } else if (cVal && currentItem) {
+                    // Continuation row: B is empty but C has content
+                    if (currentItem.details) {
+                        currentItem.details += '\n' + cVal;
+                    } else {
+                        currentItem.details = cVal;
+                    }
+                }
+            }
+            if (currentItem) {
+                this.serviceItems.push(currentItem);
+            }
+        }
+
+        // If no items were found, add an empty row
+        if (this.serviceItems.length === 0) {
+            this.serviceItems.push({ service: '', details: '', unitPrice: '', qty: 1, finalPrice: '' });
+        }
+
+        this.renderServiceRows();
+    }
+
+    // --- Collect Form Data ---
+    collectData() {
+        const entityKey = this.entitySelect.value;
+        const entity = ENTITIES[entityKey];
+        const docNo = this.docNoInput.value;
+        const dateStr = this.dateInput.value;
+        const currency = this.currencySelect.value;
+        const clientName = this.clientNameInput.value;
+        const clientAddress = this.clientAddressInput.value;
+        const showTerms = this.showTermsCheckbox.checked;
+
+        // Read current service items from DOM
+        const items = [];
+        this.serviceBody.querySelectorAll('tr').forEach((tr, idx) => {
+            const inputs = tr.querySelectorAll('input, textarea');
+            const service = inputs[0] ? inputs[0].value : '';
+            const details = inputs[1] ? inputs[1].value : '';
+            const unitPrice = inputs[2] ? parseFloat(inputs[2].value) || 0 : 0;
+            const qty = inputs[3] ? parseInt(inputs[3].value) || 1 : 1;
+            let finalPrice = inputs[4] ? parseFloat(inputs[4].value) : NaN;
+            if (isNaN(finalPrice) || inputs[4].value === '') {
+                finalPrice = unitPrice * qty;
+            }
+            if (service || details) {
+                items.push({ service, details, unitPrice, qty, finalPrice });
+            }
+        });
+
+        const total = items.reduce((s, item) => s + item.finalPrice, 0);
+
+        return { entityKey, entity, docNo, dateStr, currency, clientName, clientAddress, showTerms, items, total };
+    }
+
+    // --- Generate Preview ---
+    generatePreview() {
+        const d = this.collectData();
+        this.generatedData = d;
+
+        if (d.items.length === 0) {
+            this.showStatus('Please add at least one service item', 'error');
+            return;
+        }
+        this.hideStatus();
+
+        let itemsHtml = '';
+        d.items.forEach((item, idx) => {
+            const detailsHtml = this.escHtml(item.details).replace(/\n/g, '<br>');
+            itemsHtml += `<tr>
+                <td style="text-align:left;">${this.escHtml(item.service)}</td>
+                <td style="text-align:left;">${detailsHtml}</td>
+                <td class="text-right">${fmtCurrency(item.unitPrice, d.currency)}</td>
+                <td class="text-center">${item.qty}</td>
+                <td class="text-right">${fmtCurrency(item.finalPrice, d.currency)}</td>
+            </tr>`;
+        });
+
+        // Bank details
+        let bankHtml = '';
+        if (d.entityKey === 'SG') {
+            bankHtml = `
+                <tr><td style="width:160px;">Beneficiary Name:</td><td>${d.entity.bank_beneficiary}</td></tr>
+                <tr><td>Bank Name:</td><td>${d.entity.bank_name}</td></tr>
+                <tr><td>Account No.:</td><td>${d.entity.bank_account}</td></tr>
+                <tr><td>Bank Code:</td><td>${d.entity.bank_code}</td></tr>
+                <tr><td>Branch Code:</td><td>${d.entity.branch_code}</td></tr>
+                <tr><td>SWIFT Code:</td><td>${d.entity.swift_code}</td></tr>
+                <tr><td>Bank Address:</td><td>${d.entity.bank_address}</td></tr>
+            `;
+        } else {
+            bankHtml = `
+                <tr><td style="width:160px;">Beneficiary Name:</td><td>${d.entity.company_name}</td></tr>
+                <tr><td>Bank Name:</td><td>${d.entity.bank_name}</td></tr>
+                <tr><td>Account No.:</td><td>${d.entity.bank_account}</td></tr>
+                <tr><td>Branch:</td><td>${d.entity.branch_code}</td></tr>
+            `;
+        }
+
+        let termsHtml = '';
+        if (d.showTerms) {
+            termsHtml = `
+            <div class="terms">
+                <strong>CONFIDENTIALITY</strong><br>
+                Any sensitive figures, data, sales projections, budgets amounts, reports, etc relating to the brand, obtained by CONTRACTOR will remain confidential and will not be shared with anyone outside the company. Each Party (the "Receiving Party") agrees that it will not disclose to any third party or use any Confidential Information of the other Party (the "Disclosing Party"), except as expressly permitted in this Agreement.<br><br>
+                <strong>CONTRACT TERMS AND PAYMENT</strong><br>
+                The period of the contract is for 12 months from the signing date of this agreement. CLIENT agrees to make advance payment. If there are changes, new quotes will be added. The payment is not refundable.<br><br>
+                <strong>SEVERABILITY</strong><br>
+                CLIENT agrees that if any term in this Agreement is deemed to be invalid, unlawful or unenforceable for any reason, all other terms shall remain in force.
+            </div>`;
+        }
+
+        const registrationHtml = d.entity.registration ? `<br>Registration No.: ${d.entity.registration}` : '';
+
+        const html = `
+        <div class="doc-preview">
+            <div class="doc-title">${this.docLabel}</div>
+            <div class="doc-header">
+                <div class="left">
+                    <div class="company-name">${d.entity.company_name}</div>
+                    ${d.entity.address}${registrationHtml}<br>
+                    ${d.entity.contact}
+                </div>
+                <div class="right">
+                    <strong>Date:</strong> ${d.dateStr}<br>
+                    <strong>${this.docLabel} No.:</strong> ${d.docNo}
+                </div>
+            </div>
+            <div class="bill-to">
+                <strong>${this.billToLabel}:</strong>
+                ${this.escHtml(d.clientName)}${d.clientAddress ? '<br>' + this.escHtml(d.clientAddress) : ''}
+            </div>
+            <table class="items">
+                <thead>
+                    <tr>
+                        <th style="width:20%;text-align:left;">Service</th>
+                        <th style="width:35%;text-align:left;">Details</th>
+                        <th style="width:15%;text-align:right;">Unit Price</th>
+                        <th style="width:10%;text-align:center;">Qty</th>
+                        <th style="width:20%;text-align:right;">Final Price</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${itemsHtml}
+                    <tr class="total-row">
+                        <td colspan="4" style="text-align:right;"><strong>Total</strong></td>
+                        <td class="text-right"><strong>${fmtCurrency(d.total, d.currency)}</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="bank-details">
+                <strong>Bank Details:</strong>
+                <table>${bankHtml}</table>
+            </div>
+            ${termsHtml}
+            <div class="signature-area">
+                <div class="signature-box">
+                    <div class="signature-line">LIU WEI<br>Director<br>Agreed and accepted</div>
+                </div>
+                <div class="signature-box">
+                    <div class="signature-line">Agreed and accepted</div>
+                </div>
+            </div>
+        </div>`;
+
+        this.previewWrap.innerHTML = html;
+        this.previewCard.classList.remove('hidden');
+        this.btnDownloadXlsx.disabled = false;
+        this.btnDownloadHtml.disabled = false;
+    }
+
+    // --- Download Excel ---
+    downloadExcel() {
+        const d = this.generatedData || this.collectData();
+        if (!d || d.items.length === 0) return;
+
+        const wb = XLSX.utils.book_new();
+        const wsData = [];
+
+        // Row 0 (Excel row 1): empty
+        wsData.push(['', '', '', '', '', '', '', '']);
+        // Row 1 (Excel row 2): empty
+        wsData.push(['', '', '', '', '', '', '', '']);
+        // Row 2 (Excel row 3): C3 = doc type (centered, large)
+        wsData.push(['', '', this.docLabel, '', '', '', '', '']);
+        // Row 3 (Excel row 4): empty
+        wsData.push(['', '', '', '', '', '', '', '']);
+        // Row 4 (Excel row 5): empty
+        wsData.push(['', '', '', '', '', '', '', '']);
+        // Row 5 (Excel row 6): B6 = company name
+        wsData.push(['', d.entity.company_name, '', '', '', '', '', '']);
+        // Row 6 (Excel row 7): B7 = address + contact (merged B7:F7), G7 = labels, H7 = values
+        const addressContact = d.entity.address + '\n' + d.entity.contact;
+        const dateDocLabel = `Date:\n${this.docLabel} No.:`;
+        const dateDocValue = `${d.dateStr}\n${d.docNo}`;
+        wsData.push(['', addressContact, '', '', '', '', dateDocLabel, dateDocValue]);
+
+        // Row 7-8 (Excel row 8-9): Bill To
+        const billToText = `${this.billToLabel}: ${d.clientName}${d.clientAddress ? '\n' + d.clientAddress : ''}`;
+        wsData.push(['', billToText, '', '', '', '', '', '']);
+        wsData.push(['', '', '', '', '', '', '', '']);
+
+        // Row 9 (Excel row 10): empty spacer
+        wsData.push(['', '', '', '', '', '', '', '']);
+
+        // Row 10 (Excel row 11): Service table headers
+        // B=Service, C=Details, D=empty, E=Unit Price, F=Qty, G=empty, H=Final Price
+        wsData.push(['', 'Service', 'Details', '', 'Unit Price', 'Qty', '', 'Final Price']);
+        const headerRowIdx = wsData.length - 1;
+
+        // Data rows
+        const dataStartIdx = wsData.length;
+        const dataStartExcel = dataStartIdx + 1;
+        for (const item of d.items) {
+            wsData.push([
+                '',
+                item.service,
+                item.details,
+                '',
+                { t: 'n', v: item.unitPrice, z: '#,##0.00' },
+                item.qty,
+                '',
+                { t: 'n', v: item.finalPrice, z: '#,##0.00' },
+            ]);
+        }
+        const lastDataIdx = wsData.length - 1;
+        const lastDataExcel = lastDataIdx + 1;
+
+        // Total row
+        const totalRowIdx = wsData.length;
+        wsData.push(['', '', '', '', '', '', 'Total', { t: 'n', v: d.total, z: '#,##0.00' }]);
+
+        // Empty row
+        wsData.push(['', '', '', '', '', '', '', '']);
+
+        // Bank details section
+        const bankStartIdx = wsData.length;
+        wsData.push(['', 'Bank Details:', '', '', '', '', '', '']);
+        if (d.entityKey === 'SG') {
+            wsData.push(['', 'Beneficiary Name:', '', d.entity.bank_beneficiary, '', '', '', '']);
+            wsData.push(['', 'Bank Name:', '', d.entity.bank_name, '', '', '', '']);
+            wsData.push(['', 'Account No.:', '', d.entity.bank_account, '', '', '', '']);
+            wsData.push(['', 'Bank Code:', '', d.entity.bank_code, '', '', '', '']);
+            wsData.push(['', 'Branch Code:', '', d.entity.branch_code, '', '', '', '']);
+            wsData.push(['', 'SWIFT Code:', '', d.entity.swift_code, '', '', '', '']);
+            wsData.push(['', 'Bank Address:', '', d.entity.bank_address, '', '', '', '']);
+        } else {
+            wsData.push(['', 'Beneficiary Name:', '', d.entity.company_name, '', '', '', '']);
+            wsData.push(['', 'Bank Name:', '', d.entity.bank_name, '', '', '', '']);
+            wsData.push(['', 'Account No.:', '', d.entity.bank_account, '', '', '', '']);
+            wsData.push(['', 'Branch:', '', d.entity.branch_code, '', '', '', '']);
+        }
+
+        // Terms
+        if (d.showTerms) {
+            wsData.push(['', '', '', '', '', '', '', '']);
+            wsData.push(['', 'Terms & Conditions:', '', '', '', '', '', '']);
+            wsData.push(['', 'CONFIDENTIALITY\nAny sensitive figures, data, sales projections, budgets amounts, reports, etc relating to the brand, obtained by CONTRACTOR will remain confidential and will not be shared with anyone outside the company.\n\nCONTRACT TERMS AND PAYMENT\nThe period of the contract is for 12 months from the signing date of this agreement. CLIENT agrees to make advance payment. If there are changes, new quotes will be added. The payment is not refundable.\n\nSEVERABILITY\nCLIENT agrees that if any term in this Agreement is deemed to be invalid, unlawful or unenforceable for any reason, all other terms shall remain in force.', '', '', '', '', '', '']);
+        }
+
+        // Signature area
+        wsData.push(['', '', '', '', '', '', '', '']);
+        wsData.push(['', '', '', '', '', '', '', '']);
+        wsData.push(['', '______________________', '', '', '', '______________________', '', '']);
+        wsData.push(['', 'LIU WEI\nDirector\nAgreed and accepted', '', '', '', 'Agreed and accepted', '', '']);
+
+        const ws = XLSX.utils.aoa_to_sheet(wsData);
+
+        // Column widths: A=5, B=22, C=30, D=8, E=16, F=8, G=12, H=18
+        ws['!cols'] = [
+            { wch: 5 }, { wch: 22 }, { wch: 30 }, { wch: 8 },
+            { wch: 16 }, { wch: 8 }, { wch: 12 }, { wch: 18 },
+        ];
+
+        // Merges
+        const merges = [
+            // Doc type C3 centered across C3:F3
+            { s: { r: 2, c: 2 }, e: { r: 2, c: 5 } },
+            // Company name B6:F6
+            { s: { r: 5, c: 1 }, e: { r: 5, c: 5 } },
+            // Address B7:F7
+            { s: { r: 6, c: 1 }, e: { r: 6, c: 5 } },
+            // Bill To B8:F8
+            { s: { r: 7, c: 1 }, e: { r: 7, c: 5 } },
+        ];
+
+        // Merge Details column C:D for each data row and header
+        merges.push({ s: { r: headerRowIdx, c: 2 }, e: { r: headerRowIdx, c: 3 } });
+        for (let i = 0; i < d.items.length; i++) {
+            merges.push({ s: { r: dataStartIdx + i, c: 2 }, e: { r: dataStartIdx + i, c: 3 } });
+        }
+
+        // Bank detail value merges D:G
+        for (let r = bankStartIdx; r < wsData.length; r++) {
+            const bVal = cleanCell(wsData[r][1]);
+            if (bVal && (bVal.includes(':') || bVal === 'Bank Details:' || bVal.includes('Terms'))) {
+                // Merge value columns D:G if it's a label row
+                if (wsData[r][3]) {
+                    merges.push({ s: { r: r, c: 3 }, e: { r: r, c: 6 } });
+                }
+            }
+        }
+
+        ws['!merges'] = merges;
+
+        // Add Total formula
+        ws[XLSX.utils.encode_cell({ r: totalRowIdx, c: 7 })] = {
+            t: 'n', f: `SUM(H${dataStartExcel}:H${lastDataExcel})`, z: '#,##0.00'
+        };
+
+        // Add Final Price formulas for each data row
+        for (let i = 0; i < d.items.length; i++) {
+            const excelRow = dataStartExcel + i;
+            ws[XLSX.utils.encode_cell({ r: dataStartIdx + i, c: 7 })] = {
+                t: 'n', f: `E${excelRow}*F${excelRow}`, z: '#,##0.00'
+            };
+        }
+
+        XLSX.utils.book_append_sheet(wb, ws, this.docLabel);
+
+        const filename = `${this.docLabel} ${d.docNo}.xlsx`;
+        XLSX.writeFile(wb, filename);
+    }
+
+    // --- Download HTML ---
+    downloadHtml() {
+        const d = this.generatedData || this.collectData();
+        if (!d || d.items.length === 0) return;
+
+        let itemsHtml = '';
+        d.items.forEach(item => {
+            const detailsHtml = this.escHtml(item.details).replace(/\n/g, '<br>');
+            itemsHtml += `<tr>
+                <td style="text-align:left;padding:8px 6px;">${this.escHtml(item.service)}</td>
+                <td style="text-align:left;padding:8px 6px;">${detailsHtml}</td>
+                <td style="text-align:right;padding:8px 6px;">${fmtCurrency(item.unitPrice, d.currency)}</td>
+                <td style="text-align:center;padding:8px 6px;">${item.qty}</td>
+                <td style="text-align:right;padding:8px 6px;">${fmtCurrency(item.finalPrice, d.currency)}</td>
+            </tr>`;
+        });
+
+        let bankHtml = '';
+        if (d.entityKey === 'SG') {
+            bankHtml = `
+                <tr><td>Beneficiary Name:</td><td>${d.entity.bank_beneficiary}</td></tr>
+                <tr><td>Bank Name:</td><td>${d.entity.bank_name}</td></tr>
+                <tr><td>Account No.:</td><td>${d.entity.bank_account}</td></tr>
+                <tr><td>Bank Code:</td><td>${d.entity.bank_code}</td></tr>
+                <tr><td>Branch Code:</td><td>${d.entity.branch_code}</td></tr>
+                <tr><td>SWIFT Code:</td><td>${d.entity.swift_code}</td></tr>
+                <tr><td>Bank Address:</td><td>${d.entity.bank_address}</td></tr>`;
+        } else {
+            bankHtml = `
+                <tr><td>Beneficiary Name:</td><td>${d.entity.company_name}</td></tr>
+                <tr><td>Bank Name:</td><td>${d.entity.bank_name}</td></tr>
+                <tr><td>Account No.:</td><td>${d.entity.bank_account}</td></tr>
+                <tr><td>Branch:</td><td>${d.entity.branch_code}</td></tr>`;
+        }
+
+        const registrationHtml = d.entity.registration ? `<br>Registration No.: ${d.entity.registration}` : '';
+
+        let termsHtml = '';
+        if (d.showTerms) {
+            termsHtml = `<div style="margin-top:16px;font-size:9px;color:#666;border-top:1px solid #ccc;padding-top:10px;">
+                <strong>CONFIDENTIALITY</strong><br>
+                Any sensitive figures, data, sales projections, budgets amounts, reports, etc relating to the brand, obtained by CONTRACTOR will remain confidential and will not be shared with anyone outside the company. Each Party (the "Receiving Party") agrees that it will not disclose to any third party or use any Confidential Information of the other Party (the "Disclosing Party"), except as expressly permitted in this Agreement.<br><br>
+                <strong>CONTRACT TERMS AND PAYMENT</strong><br>
+                The period of the contract is for 12 months from the signing date of this agreement. CLIENT agrees to make advance payment. If there are changes, new quotes will be added. The payment is not refundable.<br><br>
+                <strong>SEVERABILITY</strong><br>
+                CLIENT agrees that if any term in this Agreement is deemed to be invalid, unlawful or unenforceable for any reason, all other terms shall remain in force.
+            </div>`;
+        }
+
+        const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>${this.docLabel} ${d.docNo}</title>
+<style>
+@page { size: A4 portrait; margin: 20mm; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: Arial, Helvetica, sans-serif; font-size: 11px; color: #000; padding: 30px; max-width: 800px; margin: 0 auto; }
+.doc-title { text-align: center; font-size: 24px; font-weight: bold; margin-bottom: 20px; color: #1a3a5c; }
+.header { display: flex; justify-content: space-between; margin-bottom: 20px; }
+.header .left { line-height: 1.6; }
+.header .left .company-name { font-size: 16px; font-weight: bold; margin-bottom: 4px; }
+.header .right { text-align: right; line-height: 1.6; }
+.bill-to { margin-bottom: 20px; }
+.bill-to strong { display: block; margin-bottom: 4px; }
+table.items { width: 100%; border-collapse: collapse; margin-bottom: 16px; }
+table.items th { background: #d9e1f2; padding: 8px 6px; border: 1px solid #b4c0d4; font-weight: bold; }
+table.items td { border: 1px solid #d1d9e6; padding: 8px 6px; vertical-align: top; }
+.total-row td { font-weight: bold; background: #f0f4f8; }
+.bank-details { margin-top: 20px; font-size: 10px; line-height: 1.6; }
+.bank-details table { border-collapse: collapse; }
+.bank-details td { padding: 2px 8px 2px 0; vertical-align: top; }
+.bank-details td:first-child { width: 140px; }
+.signature-area { margin-top: 50px; display: flex; justify-content: space-between; }
+.signature-box { width: 200px; text-align: center; font-size: 10px; }
+.signature-line { border-top: 1px solid #333; margin-top: 60px; padding-top: 4px; }
+</style>
+</head>
+<body>
+<div class="doc-title">${this.docLabel}</div>
+<div class="header">
+    <div class="left">
+        <div class="company-name">${d.entity.company_name}</div>
+        ${d.entity.address}${registrationHtml}<br>
+        ${d.entity.contact}
+    </div>
+    <div class="right">
+        <strong>Date:</strong> ${d.dateStr}<br>
+        <strong>${this.docLabel} No.:</strong> ${d.docNo}
+    </div>
+</div>
+<div class="bill-to">
+    <strong>${this.billToLabel}:</strong>
+    ${this.escHtml(d.clientName)}${d.clientAddress ? '<br>' + this.escHtml(d.clientAddress) : ''}
+</div>
+<table class="items">
+    <thead>
+        <tr>
+            <th style="width:20%;text-align:left;">Service</th>
+            <th style="width:35%;text-align:left;">Details</th>
+            <th style="width:15%;text-align:right;">Unit Price</th>
+            <th style="width:10%;text-align:center;">Qty</th>
+            <th style="width:20%;text-align:right;">Final Price</th>
+        </tr>
+    </thead>
+    <tbody>
+        ${itemsHtml}
+        <tr class="total-row">
+            <td colspan="4" style="text-align:right;"><strong>Total</strong></td>
+            <td style="text-align:right;"><strong>${fmtCurrency(d.total, d.currency)}</strong></td>
+        </tr>
+    </tbody>
+</table>
+<div class="bank-details">
+    <strong>Bank Details:</strong>
+    <table>${bankHtml}</table>
+</div>
+${termsHtml}
+<div class="signature-area">
+    <div class="signature-box">
+        <div class="signature-line">LIU WEI<br>Director<br>Agreed and accepted</div>
+    </div>
+    <div class="signature-box">
+        <div class="signature-line">Agreed and accepted</div>
+    </div>
+</div>
+</body></html>`;
+
+        const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${this.docLabel} ${d.docNo}.html`;
+        a.click();
+        URL.revokeObjectURL(url);
+    }
+}
+
+// ============================================================
+// Initialize Invoice & Quotation controllers
+// ============================================================
+const invoiceCtrl = new DocController('invoice');
+const quotationCtrl = new DocController('quotation');
+
 </script>
 </body>
 </html>
