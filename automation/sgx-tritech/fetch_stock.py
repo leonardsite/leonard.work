@@ -17,6 +17,7 @@ import datetime
 import requests
 import yfinance as yf
 from pathlib import Path
+from urllib.parse import urlparse
 
 SCRIPT_DIR = Path(__file__).parent
 STATE_DIR = SCRIPT_DIR.parent.parent / "state"
@@ -27,6 +28,18 @@ OPENCLAW_URL = os.environ.get("OPENCLAW_URL", "http://127.0.0.1:18789/hooks/agen
 HOOK_TOKEN = os.environ.get("HOOK_TOKEN", "")
 RECIPIENTS = [r.strip() for r in os.environ.get("RECIPIENTS", "").split(",") if r.strip()]
 STOCK_SYMBOL = "5G9.SI"
+
+# 新闻可信域名白名单（只保留这些来源的结果）
+TRUSTED_NEWS_DOMAINS = [
+    "sgx.com",
+    "tritech.com.sg",
+    "businesstimes.com.sg",
+    "straitstimes.com",
+    "reuters.com",
+    "channelnewsasia.com",
+    "theedgesingapore.com",
+    "mas.gov.sg",
+]
 
 
 def fetch_stock_data():
@@ -82,9 +95,28 @@ def search_brave(query, freshness="pd", count=5):
         return []
 
 
+def filter_results(results, require_keyword="tritech", trusted_domains=None):
+    """过滤搜索结果：必须含关键词，可选限制域名白名单。"""
+    filtered = []
+    for r in results:
+        text = (r.get("title", "") + " " + r.get("description", "")).lower()
+        if require_keyword and require_keyword.lower() not in text:
+            print(f"  [filtered-keyword] {r['url']}", file=sys.stderr)
+            continue
+        if trusted_domains:
+            domain = urlparse(r["url"]).netloc.lower()
+            if not any(domain == d or domain.endswith("." + d) for d in trusted_domains):
+                print(f"  [filtered-domain] {domain} — {r['url']}", file=sys.stderr)
+                continue
+        filtered.append(r)
+    return filtered
+
+
 def fetch_sgx_announcements():
     """Search for SGX announcements for Tritech."""
-    results = search_brave("site:sgx.com Tritech Group announcement", freshness="pm", count=5)
+    # site:sgx.com 已限制域名，只需关键词过滤
+    results = search_brave('"Tritech Group" site:sgx.com', freshness="pm", count=5)
+    results = filter_results(results, require_keyword="tritech")
     state = load_state()
     seen_urls = set(state.get("seen_urls", []))
     for r in results:
@@ -207,8 +239,10 @@ def main():
     print(f"Stock price: {stock_data.get('price')}")
 
     print("Searching news...")
-    news = search_brave("Tritech Group SGX 5G9", freshness="pd", count=5)
-    print(f"Found {len(news)} news articles")
+    # 引号精确匹配公司名，多搜几条再过滤
+    raw_news = search_brave('"Tritech Group" SGX 5G9', freshness="pd", count=8)
+    news = filter_results(raw_news, require_keyword="tritech", trusted_domains=TRUSTED_NEWS_DOMAINS)[:5]
+    print(f"Found {len(news)} news articles (filtered from {len(raw_news)})")
 
     print("Fetching SGX announcements...")
     announcements = fetch_sgx_announcements()
