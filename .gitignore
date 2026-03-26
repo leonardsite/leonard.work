@@ -117,3 +117,7 @@
 
 # Meituan E-Voucher Statement generator
 !voucher.html
+
+# SEO
+!robots.txt
+!sitemap.xml

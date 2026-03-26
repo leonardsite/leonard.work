@@ -5,3 +5,5 @@ Disallow: /01_Legal_and_Contracts/
 Disallow: /02_Operations_and_Data/
 Disallow: /04_Brand_Assets/
 Disallow: /05_Marketing_Media/
+
+Sitemap: https://leonard.work/sitemap.xml
