@@ -461,7 +461,7 @@ sudo apt-get update
 sudo apt-get install -y \
   git curl wget ca-certificates gnupg \
   build-essential unzip zip \
-  jq ripgrep fzf bat fd-find htop \
+  jq ripgrep fzf bat fd-find htop tree \
   eza zoxide neovim \
   zsh \
   python3 python3-pip python3-venv
@@ -518,6 +518,15 @@ fi
 python3 -m pipx ensurepath || true
 export PATH="$HOME/.local/bin:$PATH"
 
+# Debian/Ubuntu package names expose bat/fd as batcat/fdfind.
+mkdir -p "$HOME/.local/bin"
+if command -v batcat &gt;/dev/null 2&gt;&amp;1 &amp;&amp; ! command -v bat &gt;/dev/null 2&gt;&amp;1; then
+  ln -sf "$(command -v batcat)" "$HOME/.local/bin/bat"
+fi
+if command -v fdfind &gt;/dev/null 2&gt;&amp;1 &amp;&amp; ! command -v fd &gt;/dev/null 2&gt;&amp;1; then
+  ln -sf "$(command -v fdfind)" "$HOME/.local/bin/fd"
+fi
+
 # uv (fast Python package manager)
 if ! command -v uv &gt;/dev/null 2&gt;&amp;1; then
   curl -LsSf https://astral.sh/uv/install.sh | sh
@@ -537,7 +546,7 @@ npm i -g @google/gemini-cli
 npm i -g wrangler
 
 # Python SDKs
-pip install --user anthropic openai google-genai
+python3 -m pip install --user anthropic openai google-genai
 
 # Google Chrome
 if ! command -v google-chrome &gt;/dev/null 2&gt;&amp;1; then
@@ -671,6 +680,8 @@ alias gs="git status"
 alias gp="git pull"
 alias gd="git diff"
 alias gl="git log --oneline --graph --decorate -20"
+alias vim="nvim"
+alias g="git"
 # AI CLI shortcuts
 alias cl="claude --dangerously-skip-permissions"
 alias co="codex --dangerously-bypass-approvals-and-sandbox"
@@ -800,11 +811,17 @@ echo "Restart WezTerm on Windows to apply changes."</code></pre>
               </div>
               <button class="btn" type="button" data-copy="#sh-login">复制</button>
             </div>
-            <pre id="sh-login"><code># OpenAI Codex
-codex --login
+            <pre id="sh-login"><code># GitHub CLI
+gh auth login
+
+# OpenAI Codex
+codex login
 
 # Claude Code (会提示你登录/配置)
 claude
+
+# Cloudflare Wrangler
+wrangler login
 
 # Gemini CLI
 # 运行后根据提示配置（通常需要 Google 登录/或 API key）
@@ -864,15 +881,18 @@ enabled = true
 options = "metadata,umask=22,fmask=11"
 CONF
 
+# Resolve the current Windows username once, then write concrete paths into .zshrc.
+WIN_USER="$(cmd.exe /c "echo %USERNAME%" | tr -d '\r')"
+WIN_VSCODE_PATH="/mnt/c/Users/$WIN_USER/AppData/Local/Programs/Microsoft VS Code/bin"
+
 # Add selective Windows paths to .zshrc (if not already present)
 if ! grep -q "Selective Windows paths" "$HOME/.zshrc" 2&gt;/dev/null; then
-  cat &gt;&gt; "$HOME/.zshrc" &lt;&lt;'PATHS'
-
-# Selective Windows paths (appendWindowsPath=false in wsl.conf)
-export PATH="$PATH:/mnt/c/WINDOWS/system32:/mnt/c/WINDOWS"
-export PATH="$PATH:/mnt/c/Users/$WIN_USER/AppData/Local/Programs/Microsoft VS Code/bin"
-export PATH="$PATH:/mnt/c/Program Files/Docker/Docker/resources/bin"
-PATHS
+  {
+    printf '\n# Selective Windows paths (appendWindowsPath=false in wsl.conf)\n'
+    printf 'export PATH="$PATH:/mnt/c/WINDOWS/system32:/mnt/c/WINDOWS"\n'
+    printf 'export PATH="$PATH:%s"\n' "$WIN_VSCODE_PATH"
+    printf 'export PATH="$PATH:/mnt/c/Program Files/Docker/Docker/resources/bin"\n'
+  } &gt;&gt; "$HOME/.zshrc"
 fi
 
 echo "WSL configured. Run 'wsl --shutdown' in PowerShell, then restart."</code></pre>
@@ -918,7 +938,7 @@ elif [ -x /usr/local/bin/brew ]; then
 fi
 
 brew update
-brew install git jq ripgrep fzf zsh starship python pipx openjdk@21 neovim eza zoxide uv bat fd gh htop
+brew install git jq ripgrep fzf zsh starship python pipx openjdk@21 neovim eza zoxide uv bat fd gh htop tree
 
 # Desktop apps
 brew install --cask google-chrome alt-tab docker
@@ -959,7 +979,7 @@ fi
 npm i -g @google/gemini-cli
 npm i -g wrangler
 
-pip install --user anthropic openai google-genai
+python3 -m pip install --user anthropic openai google-genai
 
 # Set zsh as default shell (macOS default is already zsh, but just in case)
 if [ "$SHELL" != "$(which zsh)" ]; then
@@ -1163,6 +1183,8 @@ alias gs="git status"
 alias gp="git pull"
 alias gd="git diff"
 alias gl="git log --oneline --graph --decorate -20"
+alias vim="nvim"
+alias g="git"
 # AI CLI shortcuts
 alias cl="claude --dangerously-skip-permissions"
 alias co="codex --dangerously-bypass-approvals-and-sandbox"
