@@ -461,10 +461,18 @@ sudo apt-get update
 sudo apt-get install -y \
   git curl wget ca-certificates gnupg \
   build-essential unzip zip \
-  jq ripgrep fzf \
+  jq ripgrep fzf bat fd-find htop \
   eza zoxide neovim \
   zsh \
   python3 python3-pip python3-venv
+
+# GitHub CLI
+if ! command -v gh &gt;/dev/null 2&gt;&amp;1; then
+  curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
+  echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list &gt; /dev/null
+  sudo apt-get update
+  sudo apt-get install -y gh
+fi
 
 # pipx: apt first, fallback to user install
 if ! command -v pipx &gt;/dev/null 2&gt;&amp;1; then
@@ -526,19 +534,10 @@ fi
 
 # Google Gemini CLI
 npm i -g @google/gemini-cli
+npm i -g wrangler
 
 # Python SDKs
 pip install --user anthropic openai google-genai
-
-# 6) quick check
-node -v
-npm -v
-pnpm -v
-uv --version || true
-rustc --version || true
-codex --version || true
-claude --version || true
-gemini --version || true
 
 # Google Chrome
 if ! command -v google-chrome &gt;/dev/null 2&gt;&amp;1; then
@@ -546,6 +545,30 @@ if ! command -v google-chrome &gt;/dev/null 2&gt;&amp;1; then
   sudo dpkg -i /tmp/chrome.deb || sudo apt-get install -f -y
   rm -f /tmp/chrome.deb
 fi
+
+# Docker
+if ! command -v docker &gt;/dev/null 2&gt;&amp;1; then
+  curl -fsSL https://get.docker.com | sh
+  sudo usermod -aG docker "$USER"
+fi
+
+# Set zsh as default shell
+if [ "$SHELL" != "$(which zsh)" ]; then
+  chsh -s "$(which zsh)"
+fi
+
+# 6) quick check
+node -v
+npm -v
+pnpm -v
+gh --version || true
+docker --version || true
+bat --version || true
+uv --version || true
+rustc --version || true
+codex --version || true
+claude --version || true
+gemini --version || true
 
 echo "Done. Restart your terminal (or re-source your shell rc)"</code></pre>
           </div>
@@ -787,6 +810,73 @@ claude
 # 运行后根据提示配置（通常需要 Google 登录/或 API key）
 gemini</code></pre>
           </div>
+
+          <div class="block">
+            <div class="bh">
+              <div>
+                <div class="t">Git + SSH 初始化（执行一次）</div>
+                <div class="s">git config + SSH key + GitHub</div>
+              </div>
+              <button class="btn" type="button" data-copy="#sh-git-ssh">复制</button>
+            </div>
+            <pre id="sh-git-ssh"><code># Git global config
+git config --global user.name "Your Name"
+git config --global user.email "your@email.com"
+git config --global init.defaultBranch main
+git config --global pull.rebase false
+
+# Generate SSH key (if none exists)
+if [ ! -f "$HOME/.ssh/id_ed25519" ]; then
+  ssh-keygen -t ed25519 -C "your@email.com" -f "$HOME/.ssh/id_ed25519" -N ""
+fi
+
+# Print public key — add this to GitHub &gt; Settings &gt; SSH keys
+cat "$HOME/.ssh/id_ed25519.pub"
+
+# Test GitHub SSH connection
+ssh -T git@github.com 2&gt;&amp;1 || true</code></pre>
+          </div>
+
+          <div class="block">
+            <div class="bh">
+              <div>
+                <div class="t">WSL 配置（可选）</div>
+                <div class="s">wsl.conf + 选择性 Windows PATH</div>
+              </div>
+              <button class="btn" type="button" data-copy="#sh-wsl-conf">复制</button>
+            </div>
+            <pre id="sh-wsl-conf"><code># Only run inside WSL
+if ! grep -qiE "(microsoft|wsl)" /proc/version 2&gt;/dev/null; then
+  echo "Not WSL, skipping."
+  exit 0
+fi
+
+# /etc/wsl.conf — disable auto Windows PATH, enable systemd
+sudo tee /etc/wsl.conf &gt; /dev/null &lt;&lt;'CONF'
+[interop]
+appendWindowsPath = false
+
+[boot]
+systemd = true
+
+[automount]
+enabled = true
+options = "metadata,umask=22,fmask=11"
+CONF
+
+# Add selective Windows paths to .zshrc (if not already present)
+if ! grep -q "Selective Windows paths" "$HOME/.zshrc" 2&gt;/dev/null; then
+  cat &gt;&gt; "$HOME/.zshrc" &lt;&lt;'PATHS'
+
+# Selective Windows paths (appendWindowsPath=false in wsl.conf)
+export PATH="$PATH:/mnt/c/WINDOWS/system32:/mnt/c/WINDOWS"
+export PATH="$PATH:/mnt/c/Users/$WIN_USER/AppData/Local/Programs/Microsoft VS Code/bin"
+export PATH="$PATH:/mnt/c/Program Files/Docker/Docker/resources/bin"
+PATHS
+fi
+
+echo "WSL configured. Run 'wsl --shutdown' in PowerShell, then restart."</code></pre>
+          </div>
         </div>
       </div>
     </section>
@@ -828,10 +918,10 @@ elif [ -x /usr/local/bin/brew ]; then
 fi
 
 brew update
-brew install git jq ripgrep fzf zsh starship python pipx openjdk@21 neovim eza zoxide uv
+brew install git jq ripgrep fzf zsh starship python pipx openjdk@21 neovim eza zoxide uv bat fd gh htop
 
 # Desktop apps
-brew install --cask google-chrome alt-tab
+brew install --cask google-chrome alt-tab docker
 
 python3 -m pipx ensurepath || true
 export PATH="$HOME/.local/bin:$PATH"
@@ -867,14 +957,22 @@ if ! command -v claude &gt;/dev/null 2&gt;&amp;1; then
 fi
 
 npm i -g @google/gemini-cli
+npm i -g wrangler
 
 pip install --user anthropic openai google-genai
+
+# Set zsh as default shell (macOS default is already zsh, but just in case)
+if [ "$SHELL" != "$(which zsh)" ]; then
+  chsh -s "$(which zsh)"
+fi
 
 node -v
 npm -v
 pnpm -v
 python3 --version
 java -version
+gh --version || true
+docker --version || true
 uv --version || true
 rustc --version || true
 codex --version || true
@@ -1096,6 +1194,32 @@ echo "Optional: set your terminal font to a Nerd Font (JetBrainsMono Nerd Font /
 brew install font-jetbrains-mono-nerd-font
 
 # 然后在 iTerm2 / Terminal 的 Profile 里切换字体</code></pre>
+          </div>
+
+          <div class="block">
+            <div class="bh">
+              <div>
+                <div class="t">Git + SSH 初始化（执行一次）</div>
+                <div class="s">git config + SSH key + GitHub</div>
+              </div>
+              <button class="btn" type="button" data-copy="#sh-mac-git-ssh">复制</button>
+            </div>
+            <pre id="sh-mac-git-ssh"><code># Git global config
+git config --global user.name "Your Name"
+git config --global user.email "your@email.com"
+git config --global init.defaultBranch main
+git config --global pull.rebase false
+
+# Generate SSH key (if none exists)
+if [ ! -f "$HOME/.ssh/id_ed25519" ]; then
+  ssh-keygen -t ed25519 -C "your@email.com" -f "$HOME/.ssh/id_ed25519" -N ""
+fi
+
+# Print public key — add this to GitHub &gt; Settings &gt; SSH keys
+cat "$HOME/.ssh/id_ed25519.pub"
+
+# Test GitHub SSH connection
+ssh -T git@github.com 2&gt;&amp;1 || true</code></pre>
           </div>
         </div>
 
