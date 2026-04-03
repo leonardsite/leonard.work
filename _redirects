@@ -16,3 +16,29 @@
 
 /auto-policy-timeline      /kids-education/auto-policy-timeline/ 301
 /auto-policy-timeline/*    /kids-education/auto-policy-timeline/:splat 301
+
+# Retired public pages now redirect to home
+/terminal.html             / 301
+/monitoring.html           / 301
+/nexus.html                / 301
+/nexus-jd.html             / 301
+/nexus-skills.html         / 301
+/property-map.html         / 301
+/assets/property-data.json / 301
+/fnb                       / 301
+/fnb.html                  / 301
+/shop                      / 301
+/shop.html                 / 301
+/villa                     / 301
+/villa.html                / 301
+/voucher.html              / 301
+/School_Matchboard.html    / 301
+/matchboard.config.js      / 301
+
+# Retired internal Maple materials
+/vault                     / 301
+/vault/*                   / 301
+/01_Legal_and_Contracts/*  / 301
+/02_Operations_and_Data/*  / 301
+/04_Brand_Assets/*         / 301
+/05_Marketing_Media/*      / 301

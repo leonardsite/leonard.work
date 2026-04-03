@@ -8,8 +8,9 @@ A static tool hub hosted on [Cloudflare Pages](https://pages.cloudflare.com/).
 - **`/sg.html`** — Singapore tools directory
 - **`/pdf.html`** — Client-side PDF toolbox (merge, split, compress — nothing uploaded)
 - **`/maid-salary.html`** — FDW salary calculator (A4 printable)
-- **`/kids/`** — Kids education mini-sites
-- **`/monitoring.html`** — Automation dashboard
+- **`/maid.html`** — FDW tools hub
+- **`/rental.html`** — Singapore rental guide
+- **`/kids-education/`** — Kids education mini-sites
 
 ## Local Development
 
