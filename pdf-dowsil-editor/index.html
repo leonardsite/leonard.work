@@ -1,0 +1,1115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<base href="./" />
+<meta name="description" content="DOWSIL TC-5888 可编辑页面：浏览器内快速改文案、保存草稿、导出 JSON、打印 PDF。" />
+<title>DOWSIL Editor | Leonard.work</title>
+<link rel="icon" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="7" fill="%239d3d12"/><path d="M8 11h16v10H8z" fill="white" opacity=".94"/></svg>' />
+<style>
+:root {
+  --page-width: 815px;
+  --page-height: 1055px;
+  --screen-bg: #d8d0c4;
+  --panel-bg: rgba(255, 252, 247, 0.94);
+  --panel-line: rgba(40, 29, 20, 0.14);
+  --panel-shadow: 0 18px 40px rgba(62, 42, 21, 0.14);
+  --body-font: "PdfSansCondensed", "Arial Narrow", "Liberation Sans Narrow", Arial, Helvetica, sans-serif;
+  --heavy-font: "PdfSansCondensedBold", "Arial Black", Arial, Helvetica, sans-serif;
+  --accent: #9d3d12;
+  --accent-soft: rgba(157, 61, 18, 0.1);
+  --text: #16120e;
+  --muted: #6f665d;
+  --focus: #d96a2b;
+}
+
+@font-face {
+  font-family: "PdfSansCondensed";
+  src: url("DejaVuSansCondensed.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 400;
+}
+
+@font-face {
+  font-family: "PdfSansCondensedBold";
+  src: url("DejaVuSansCondensed-Bold.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 700;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+  background:
+    radial-gradient(circle at top left, rgba(157, 61, 18, 0.12), transparent 26%),
+    radial-gradient(circle at top right, rgba(0, 0, 0, 0.06), transparent 18%),
+    linear-gradient(180deg, #ebe2d5 0%, #ddd2c4 100%);
+}
+
+body {
+  color: var(--text);
+  font-family: var(--body-font);
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+.app-shell {
+  width: min(1220px, calc(100vw - 24px));
+  margin: 0 auto;
+  padding: 14px 0 26px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 360px;
+  gap: 16px;
+  align-items: start;
+}
+
+main {
+  min-width: 0;
+}
+
+.editor-panel {
+  position: sticky;
+  top: 14px;
+  align-self: start;
+  padding: 18px;
+  border: 1px solid var(--panel-line);
+  border-radius: 24px;
+  background: var(--panel-bg);
+  backdrop-filter: blur(14px);
+  box-shadow: var(--panel-shadow);
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+  padding: 7px 11px;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.editor-panel h1 {
+  margin: 0 0 8px;
+  font-family: var(--heavy-font);
+  font-size: 28px;
+  line-height: 0.95;
+  letter-spacing: -0.04em;
+}
+
+.editor-panel p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.panel-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 12px;
+}
+
+.panel-links a {
+  color: var(--muted);
+  font-size: 12px;
+  text-decoration: none;
+}
+
+.panel-links a:hover {
+  text-decoration: underline;
+}
+
+.editor-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin: 14px 0 10px;
+}
+
+.editor-actions button,
+.inline-link-button,
+.editor-field-header button {
+  appearance: none;
+  border: 1px solid rgba(22, 18, 14, 0.14);
+  background: #fff;
+  color: var(--text);
+  border-radius: 12px;
+  padding: 10px 12px;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 120ms ease, border-color 120ms ease, box-shadow 120ms ease;
+}
+
+.editor-actions button:hover,
+.inline-link-button:hover,
+.editor-field-header button:hover {
+  transform: translateY(-1px);
+  border-color: rgba(22, 18, 14, 0.28);
+  box-shadow: 0 8px 18px rgba(34, 20, 9, 0.08);
+}
+
+.editor-actions button.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.status-line {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 0 0 12px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.76);
+  border: 1px solid rgba(22, 18, 14, 0.08);
+}
+
+.status-line strong {
+  display: block;
+  font-size: 12px;
+}
+
+.status-line span {
+  display: block;
+  margin-top: 2px;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.editor-section-title {
+  margin: 14px 0 10px;
+  font-family: var(--heavy-font);
+  font-size: 16px;
+  letter-spacing: -0.02em;
+}
+
+.editor-fields {
+  display: grid;
+  gap: 10px;
+}
+
+.editor-field {
+  padding: 10px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid rgba(22, 18, 14, 0.08);
+}
+
+.editor-field.is-active {
+  border-color: rgba(217, 106, 43, 0.5);
+  box-shadow: inset 0 0 0 1px rgba(217, 106, 43, 0.24);
+}
+
+.editor-field-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.editor-field-header strong {
+  display: block;
+  font-size: 12px;
+  line-height: 1.2;
+}
+
+.editor-field-header small {
+  display: block;
+  margin-top: 2px;
+  color: var(--muted);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.editor-field textarea {
+  width: 100%;
+  min-height: 68px;
+  resize: vertical;
+  border: 1px solid rgba(22, 18, 14, 0.12);
+  border-radius: 12px;
+  padding: 10px 11px;
+  background: #fff;
+  color: var(--text);
+  font: inherit;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.editor-field textarea:focus {
+  outline: 2px solid rgba(217, 106, 43, 0.2);
+  border-color: rgba(217, 106, 43, 0.5);
+}
+
+.inline-card {
+  margin-top: 12px;
+  padding: 12px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid rgba(22, 18, 14, 0.08);
+}
+
+.inline-card strong {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 12px;
+}
+
+.inline-card p {
+  margin-bottom: 10px;
+  font-size: 12px;
+}
+
+.page {
+  position: relative;
+  width: var(--page-width);
+  height: var(--page-height);
+  margin: 0 auto 12px;
+  background: #fff;
+  overflow: hidden;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.18);
+  page-break-after: always;
+  break-after: page;
+}
+
+.page:last-child {
+  page-break-after: auto;
+  break-after: auto;
+}
+
+.crop {
+  position: absolute;
+  left: 0;
+  width: var(--page-width);
+  overflow: hidden;
+  z-index: 20;
+  pointer-events: none;
+}
+
+.crop img {
+  position: absolute;
+  left: 0;
+  width: var(--page-width);
+  height: var(--page-height);
+  display: block;
+}
+
+.page-1 .header {
+  top: 0;
+  height: 220px;
+}
+
+.page-1 .header img {
+  top: 0;
+}
+
+.page-1 .footer {
+  top: 965px;
+  height: 90px;
+}
+
+.page-1 .footer img {
+  top: -965px;
+}
+
+.page-2 .header {
+  top: 0;
+  height: 35px;
+}
+
+.page-2 .header img {
+  top: 0;
+}
+
+.page-2 .footer {
+  top: 966px;
+  height: 89px;
+}
+
+.page-2 .footer img {
+  top: -966px;
+}
+
+.page-3 .header {
+  top: 0;
+  height: 40px;
+}
+
+.page-3 .header img {
+  top: 0;
+}
+
+.page-3 .footer {
+  top: 991px;
+  height: 64px;
+}
+
+.page-3 .footer img {
+  top: -991px;
+}
+
+.text {
+  position: absolute;
+  margin: 0;
+  z-index: 5;
+}
+
+.preserve {
+  white-space: pre;
+}
+
+.paragraph {
+  white-space: normal;
+}
+
+.nowrap {
+  white-space: nowrap;
+}
+
+.body {
+  font-family: var(--body-font);
+  font-size: 14px;
+  line-height: 16px;
+}
+
+.body-tight {
+  font-family: var(--body-font);
+  font-size: 14px;
+  line-height: 15px;
+}
+
+.body-loose {
+  font-family: var(--body-font);
+  font-size: 14px;
+  line-height: 16px;
+}
+
+.body-small {
+  font-family: var(--body-font);
+  font-size: 11px;
+  line-height: 12px;
+}
+
+.body-small-tight {
+  font-family: var(--body-font);
+  font-size: 10px;
+  line-height: 12px;
+}
+
+.section {
+  position: absolute;
+  left: 76px;
+  width: 135px;
+  margin: 0;
+  font-family: var(--heavy-font);
+  font-size: 14px;
+  line-height: 18px;
+  font-weight: 900;
+  white-space: pre;
+  z-index: 5;
+}
+
+.section.single {
+  line-height: 16px;
+}
+
+.section.narrow {
+  width: 150px;
+}
+
+.middle-note {
+  position: absolute;
+  left: 76px;
+  width: 663px;
+  margin: 0;
+  font-family: var(--body-font);
+  font-size: 14px;
+  line-height: 16px;
+  white-space: pre;
+  z-index: 5;
+}
+
+.bullet-block {
+  position: absolute;
+  left: 273px;
+  margin: 0;
+  font-family: var(--body-font);
+  font-size: 14px;
+  line-height: 17px;
+  white-space: pre;
+  z-index: 5;
+}
+
+.target-block {
+  border-radius: 4px;
+  transition: outline-color 120ms ease, background-color 120ms ease, box-shadow 120ms ease;
+  outline: 1px solid transparent;
+  outline-offset: 2px;
+  cursor: pointer;
+}
+
+.target-block:hover {
+  outline-color: rgba(217, 106, 43, 0.24);
+  background: rgba(217, 106, 43, 0.05);
+}
+
+.target-block.is-active {
+  outline-color: rgba(217, 106, 43, 0.72);
+  background: rgba(217, 106, 43, 0.08);
+  box-shadow: 0 0 0 3px rgba(217, 106, 43, 0.12);
+}
+
+.props-table {
+  position: absolute;
+  left: 76px;
+  width: 663px;
+  border-collapse: collapse;
+  table-layout: fixed;
+  z-index: 5;
+  font-family: var(--body-font);
+  font-size: 11px;
+  line-height: 12px;
+}
+
+.props-table th,
+.props-table td {
+  border: 1px solid #000;
+  padding: 6px 7px 5px;
+  vertical-align: top;
+  text-align: left;
+}
+
+.props-table th {
+  font-weight: 700;
+}
+
+.props-table col:nth-child(1) {
+  width: 409px;
+}
+
+.props-table col:nth-child(2) {
+  width: 118px;
+}
+
+.props-table col:nth-child(3) {
+  width: 136px;
+}
+
+.props-table[contenteditable="true"] {
+  outline: 1px solid transparent;
+  outline-offset: 2px;
+  transition: outline-color 120ms ease, box-shadow 120ms ease;
+}
+
+.props-table[contenteditable="true"]:hover,
+.props-table.is-active {
+  outline-color: rgba(217, 106, 43, 0.48);
+  box-shadow: 0 0 0 3px rgba(217, 106, 43, 0.12);
+}
+
+.sup {
+  font-size: 9px;
+  vertical-align: super;
+}
+
+.screen-reader-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (max-width: 1240px) {
+  .app-shell {
+    width: min(980px, calc(100vw - 20px));
+    grid-template-columns: 1fr;
+  }
+
+  .editor-panel {
+    position: static;
+    order: -1;
+  }
+}
+
+@media print {
+  @page {
+    size: Letter;
+    margin: 0;
+  }
+
+  html,
+  body {
+    background: #fff;
+  }
+
+  body {
+    padding: 0;
+  }
+
+  .app-shell {
+    width: auto;
+    padding: 0;
+    display: block;
+  }
+
+  .editor-panel {
+    display: none !important;
+  }
+
+  .page {
+    margin: 0;
+    box-shadow: none;
+  }
+
+  .target-block,
+  .props-table[contenteditable="true"] {
+    outline: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
+  }
+}
+</style>
+</head>
+<body>
+<div class="app-shell">
+  <main>
+    <section class="page page-1">
+      <div class="crop header" aria-hidden="true">
+        <img src="page-1.svg" alt="" />
+      </div>
+      <div class="crop footer" aria-hidden="true">
+        <img src="page-1.svg" alt="" />
+      </div>
+
+      <div class="text body nowrap target-block" data-field="subtitle" data-label="Subtitle" style="top: 235px; left: 249px; width: 500px;">Gray, thixotropic, non-curing thermally conductive compound</div>
+
+      <div class="section preserve" style="top: 269px;">Features &
+Benefits</div>
+      <div class="bullet-block preserve target-block" data-field="features" data-label="Features & Benefits" style="top: 263px; width: 430px;">• One part material – no cure required
+• Solvent free formulation – provides material stability
+• Easy application – Screen printable
+• Thixotropic – low slump
+• High thermal conductivity
+• Achieves thin Bond Line Thickness (BLT)
+• Low thermal resistance</div>
+
+      <div class="section single" style="top: 412px;">Composition</div>
+      <div class="bullet-block preserve target-block" data-field="composition" data-label="Composition" style="top: 406px; width: 330px;">• Thermally conductive fillers
+• Siloxane polymer matrix</div>
+
+      <div class="section single" style="top: 464px;">Applications</div>
+      <div class="text body paragraph target-block" data-field="applications" data-label="Applications" style="top: 463px; left: 249px; width: 500px;">DOWSIL™ TC-5888 Thermally Conductive Compound is designed to provide efficient
+thermal transfer for the cooling of modules, including computer MPUs and power modules.</div>
+
+      <div class="section single" style="top: 515px;">Typical Properties</div>
+      <div class="middle-note nowrap target-block" data-field="spec-note" data-label="Specification Note" style="top: 535px;">Specification Writers: These values are not intended for use in preparing specifications.</div>
+
+      <table class="props-table" data-field="props-table" data-label="Typical Properties Table" data-format="html" data-editor="inline" contenteditable="true" spellcheck="false" style="top: 565px;">
+        <colgroup>
+          <col />
+          <col />
+          <col />
+        </colgroup>
+        <thead>
+          <tr>
+            <th>Property</th>
+            <th>Unit</th>
+            <th>Result</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Color</td>
+            <td></td>
+            <td>Gray</td>
+          </tr>
+          <tr>
+            <td>One Part Material</td>
+            <td></td>
+            <td>Non-curing</td>
+          </tr>
+          <tr>
+            <td>Viscosity At Low Strain Rate</td>
+            <td>Pa-s</td>
+            <td>1,200</td>
+          </tr>
+          <tr>
+            <td>Viscosity At High Strain Rate</td>
+            <td>Pa-s</td>
+            <td>100</td>
+          </tr>
+          <tr>
+            <td>Specific Gravity</td>
+            <td></td>
+            <td>2.6</td>
+          </tr>
+          <tr>
+            <td>Volatile Content, 48 hours at 125°C</td>
+            <td>%</td>
+            <td>0.02</td>
+          </tr>
+          <tr>
+            <td>Thermal Conductivity</td>
+            <td>W/mK</td>
+            <td>5.2</td>
+          </tr>
+          <tr>
+            <td>Thermal Resistance at 25 N/cm<span class="sup">2</span></td>
+            <td>°C-cm<span class="sup">2</span>/W</td>
+            <td>0.05</td>
+          </tr>
+          <tr>
+            <td>Bond Line Thickness at 25 N/cm<span class="sup">2</span></td>
+            <td>mm<br />inch</td>
+            <td>0.02<br />0.0008</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="section single" style="top: 823px;">Description</div>
+      <div class="text body paragraph target-block" data-field="description-page-1" data-label="Description Page 1" style="top: 822px; left: 249px; width: 500px;">DOWSIL™ thermally conductive compounds are grease like materials that are highly loaded
+with thermally conductive fillers in a silicone matrix. This combination promotes high thermal
+conductivity, low bleed and high-temperature stability. The compounds are designed to
+maintain a positive heat sink seal to improve heat transfer from an electrical device or PCB
+system assembly to a heat sink or chassis, thereby increasing the overall efficiency of the
+device. PCB system assemblies are continually designed to deliver higher performance.</div>
+    </section>
+
+    <section class="page page-2">
+      <div class="crop header" aria-hidden="true">
+        <img src="page-2.svg" alt="" />
+      </div>
+      <div class="crop footer" aria-hidden="true">
+        <img src="page-2.svg" alt="" />
+      </div>
+
+      <div class="section preserve" style="top: 41px;">Description
+(CONT.)</div>
+      <div class="text body-tight paragraph target-block" data-field="description-page-2" data-label="Description Page 2" style="top: 40px; left: 249px; width: 500px;">Especially in the area of consumer devices, there is also a continual trend towards smaller,
+more compact designs. In combination these factors typically mean that more heat is
+generated in the device. Thermal management of PCB system assemblies is a primary
+concern of design engineers. A cooler device allows for more efficient operation and better
+reliability over the life of the device. As such, thermally conductive compounds play an
+integral role here. Thermally conductive materials act as a thermal “bridge” to remove heat
+from a heat source (device) to the ambient via a heat transfer media (i.e. heat sink). These
+materials have properties such as low thermal resistance, high thermal conductivity, and
+can achieve thin Bond Line Thicknesses (BLTs) which can help to improve the transfer of
+heat away from the device. Thermal compounds have advantages over other Thermal
+Interface Materials (TIMs) due to their relatively low cost, ease of application on to heat sinks
+(screen printing), and ease of re-work.</div>
+
+      <div class="section preserve" style="top: 259px;">Solvent Free
+Formualtion</div>
+      <div class="text body-tight paragraph target-block" data-field="solvent-free-formulation" data-label="Solvent Free Formualtion" style="top: 259px; left: 249px; width: 500px;">DOWSIL TC-5888 Thermally Conductive Compound is a solvent free formulation so that the
+material remains stable after the container is opened. This means the viscosity of the
+material will not change over time which allows for consistent and easy screen printing.</div>
+
+      <div class="section preserve" style="top: 327px;">Application
+Methods</div>
+      <div class="bullet-block preserve target-block" data-field="application-methods" data-label="Application Methods" style="top: 321px; width: 230px;">• Screen print
+• Stencil print
+• Dispense</div>
+
+      <div class="section single" style="top: 398px;">Solvent Exposure</div>
+      <div class="text body-loose paragraph target-block" data-field="solvent-exposure" data-label="Solvent Exposure" style="top: 397px; left: 249px; width: 500px;">In general, the product is resistance to minimal or intermittent solvent exposure, however
+best practice is to avoid solvent exposure altogether.</div>
+
+      <div class="section preserve" style="top: 451px;">Handling
+Precautions</div>
+      <div class="text body-tight paragraph target-block" data-field="handling-precautions" data-label="Handling Precautions" style="top: 451px; left: 249px; width: 500px;">PRODUCT SAFETY INFORMATION REQUIRED FOR SAFE USE IS NOT INCLUDED IN
+THIS DOCUMENT. BEFORE HANDLING, READ PRODUCT AND SAFETY DATA SHEETS
+AND CONTAINER LABELS FOR SAFE USE, PHYSICAL AND HEALTH HAZARD
+INFORMATION. THE SAFETY DATA SHEET IS AVAILABLE ON THE DOW WEBSITE AT
+WWW.CONSUMER.DOW.COM, OR FROM YOUR DOW SALES APPLICATION
+ENGINEER, OR DISTRIBUTOR, OR BY CALLING DOW CUSTOMER SERVICE.</div>
+
+      <div class="section narrow preserve" style="top: 578px;">Usable Life And
+Storage</div>
+      <div class="text body-loose paragraph target-block" data-field="usable-life-storage" data-label="Usable Life And Storage" style="top: 578px; left: 249px; width: 500px;">The product should be stored in its original packaging with the cover tightly attached to
+avoid any contamination. Store in accordance with any special instructions listed on the
+product label. The product should be used by the indicated Exp. Date found on the label.
+
+Many highly filled thermal materials may experience some slight settling over time. Remixing
+the material by stirring is recommended before use.</div>
+
+      <div class="section single" style="top: 704px;">Limitations</div>
+      <div class="text body-tight paragraph target-block" data-field="limitations" data-label="Limitations" style="top: 703px; left: 249px; width: 500px;">This product is neither tested nor represented as suitable for medical or pharmaceutical
+uses.</div>
+
+      <div class="section narrow preserve" style="top: 758px;">Health And
+Environmental
+Information</div>
+      <div class="text body-loose paragraph target-block" data-field="health-environment" data-label="Health And Environmental Information" style="top: 758px; left: 249px; width: 500px;">To support customers in their product safety needs, Dow has an extensive Product
+Stewardship organization and a team of product safety and regulatory compliance
+specialists available in each area.
+
+For further information, please see our website, www.consumer.dow.com or consult your
+local Dow representative.</div>
+    </section>
+
+    <section class="page page-3">
+      <div class="crop header" aria-hidden="true">
+        <img src="page-3.svg" alt="" />
+      </div>
+      <div class="crop footer" aria-hidden="true">
+        <img src="page-3.svg" alt="" />
+      </div>
+
+      <div class="section preserve" style="top: 55px;">How Can We Help
+You Today</div>
+      <div class="text body-loose paragraph target-block" data-field="how-can-we-help" data-label="How Can We Help You Today" style="top: 55px; left: 249px; width: 500px;">Tell us about your performance, design, and manufacturing challenges. Let us put our
+silicon-based materials expertise, application knowledge, and processing experience to
+work for you.
+
+For more information about our materials and capabilities, visit www.consumer.dow.com.
+
+To discuss how we could work together to meet your specific needs, go to
+consumer.dow.com/contact-us for a contact close to your location. Dow has customer
+service teams, science and technology centers, application support teams, sales offices,
+and manufacturing sites around the globe.</div>
+    </section>
+  </main>
+
+  <aside class="editor-panel" aria-label="Editor panel">
+    <div class="eyebrow">Live Editor</div>
+    <h1>DOWSIL Quick Edit</h1>
+    <div class="panel-links">
+      <a href="../pdf.html">返回 PDF 工具箱</a>
+      <a href="../index.html">返回导航</a>
+    </div>
+    <p>Use the fields below to update the page copy. Changes apply live to the preview, save in your browser, and can be exported as JSON.</p>
+
+    <div class="editor-actions">
+      <button id="saveButton" class="primary" type="button">Save Draft</button>
+      <button id="printButton" type="button">Print / PDF</button>
+      <button id="exportButton" type="button">Export JSON</button>
+      <button id="importButton" type="button">Import JSON</button>
+      <button id="resetButton" type="button">Reset Original</button>
+      <button id="focusTableButton" type="button">Jump To Table</button>
+    </div>
+
+    <div class="status-line" aria-live="polite">
+      <div>
+        <strong id="statusTitle">Ready</strong>
+        <span id="statusText">Using the original content.</span>
+      </div>
+    </div>
+
+    <div class="editor-section-title">Editable Blocks</div>
+    <div id="editorFields" class="editor-fields"></div>
+
+    <div class="inline-card">
+      <strong>Table editing</strong>
+      <p>The “Typical Properties” table stays editable directly on the page preview so the cell layout stays intact. Click any cell, edit, then save the draft.</p>
+      <button id="focusTableInlineButton" class="inline-link-button" type="button">Focus the table</button>
+    </div>
+  </aside>
+</div>
+
+<input id="importInput" class="screen-reader-only" type="file" accept="application/json" />
+
+<script>
+const STORAGE_KEY = "leonardchow-dowsil-editor:v1";
+const targets = [...document.querySelectorAll("[data-field]")];
+const tableTarget = document.querySelector('[data-field="props-table"]');
+const editorRoot = document.getElementById("editorFields");
+const importInput = document.getElementById("importInput");
+const statusTitle = document.getElementById("statusTitle");
+const statusText = document.getElementById("statusText");
+
+const fieldTargets = targets.filter((target) => target.dataset.editor !== "inline");
+const targetMap = new Map(targets.map((target) => [target.dataset.field, target]));
+const inputMap = new Map();
+const fieldCardMap = new Map();
+
+let saveTimer = null;
+
+function normalizeText(value) {
+  return value.replace(/\r\n/g, "\n").replace(/\u00a0/g, " ").trimEnd();
+}
+
+function serializeTarget(target) {
+  if (target.dataset.format === "html") {
+    return target.innerHTML.trim();
+  }
+  return normalizeText(target.textContent || "");
+}
+
+function applyTargetValue(target, value) {
+  if (target.dataset.format === "html") {
+    target.innerHTML = value;
+    return;
+  }
+  target.textContent = value;
+}
+
+function readStateFromDom() {
+  const fields = {};
+  for (const target of targets) {
+    fields[target.dataset.field] = serializeTarget(target);
+  }
+  return {
+    version: 1,
+    savedAt: new Date().toISOString(),
+    fields,
+  };
+}
+
+const defaultState = {
+  version: 1,
+  savedAt: null,
+  fields: Object.fromEntries(targets.map((target) => [target.dataset.field, serializeTarget(target)])),
+};
+
+function applyState(state) {
+  if (!state || !state.fields) {
+    return;
+  }
+
+  for (const [field, value] of Object.entries(state.fields)) {
+    const target = targetMap.get(field);
+    if (!target) {
+      continue;
+    }
+    applyTargetValue(target, value);
+  }
+
+  syncInputsFromDom();
+}
+
+function fitTextarea(textarea) {
+  textarea.style.height = "auto";
+  textarea.style.height = Math.min(Math.max(textarea.scrollHeight, 72), 260) + "px";
+}
+
+function setStatus(title, detail) {
+  statusTitle.textContent = title;
+  statusText.textContent = detail;
+}
+
+function scrollToTarget(target) {
+  target.scrollIntoView({ behavior: "smooth", block: "center" });
+}
+
+function setActive(field) {
+  for (const target of targets) {
+    target.classList.toggle("is-active", target.dataset.field === field);
+  }
+
+  for (const [name, card] of fieldCardMap.entries()) {
+    card.classList.toggle("is-active", name === field);
+  }
+}
+
+function saveDraft(label = "Draft saved.") {
+  const snapshot = readStateFromDom();
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(snapshot));
+  const savedAt = new Date(snapshot.savedAt);
+  setStatus("Saved", `${label} ${savedAt.toLocaleString()}`);
+}
+
+function scheduleSave() {
+  window.clearTimeout(saveTimer);
+  saveTimer = window.setTimeout(() => saveDraft("Auto-saved."), 300);
+}
+
+function syncInputsFromDom() {
+  for (const [field, textarea] of inputMap.entries()) {
+    const target = targetMap.get(field);
+    if (!target) {
+      continue;
+    }
+    textarea.value = serializeTarget(target);
+    fitTextarea(textarea);
+  }
+}
+
+function downloadJson(filename, content) {
+  const blob = new Blob([content], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.download = filename;
+  document.body.append(anchor);
+  anchor.click();
+  anchor.remove();
+  URL.revokeObjectURL(url);
+}
+
+function buildEditorFields() {
+  for (const target of fieldTargets) {
+    const field = target.dataset.field;
+    const card = document.createElement("section");
+    card.className = "editor-field";
+    card.dataset.field = field;
+
+    const header = document.createElement("div");
+    header.className = "editor-field-header";
+
+    const heading = document.createElement("div");
+    const title = document.createElement("strong");
+    title.textContent = target.dataset.label || field;
+    const sub = document.createElement("small");
+    sub.textContent = "Live text block";
+    heading.append(title, sub);
+
+    const jumpButton = document.createElement("button");
+    jumpButton.type = "button";
+    jumpButton.textContent = "Jump";
+    jumpButton.addEventListener("click", () => {
+      setActive(field);
+      scrollToTarget(target);
+    });
+
+    header.append(heading, jumpButton);
+
+    const textarea = document.createElement("textarea");
+    textarea.value = serializeTarget(target);
+    textarea.spellcheck = false;
+    textarea.addEventListener("focus", () => {
+      setActive(field);
+      scrollToTarget(target);
+    });
+    textarea.addEventListener("input", () => {
+      applyTargetValue(target, textarea.value);
+      fitTextarea(textarea);
+      setActive(field);
+      scheduleSave();
+    });
+
+    target.tabIndex = 0;
+    target.addEventListener("click", () => {
+      setActive(field);
+      textarea.focus();
+      scrollToTarget(target);
+    });
+    target.addEventListener("focus", () => {
+      setActive(field);
+      textarea.focus();
+    });
+
+    fitTextarea(textarea);
+
+    card.append(header, textarea);
+    editorRoot.append(card);
+    inputMap.set(field, textarea);
+    fieldCardMap.set(field, card);
+  }
+}
+
+function loadDraftIfPresent() {
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if (!raw) {
+    setStatus("Ready", "Using the original content.");
+    return;
+  }
+
+  try {
+    const parsed = JSON.parse(raw);
+    applyState(parsed);
+    const savedAt = parsed.savedAt ? new Date(parsed.savedAt) : null;
+    setStatus("Loaded draft", savedAt ? `Restored local draft from ${savedAt.toLocaleString()}.` : "Restored local draft.");
+  } catch (error) {
+    console.error(error);
+    setStatus("Draft skipped", "Stored draft could not be read, so the original content is shown.");
+  }
+}
+
+buildEditorFields();
+loadDraftIfPresent();
+
+if (tableTarget) {
+  tableTarget.addEventListener("input", () => {
+    setActive("props-table");
+    scheduleSave();
+  });
+  tableTarget.addEventListener("focus", () => setActive("props-table"));
+  tableTarget.addEventListener("click", () => setActive("props-table"));
+}
+
+document.getElementById("saveButton").addEventListener("click", () => {
+  saveDraft("Draft saved manually.");
+});
+
+document.getElementById("printButton").addEventListener("click", () => {
+  window.print();
+});
+
+document.getElementById("exportButton").addEventListener("click", () => {
+  const snapshot = readStateFromDom();
+  downloadJson("dowsil-tc-5888-draft.json", JSON.stringify(snapshot, null, 2));
+  setStatus("Exported", "Current content was exported as JSON.");
+});
+
+document.getElementById("importButton").addEventListener("click", () => {
+  importInput.click();
+});
+
+document.getElementById("resetButton").addEventListener("click", () => {
+  const confirmed = window.confirm("Reset all text blocks back to the original content?");
+  if (!confirmed) {
+    return;
+  }
+  applyState(defaultState);
+  localStorage.removeItem(STORAGE_KEY);
+  setActive("");
+  setStatus("Reset", "Original content restored and local draft cleared.");
+});
+
+function focusTable() {
+  if (!tableTarget) {
+    return;
+  }
+  setActive("props-table");
+  scrollToTarget(tableTarget);
+  tableTarget.focus();
+}
+
+document.getElementById("focusTableButton").addEventListener("click", focusTable);
+document.getElementById("focusTableInlineButton").addEventListener("click", focusTable);
+
+importInput.addEventListener("change", async () => {
+  const [file] = importInput.files || [];
+  if (!file) {
+    return;
+  }
+
+  try {
+    const text = await file.text();
+    const parsed = JSON.parse(text);
+    applyState(parsed);
+    saveDraft("Imported JSON and saved.");
+  } catch (error) {
+    console.error(error);
+    window.alert("Import failed. Expected a JSON file exported from this editor.");
+  } finally {
+    importInput.value = "";
+  }
+});
+</script>
+</body>
+</html>

@@ -57,3 +57,5 @@
 # SEO
 !robots.txt
 !sitemap.xml
+!pdf-dowsil-editor/
+!pdf-dowsil-editor/**
