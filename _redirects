@@ -18,7 +18,6 @@
 /auto-policy-timeline/*    /kids-education/auto-policy-timeline/:splat 301
 
 # Retired public pages now redirect to home
-/terminal.html             / 301
 /monitoring.html           / 301
 /nexus.html                / 301
 /nexus-jd.html             / 301
