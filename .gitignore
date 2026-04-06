@@ -59,3 +59,8 @@
 !sitemap.xml
 !pdf-dowsil-editor/
 !pdf-dowsil-editor/**
+
+# Dev setup page & scripts
+!setup.html
+!setup/
+!setup/**

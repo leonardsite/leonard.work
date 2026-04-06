@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dev Setup — leonard.work</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'JetBrains Mono', 'SF Mono', monospace; background: #0a0a0a; color: #e0e0e0; padding: 2rem; max-width: 900px; margin: 0 auto; }
+  h1 { color: #7aa2f7; margin-bottom: 0.5rem; }
+  .subtitle { color: #565f89; margin-bottom: 2rem; }
+  h2 { color: #bb9af7; margin: 2rem 0 1rem; border-bottom: 1px solid #222; padding-bottom: 0.5rem; }
+  h3 { color: #9ece6a; margin: 1.5rem 0 0.5rem; }
+
+  .one-liner {
+    background: #1a1b26; border: 1px solid #292e42; border-radius: 8px;
+    padding: 1rem; margin: 1rem 0; position: relative; cursor: pointer;
+    transition: border-color 0.2s;
+  }
+  .one-liner:hover { border-color: #7aa2f7; }
+  .one-liner code { color: #a9b1d6; font-size: 0.9rem; word-break: break-all; }
+  .one-liner .copy-btn {
+    position: absolute; top: 0.5rem; right: 0.5rem;
+    background: #292e42; color: #7aa2f7; border: none; border-radius: 4px;
+    padding: 4px 10px; cursor: pointer; font-size: 0.75rem; font-family: inherit;
+  }
+  .one-liner .copy-btn:hover { background: #3b4261; }
+  .one-liner .copy-btn.copied { color: #9ece6a; }
+
+  .section { margin: 1.5rem 0; }
+  .tag { display: inline-block; background: #292e42; color: #7aa2f7; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; margin-right: 4px; }
+  .tag.mac { color: #f7768e; }
+  .tag.ubuntu { color: #ff9e64; }
+  .tag.wsl { color: #9ece6a; }
+
+  .download-btn {
+    display: inline-block; background: #7aa2f7; color: #1a1b26; padding: 0.75rem 2rem;
+    border-radius: 8px; text-decoration: none; font-weight: bold; margin: 0.5rem 0.5rem 0.5rem 0;
+    transition: background 0.2s;
+  }
+  .download-btn:hover { background: #89b4fa; }
+
+  table { width: 100%; border-collapse: collapse; margin: 1rem 0; }
+  th, td { padding: 0.5rem; text-align: left; border-bottom: 1px solid #222; }
+  th { color: #7aa2f7; }
+
+  .note { color: #565f89; font-size: 0.85rem; margin-top: 0.5rem; }
+
+  @media print {
+    body { background: #fff !important; color: #000 !important; }
+    .copy-btn { display: none; }
+    .one-liner { background: #f5f5f5 !important; border-color: #ccc !important; }
+    .one-liner code { color: #333 !important; }
+  }
+</style>
+</head>
+<body>
+
+<h1>⚡ Dev Setup</h1>
+<p class="subtitle">leonard.work — 一键装机 & 快捷命令</p>
+
+<!-- ===== 一键装机 ===== -->
+<h2>🚀 一键装机</h2>
+<p>下载脚本后运行，自动检测平台：</p>
+
+<div class="one-liner" onclick="copyCmd(this)">
+  <code>curl -fsSL https://leonard.work/setup/setup.sh | bash</code>
+  <button class="copy-btn">复制</button>
+</div>
+
+<p>或指定平台：</p>
+<div class="one-liner" onclick="copyCmd(this)">
+  <code>curl -fsSL https://leonard.work/setup/setup.sh -o setup.sh && bash setup.sh wsl</code>
+  <button class="copy-btn">复制</button>
+</div>
+<div class="one-liner" onclick="copyCmd(this)">
+  <code>curl -fsSL https://leonard.work/setup/setup.sh -o setup.sh && bash setup.sh ubuntu</code>
+  <button class="copy-btn">复制</button>
+</div>
+<div class="one-liner" onclick="copyCmd(this)">
+  <code>curl -fsSL https://leonard.work/setup/setup.sh -o setup.sh && bash setup.sh mac</code>
+  <button class="copy-btn">复制</button>
+</div>
+
+<a class="download-btn" href="/setup/setup.sh" download>📥 下载 setup.sh</a>
+<a class="download-btn" href="/setup/hub-skills.tar.gz" download>📦 Hub Skills</a>
+
+<!-- ===== Shell 工具 ===== -->
+<h2>🐚 Shell 工具</h2>
+
+<h3>Oh My Zsh + 插件</h3>
+<div class="one-liner" onclick="copyCmd(this)">
+  <code>sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"</code>
+  <button class="copy-btn">复制</button>
+</div>
+<div class="one-liner" onclick="copyCmd(this)">
+  <code>git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions && git clone https://github.com/zsh-users/zsh-syntax-highlighting ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting && git clone https://github.com/zsh-users/zsh-completions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-completions</code>
+  <button class="copy-btn">复制</button>
+</div>
+
+<h3>Starship</h3>
+<div class="one-liner" onclick="copyCmd(this)">
+  <code>curl -sS https://starship.rs/install.sh | sh</code>
+  <button class="copy-btn">复制</button>
+</div>
+
+<h3>Zoxide</h3>
+<div class="one-liner" onclick="copyCmd(this)">
+  <code>curl -sSfL https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | sh</code>
+  <button class="copy-btn">复制</button>
+</div>
+
+<!-- ===== SDK ===== -->
+<h2>📦 SDK & 语言</h2>
+
+<h3>NVM + Node.js</h3>
+<div class="one-liner" onclick="copyCmd(this)">
+  <code>curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash && source ~/.nvm/nvm.sh && nvm install --lts</code>
+  <button class="copy-btn">复制</button>
+</div>
+
+<h3>Rust</h3>
+<div class="one-liner" onclick="copyCmd(this)">
+  <code>curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y && source ~/.cargo/env</code>
+  <button class="copy-btn">复制</button>
+</div>
+
+<h3>uv (Python)</h3>
+<div class="one-liner" onclick="copyCmd(this)">
+  <code>curl -LsSf https://astral.sh/uv/install.sh | sh</code>
+  <button class="copy-btn">复制</button>
+</div>
+
+<!-- ===== AI 工具 ===== -->
+<h2>🤖 AI 工具</h2>
+
+<h3>Claude Code</h3>
+<div class="one-liner" onclick="copyCmd(this)">
+  <code>npm install -g @anthropic-ai/claude-code</code>
+  <button class="copy-btn">复制</button>
+</div>
+
+<h3>Codex CLI</h3>
+<div class="one-liner" onclick="copyCmd(this)">
+  <code>npm install -g @openai/codex</code>
+  <button class="copy-btn">复制</button>
+</div>
+
+<h3>Gemini CLI</h3>
+<div class="one-liner" onclick="copyCmd(this)">
+  <code>npm install -g @anthropic-ai/gemini-cli</code>
+  <button class="copy-btn">复制</button>
+</div>
+
+<!-- ===== GUI 应用 ===== -->
+<h2>🖥️ 桌面应用</h2>
+
+<h3><span class="tag wsl">WSL/Windows</span> winget 批量安装</h3>
+<div class="one-liner" onclick="copyCmd(this)">
+  <code>winget install Google.Chrome Tencent.WeChat WhatsApp.WhatsApp Anthropic.Claude Microsoft.VisualStudioCode wez.wezterm Docker.DockerDesktop Telegram.TelegramDesktop Discord.Discord Microsoft.PowerToys Obsidian.Obsidian --accept-package-agreements --accept-source-agreements</code>
+  <button class="copy-btn">复制</button>
+</div>
+
+<h3><span class="tag mac">Mac</span> brew cask 批量安装</h3>
+<div class="one-liner" onclick="copyCmd(this)">
+  <code>brew install --cask google-chrome wechat whatsapp claude visual-studio-code wezterm docker telegram discord raycast alt-tab stats iina the-unarchiver obsidian</code>
+  <button class="copy-btn">复制</button>
+</div>
+
+<h3><span class="tag ubuntu">Ubuntu</span> 常用应用</h3>
+<div class="one-liner" onclick="copyCmd(this)">
+  <code>wget -qO /tmp/chrome.deb https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb && sudo dpkg -i /tmp/chrome.deb; sudo snap install telegram-desktop discord obsidian</code>
+  <button class="copy-btn">复制</button>
+</div>
+
+<!-- ===== 别名 ===== -->
+<h2>⌨️ Aliases</h2>
+<table>
+  <tr><th>别名</th><th>命令</th></tr>
+  <tr><td><code>cl</code></td><td>claude --dangerously-skip-permissions</td></tr>
+  <tr><td><code>co</code></td><td>codex --dangerously-bypass-approvals-and-sandbox</td></tr>
+  <tr><td><code>gm</code></td><td>gemini</td></tr>
+  <tr><td><code>ll</code></td><td>eza -la --icons --git</td></tr>
+  <tr><td><code>lt</code></td><td>eza --tree --level=2 --icons</td></tr>
+  <tr><td><code>gs</code></td><td>git status</td></tr>
+  <tr><td><code>gp</code></td><td>git pull</td></tr>
+  <tr><td><code>gd</code></td><td>git diff</td></tr>
+  <tr><td><code>gl</code></td><td>git log --oneline --graph --decorate -20</td></tr>
+</table>
+
+<!-- ===== SSH ===== -->
+<h2>🔑 SSH 快速配置</h2>
+<div class="one-liner" onclick="copyCmd(this)">
+  <code>ssh-keygen -t ed25519 -C "dinggege125@gmail.com" -f ~/.ssh/id_ed25519 -N ""</code>
+  <button class="copy-btn">复制</button>
+</div>
+<div class="one-liner" onclick="copyCmd(this)">
+  <code>cat ~/.ssh/id_ed25519.pub | pbcopy  # Mac: 复制公钥到剪贴板</code>
+  <button class="copy-btn">复制</button>
+</div>
+
+<!-- ===== Git ===== -->
+<h2>🔧 Git 配置</h2>
+<div class="one-liner" onclick="copyCmd(this)">
+  <code>git config --global user.name "Shuaige121" && git config --global user.email "dinggege125@gmail.com"</code>
+  <button class="copy-btn">复制</button>
+</div>
+
+<p class="note">最后更新: 2026-04-07 · <a href="https://github.com/shuaige121" style="color:#7aa2f7">GitHub</a></p>
+
+<script>
+function copyCmd(el) {
+  const code = el.querySelector('code').textContent;
+  navigator.clipboard.writeText(code).then(() => {
+    const btn = el.querySelector('.copy-btn');
+    btn.textContent = '已复制 ✓';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = '复制'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+</script>
+</body>
+</html>
