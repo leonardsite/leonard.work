@@ -296,10 +296,11 @@ STARSHIP
 ok "starship.toml"
 
 # .gitconfig
-git config --global user.name "Shuaige121"
-git config --global user.email "dinggege125@gmail.com"
+echo "  Configure git manually:"
+echo "    git config --global user.name \"YOUR_NAME\""
+echo "    git config --global user.email \"YOUR_EMAIL\""
 git config --global core.excludesfile "$HOME/.gitignore_global"
-ok ".gitconfig"
+ok ".gitconfig (excludesfile only)"
 
 # .gitignore_global
 cat > "$HOME/.gitignore_global" << 'GITIGNORE'
@@ -318,45 +319,15 @@ node_modules/
 GITIGNORE
 ok ".gitignore_global"
 
-# SSH config
+# SSH key (if missing)
 mkdir -p "$HOME/.ssh" && chmod 700 "$HOME/.ssh"
-if [ ! -f "$HOME/.ssh/config" ]; then
-    cat > "$HOME/.ssh/config" << 'SSHCONF'
-Host gpu13
-    HostName 192.168.7.13
-    User leonard
-    IdentityFile ~/.ssh/id_ed25519
-    ForwardAgent yes
-
-Host gpu19 nas
-    HostName 192.168.7.19
-    User root
-    IdentityFile ~/.ssh/id_ed25519
-    ForwardAgent yes
-
-Host mac
-    HostName 192.168.7.25
-    User leonard
-    IdentityFile ~/.ssh/id_ed25519
-
-Host *
-    ServerAliveInterval 60
-    ServerAliveCountMax 3
-    AddKeysToAgent yes
-SSHCONF
-    chmod 600 "$HOME/.ssh/config"
-    ok "SSH config"
-else
-    warn "SSH config exists, skipped"
-fi
-
-# Generate SSH key if missing
 if [ ! -f "$HOME/.ssh/id_ed25519" ]; then
-    ssh-keygen -t ed25519 -C "dinggege125@gmail.com" -f "$HOME/.ssh/id_ed25519" -N ""
+    ssh-keygen -t ed25519 -f "$HOME/.ssh/id_ed25519" -N ""
     ok "SSH key generated — add to GitHub: cat ~/.ssh/id_ed25519.pub"
 else
     warn "SSH key exists"
 fi
+echo "  Tip: SSH config (hosts, IPs) should be configured manually"
 
 # ============================================================
 # 7. Claude Code + Codex configs
