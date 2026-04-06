@@ -155,9 +155,9 @@ ok "SDKs"
 # ============================================================
 echo -e "\n${Y}[5/8] AI tools${NC}"
 
-# Claude Code
+# Claude Code (standalone binary)
 if ! command -v claude >/dev/null; then
-    npm install -g @anthropic-ai/claude-code && ok "Claude Code installed"
+    curl -fsSL https://cli.claude.ai/install.sh | sh && ok "Claude Code installed"
 else
     ok "Claude Code $(claude --version 2>/dev/null)"
 fi
@@ -562,6 +562,6 @@ echo "     claude login"
 echo "     codex login"
 echo "     gh auth login"
 echo "  3. Copy SSH key to servers:"
-echo "     ssh-copy-id YOUR_SERVER"
-echo "     ssh-copy-id YOUR_NAS"
+echo "     ssh-copy-id gpu13"
+echo "     ssh-copy-id nas"
 echo ""
